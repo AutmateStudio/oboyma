@@ -3,295 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обойма Лаб | AI Архитектура</title>
+    <title>Обойма Лаб | AI OS v3.0</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
-        /* --- SPATIAL VARIABLES --- */
+        /* --- CORE --- */
         :root {
-            --bg: #000000;
-            --text: #ffffff;
-            --text-dim: #a1a1aa;
             --primary: #00ffcc;
-            --accent: #7000ff;
-            --glass: rgba(25, 25, 30, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --font-main: 'Inter', -apple-system, sans-serif;
+            --accent: #b026ff;
+            --bg: #030305;
+            --glass: rgba(10, 10, 15, 0.4);
+            --border: rgba(0, 255, 204, 0.2);
+            --font-main: 'Inter', sans-serif;
             --font-mono: 'Space Mono', monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-        body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body { background: var(--bg); color: #fff; font-family: var(--font-main); overflow-x: hidden; }
 
-        /* --- MAGNETIC CURSOR --- */
-        .cursor { position: fixed; top: 0; left: 0; width: 12px; height: 12px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background 0.3s; mix-blend-mode: exclusion; }
-        .cursor.active { width: 80px; height: 80px; background: var(--primary); mix-blend-mode: normal; opacity: 0.5; filter: blur(10px); }
+        /* --- КУРСОР --- */
+        .cursor-dot { position: fixed; width: 4px; height: 4px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); box-shadow: 0 0 10px #fff; }
+        .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--primary); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: screen; }
+        .cursor-ring.active { width: 80px; height: 80px; background: rgba(0, 255, 204, 0.1); border-color: transparent; }
 
-        /* --- SPATIAL MESH BACKGROUND --- */
-        .mesh-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: #000; }
-        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.6; will-change: transform; }
-        .orb-1 { width: 40vw; height: 40vw; background: rgba(0, 255, 204, 0.3); top: 0; left: 0; }
-        .orb-2 { width: 50vw; height: 50vw; background: rgba(112, 0, 255, 0.2); bottom: 0; right: 0; }
-        .orb-3 { width: 30vw; height: 30vw; background: rgba(0, 150, 255, 0.2); top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .grid-overlay { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--glass-border) 1px, transparent 1px), linear-gradient(90deg, var(--glass-border) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.2; mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%); pointer-events: none; }
+        /* --- 3D CANVAS --- */
+        #webgl-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
 
-        /* --- LAYOUT --- */
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 4vw; }
-        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; padding: 100px 0; }
+        /* --- BOOT SEQUENCE --- */
+        #boot-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: var(--font-mono); color: var(--primary); font-size: 14px; }
+        .progress-bar { width: 300px; height: 2px; background: #222; margin-top: 20px; position: relative; overflow: hidden; }
+        .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--primary); box-shadow: 0 0 20px var(--primary); }
+
+        /* --- UI LAYOUT --- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 4vw; position: relative; z-index: 10; }
+        section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 0; }
         
-        h1 { font-size: clamp(4rem, 10vw, 8rem); font-weight: 900; line-height: 0.9; letter-spacing: -0.05em; text-transform: uppercase; }
-        h2 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 2rem; }
-        .gradient-text { background: linear-gradient(135deg, #fff 0%, #777 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .mono-tag { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 20px; display: inline-block; }
+        h1 { font-size: clamp(4rem, 8vw, 7rem); font-weight: 900; line-height: 0.9; text-transform: uppercase; margin-bottom: 30px; }
+        .glitch-text { position: relative; display: inline-block; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 50px; }
 
-        /* --- HEADER --- */
-        header { position: fixed; top: 0; width: 100%; padding: 20px 4vw; z-index: 100; mix-blend-mode: difference; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 900; font-size: 24px; letter-spacing: -1px; }
+        /* --- HEADER HUD --- */
+        header { position: fixed; top: 0; width: 100%; padding: 20px 4vw; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); backdrop-filter: blur(5px); }
+        .logo { font-weight: 900; font-size: 20px; letter-spacing: 2px; display: flex; align-items: center; gap: 15px; }
+        .logo-box { width: 24px; height: 24px; border: 2px solid var(--primary); display: flex; justify-content: center; align-items: center; animation: spin 5s linear infinite; }
+        .logo-box::inner { content: ''; width: 10px; height: 10px; background: var(--primary); }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- HOLOGRAPHIC BENTO GRID --- */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .holo-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 40px; position: relative; overflow: hidden; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.4s ease, border-color 0.4s ease; display: flex; flex-direction: column; }
+        .holo-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); z-index: 0; pointer-events: none; }
+        .holo-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--primary); box-shadow: 0 20px 50px rgba(0, 255, 204, 0.2); }
+        .card-content { position: relative; z-index: 1; }
         
-        /* --- BENTO BOX GRID --- */
-        .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 350px; gap: 20px; }
-        .bento-item { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 30px; padding: 40px; position: relative; overflow: hidden; backdrop-filter: blur(20px); display: flex; flex-direction: column; justify-content: space-between; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .bento-item:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .holo-title { font-size: 32px; font-weight: 800; margin-bottom: 15px; background: linear-gradient(90deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .holo-desc { color: #aaa; font-size: 16px; line-height: 1.6; }
         
-        /* Размеры Bento ячеек */
-        .bento-large { grid-column: span 2; grid-row: span 2; background: linear-gradient(135deg, rgba(25,25,30,0.8), rgba(0,0,0,0.9)); }
-        .bento-wide { grid-column: span 2; grid-row: span 1; }
-        .bento-tall { grid-column: span 1; grid-row: span 2; }
-        .bento-small { grid-column: span 1; grid-row: span 1; }
+        .tag { display: inline-block; padding: 5px 12px; border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-size: 12px; border-radius: 20px; margin-bottom: 20px; }
 
-        .bento-icon { font-size: 40px; margin-bottom: 20px; }
-        .bento-title { font-size: 28px; font-weight: 700; margin-bottom: 10px; }
-        .bento-desc { color: var(--text-dim); font-size: 16px; line-height: 1.5; }
+        /* --- INTERACTIVE ROI SLIDER --- */
+        .roi-panel { background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 30px; padding: 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; backdrop-filter: blur(20px); }
+        .slider-wrap { margin-bottom: 40px; position: relative; }
+        input[type=range] { -webkit-appearance: none; width: 100%; height: 2px; background: #444; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--primary); border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px var(--primary); transition: 0.2s; transform: scale(1); }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.5); }
+        .roi-output { font-size: 80px; font-weight: 900; line-height: 1; color: var(--primary); text-shadow: 0 0 30px var(--primary-glow); font-family: var(--font-mono); }
 
-        /* --- SVG DATA PIPELINE --- */
-        #pipeline { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: var(--glass-border); z-index: -1; transform: translateX(-50%); }
-        #data-packet { width: 4px; height: 100px; background: var(--primary); box-shadow: 0 0 20px var(--primary); position: absolute; top: 0; left: -1px; border-radius: 10px; }
-
-        /* --- INTERACTIVE AI TERMINAL --- */
-        .terminal { background: #050505; border: 1px solid #333; border-radius: 20px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; height: 100%; position: relative; }
-        .term-header { background: #111; padding: 15px 20px; display: flex; gap: 8px; border-bottom: 1px solid #222; }
-        .term-dot { width: 12px; height: 12px; border-radius: 50%; background: #444; }
-        .term-dot:nth-child(1) { background: #ff5f56; } .term-dot:nth-child(2) { background: #ffbd2e; } .term-dot:nth-child(3) { background: #27c93f; }
-        .term-body { padding: 30px; font-family: var(--font-mono); font-size: 14px; line-height: 1.6; color: var(--primary); flex: 1; overflow: hidden; }
-        .typing-cursor::after { content: '█'; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* --- FORM & FOOTER --- */
-        .huge-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid #333; font-size: clamp(2rem, 4vw, 4rem); font-weight: 900; color: #fff; padding: 20px 0; outline: none; transition: 0.3s; margin-bottom: 40px; }
-        .huge-input:focus { border-color: var(--primary); }
-        .huge-input::placeholder { color: #333; }
-        
-        .magnet-btn { display: inline-flex; justify-content: center; align-items: center; width: 180px; height: 180px; background: var(--primary); color: #000; border-radius: 50%; font-weight: 900; font-size: 18px; text-transform: uppercase; text-decoration: none; transition: transform 0.1s; will-change: transform; }
+        /* --- BUTTONS --- */
+        .cyber-btn { position: relative; display: inline-flex; align-items: center; padding: 20px 40px; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.2); font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; text-decoration: none; overflow: hidden; transition: 0.3s; }
+        .cyber-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--primary); z-index: -1; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+        .cyber-btn:hover { color: #000; border-color: var(--primary); box-shadow: 0 0 30px var(--primary-glow); }
+        .cyber-btn:hover::before { left: 0; }
 
         @media (max-width: 1024px) {
-            .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
-            .bento-large, .bento-wide, .bento-tall, .bento-small { grid-column: span 1; grid-row: auto; min-height: 300px; }
-            #pipeline { display: none; }
+            .bento-grid, .roi-panel { grid-template-columns: 1fr; }
+            h1 { font-size: 48px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="mesh-bg">
-        <div class="orb orb-1" id="orb1"></div>
-        <div class="orb orb-2" id="orb2"></div>
-        <div class="orb orb-3" id="orb3"></div>
+    <div id="boot-screen">
+        <div id="boot-text">OBOYMA_LAB KERNEL v4.0.1 INITIALIZING...</div>
+        <div class="progress-bar"><div class="progress-fill" id="boot-fill"></div></div>
     </div>
-    <div class="grid-overlay"></div>
 
-    <div class="cursor" id="cursor"></div>
+    <canvas id="webgl-canvas"></canvas>
 
-    <div id="pipeline"><div id="data-packet"></div></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
 
-    <header>
-        <div class="logo">OBOYMA</div>
-        <div class="mono-tag" style="margin: 0; color: #fff;">SYS.STATUS: ONLINE</div>
+    <header class="gsap-fade">
+        <div class="logo sound-hover">
+            <div class="logo-box"></div> OBOYMA_LAB
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: var(--primary);">> AUDIO: ENABLED</div>
     </header>
 
     <main>
-        <section class="section" id="hero">
-            <div class="container">
-                <div class="mono-tag hero-elem">> ИНИЦИАЛИЗАЦИЯ ИИ</div>
-                <h1 class="hero-elem">ИНТЕЛЛЕКТ,<br><span class="gradient-text">РАБОТАЮЩИЙ НА</span><br>БИЗНЕС</h1>
-                <p class="hero-elem" style="font-size: 24px; color: var(--text-dim); max-width: 600px; margin-top: 40px; line-height: 1.5;">
-                    Мы разрабатываем кастомные LLM-решения, автоматизируем рутину и инкубируем ИТ-стартапы до первых продаж.
+        <section class="container" id="hero">
+            <div>
+                <div class="tag gsap-fade">> ИИ-АРХИТЕКТУРА ДЛЯ БИЗНЕСА</div>
+                <h1 class="glitch-text gsap-fade">СИНТЕЗ<br>АЛГОРИТМОВ<br>И ПРИБЫЛИ.</h1>
+                <p class="gsap-fade" style="font-size: 24px; color: #aaa; max-width: 700px; margin-bottom: 50px; line-height: 1.6;">
+                    Мы разрабатываем кастомные LLM-модели, автоматизируем операционку и доводим стартапы от идеи до первых продаж в нашем ИТ-инкубаторе.
                 </p>
+                <div class="gsap-fade">
+                    <a href="#products" class="cyber-btn sound-hover">Инициализация систем</a>
+                </div>
             </div>
         </section>
 
-        <section class="section" id="solutions">
-            <div class="container">
-                <div class="mono-tag">> АРХИТЕКТУРА РЕШЕНИЙ</div>
-                <h2 class="gradient-text">Наши Продукты</h2>
+        <section class="container" id="products">
+            <h2 class="gsap-fade">ЭКОСИСТЕМА РЕШЕНИЙ</h2>
+            <div class="bento-grid">
                 
-                <div class="bento-grid">
-                    <div class="bento-item bento-large interactive-hover">
-                        <div style="position: absolute; inset: 0; z-index: 0; background: radial-gradient(circle at top right, rgba(0,255,204,0.1), transparent 50%);"></div>
-                        <div style="z-index: 1;">
-                            <div class="bento-icon">🧠</div>
-                            <div class="bento-title">«Верочка» / EventGate</div>
-                            <div class="bento-desc" style="max-width: 80%;">Нейро-секретарь. Управляет календарем, понимает голос, регистрирует клиентов и принимает оплаты.</div>
+                <div class="holo-card sound-hover gsap-card">
+                    <div class="card-content">
+                        <div class="tag">01 // ASSISTANT</div>
+                        <h3 class="holo-title">«Верочка»</h3>
+                        <p class="holo-desc">Нейро-секретарь. Понимает контекст и голос. Управляет календарем, планирует встречи и подстраивает тон под клиента. Заменяет целый отдел координаторов.</p>
+                        <div style="display: flex; gap: 4px; height: 30px; align-items: flex-end; margin-top: 30px;">
+                            <div style="width: 4px; background: var(--primary); height: 100%; animation: wave 1s infinite alternate;"></div>
+                            <div style="width: 4px; background: var(--primary); height: 60%; animation: wave 1.2s infinite alternate;"></div>
+                            <div style="width: 4px; background: var(--primary); height: 80%; animation: wave 0.8s infinite alternate;"></div>
+                            <div style="width: 4px; background: var(--primary); height: 40%; animation: wave 1.5s infinite alternate;"></div>
+                            <div style="width: 4px; background: var(--primary); height: 90%; animation: wave 0.9s infinite alternate;"></div>
                         </div>
-                        <div class="terminal" style="margin-top: 30px; height: 300px; z-index: 1;">
-                            <div class="term-header">
-                                <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
-                            </div>
-                            <div class="term-body" id="term-typing">
-                                </div>
+                        <style>@keyframes wave { 0% { height: 20%; } 100% { height: 100%; } }</style>
+                    </div>
+                </div>
+
+                <div class="holo-card sound-hover gsap-card">
+                    <div class="card-content">
+                        <div class="tag">02 // LEAD GEN</div>
+                        <h3 class="holo-title">«Лидочка»</h3>
+                        <p class="holo-desc">Сканнер рынка. Мониторит тысячи тематических TG-чатов, отсеивает спам через LLM и доставляет горячие лиды (тех, кто ищет ваш продукт прямо сейчас) прямо в CRM.</p>
+                        <div style="margin-top: 30px; border-top: 1px solid #333; padding-top: 15px; font-family: var(--font-mono); font-size: 12px; color: var(--primary);">> MATCH FOUND: 142 LEADS</div>
+                    </div>
+                </div>
+
+                <div class="holo-card sound-hover gsap-card">
+                    <div class="card-content">
+                        <div class="tag" style="border-color: var(--accent); color: var(--accent);">03 // CUSTOM LLM</div>
+                        <h3 class="holo-title">Проект Alibi</h3>
+                        <p class="holo-desc">Разработка сложной RAG-архитектуры. ИИ-ассистент для детективного квеста. Отыгрывает роль, ведет сюжет, выдает зацепки по геолокации и отрабатывает возражения игроков.</p>
+                    </div>
+                </div>
+
+                <div class="holo-card sound-hover gsap-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(0,255,204,0.1), transparent);">
+                    <div class="card-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
+                        <div style="max-width: 600px;">
+                            <div class="tag">04 // STARTUP LAB</div>
+                            <h3 class="holo-title" style="font-size: 48px;">IT-ИНКУБАТОР</h3>
+                            <p class="holo-desc" style="font-size: 18px;">Хватит пилить пет-проекты в стол. Мы берем перспективные идеи разработчиков, закрываем вопросы менеджмента, ресурсов и упаковки, доводя продукт до MVP за 30 дней.</p>
                         </div>
+                        <a href="#form" class="cyber-btn sound-hover">Подать проект</a>
                     </div>
+                </div>
 
-                    <div class="bento-item bento-wide interactive-hover">
-                        <div class="bento-icon">🎯</div>
-                        <div>
-                            <div class="bento-title">«Лидочка»</div>
-                            <div class="bento-desc">Умный лидопоисковик. Мониторит тысячи TG-чатов, фильтрует спам и выгружает контакты с горячим спросом вам в CRM.</div>
+            </div>
+        </section>
+
+        <section class="container" id="roi">
+            <h2 class="gsap-fade">ПРОГНОЗ ЭКОНОМИКИ</h2>
+            <div class="roi-panel gsap-fade">
+                <div>
+                    <div class="slider-wrap sound-hover">
+                        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); margin-bottom: 20px;">
+                            <span>ШТАТ СОТРУДНИКОВ</span> <span id="val-emp" style="color: var(--primary);">15</span>
                         </div>
-                        <div style="height: 4px; width: 100%; background: #222; margin-top: 20px; border-radius: 2px; overflow: hidden; position: relative;">
-                            <div style="position: absolute; top:0; left:0; height:100%; width: 30%; background: var(--primary); animation: scanLine 2s infinite ease-in-out alternate;"></div>
+                        <input type="range" id="inp-emp" min="1" max="100" value="15">
+                    </div>
+                    <div class="slider-wrap sound-hover">
+                        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); margin-bottom: 20px;">
+                            <span>СРЕДНЯЯ ЗП (ТЫС. РУБ)</span> <span id="val-sal" style="color: var(--primary);">100k</span>
                         </div>
-                        <style>@keyframes scanLine { 100% { left: 70%; } }</style>
+                        <input type="range" id="inp-sal" min="40" max="300" step="10" value="100">
                     </div>
-
-                    <div class="bento-item bento-tall interactive-hover" style="background: var(--primary); color: #000;">
-                        <div class="bento-icon">🚀</div>
-                        <div class="bento-title" style="font-size: 40px; line-height: 1.1;">IT Инкубатор</div>
-                        <div class="bento-desc" style="color: rgba(0,0,0,0.7); margin-top: auto;">Хватит пилить пет-проект в стол. Даем ресурсы, берем проджект-менеджмент на себя и доводим стартап до MVP.</div>
-                    </div>
-
-                    <div class="bento-item bento-small interactive-hover">
-                        <div class="bento-title" style="font-size: 20px;">Проект "Alibi"</div>
-                        <div class="bento-desc" style="font-size: 14px;">Кастомная LLM для иммерсивного детективного квеста. Отыгрыш ролей и удержание контекста расследования.</div>
-                    </div>
-
-                    <div class="bento-item bento-small interactive-hover" style="border-color: var(--accent);">
-                        <div class="bento-title" style="font-size: 20px; color: var(--accent);">35%</div>
-                        <div class="bento-desc" style="font-size: 14px;">Времени команды высвобождается при внедрении ИИ агентов.</div>
-                    </div>
+                    <p style="color: #666; font-size: 14px; margin-top: 40px;">ИИ-агенты забирают до 35% рутины: от квалификации лидов до расписания.</p>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center; border-left: 1px solid #333; padding-left: 40px;">
+                    <div style="font-family: var(--font-mono); color: #888; font-size: 14px; margin-bottom: 10px;">> СОХРАНЕННЫЙ БЮДЖЕТ (ГОД)</div>
+                    <div class="roi-output" id="out-money">8.19M ₽</div>
+                    
+                    <div style="margin-top: 40px; font-family: var(--font-mono); color: #888; font-size: 14px; margin-bottom: 10px;">> ВЫСВОБОЖДЕНО ЧАСОВ (МЕС)</div>
+                    <div class="roi-output" id="out-hours" style="font-size: 40px; color: #fff; text-shadow: none;">840</div>
                 </div>
             </div>
         </section>
 
-        <section class="section" id="contact" style="background: #000;">
-            <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 60px;">
-                <div style="flex: 1; min-width: 300px;">
-                    <div class="mono-tag">> ИНИЦИАЛИЗАЦИЯ ЗАПУСКА</div>
-                    <h2 style="font-size: clamp(3rem, 6vw, 6rem); line-height: 1;">СДЕЛАЙТЕ<br>ШАГ.</h2>
-                    <form style="margin-top: 60px;">
-                        <input type="text" class="huge-input interactive-hover" placeholder="ИМЯ" required>
-                        <input type="tel" class="huge-input interactive-hover" placeholder="ТЕЛЕФОН / ТГ" required>
-                    </form>
+        <section class="container" id="form" style="padding-bottom: 50px;">
+            <div style="border-top: 1px solid #333; padding-top: 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px;">
+                <div class="gsap-fade">
+                    <h2 style="font-size: clamp(3rem, 6vw, 5rem); line-height: 1;">СИСТЕМА<br>ОЖИДАЕТ<br>ВВОДА.</h2>
+                    <div style="font-family: var(--font-mono); color: #aaa; margin-top: 40px; line-height: 2;">
+                        [ CONNECT ] +7 987 633 08 19<br>
+                        [ NETWORK ] corp@oboyma.ai<br>
+                        [ NODE IP ] Мытищи, пр-кт Олимпийский, 10
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: center; align-items: center; padding: 40px;">
-                    <a href="#" class="magnet-btn interactive-hover" id="magnet-btn">Запуск</a>
+                <div class="gsap-fade">
+                    <input type="text" placeholder="ИМЯ" class="sound-hover" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; padding: 20px 0; color: #fff; font-size: 20px; font-family: var(--font-mono); outline: none; margin-bottom: 30px; transition: 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#444'">
+                    <input type="text" placeholder="TELEGRAM" class="sound-hover" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; padding: 20px 0; color: #fff; font-size: 20px; font-family: var(--font-mono); outline: none; margin-bottom: 50px; transition: 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#444'">
+                    <button class="cyber-btn sound-hover" style="width: 100%; justify-content: center; font-size: 18px;">Передать данные</button>
                 </div>
             </div>
         </section>
     </main>
 
     <script>
-        // Регистрация плагинов
+        // --- 1. BOOT SEQUENCE ---
+        const bootScreen = document.getElementById('boot-screen');
+        const bootFill = document.getElementById('boot-fill');
+        const bootText = document.getElementById('boot-text');
+        
+        let progress = 0;
+        const bootInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if(progress > 100) progress = 100;
+            bootFill.style.width = progress + '%';
+            
+            if(progress === 100) {
+                clearInterval(bootInterval);
+                bootText.innerText = "SYSTEM READY. ENTERING AI CORE...";
+                setTimeout(() => {
+                    gsap.to(bootScreen, { opacity: 0, duration: 1, onComplete: () => bootScreen.style.display = 'none' });
+                    initGSAP(); // Запуск анимаций только после загрузки
+                }, 500);
+            }
+        }, 100);
+
+        // --- 2. GENERATIVE AUDIO (WEB AUDIO API) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playHoverSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine'; // Футуристичный мягкий писк
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // Клик по экрану для активации звука (политика браузеров)
+        document.body.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
+
+        document.querySelectorAll('.sound-hover').forEach(el => {
+            el.addEventListener('mouseenter', playHoverSound);
+        });
+
+        // --- 3. КУРСОР ---
+        const cDot = document.getElementById('cursor-dot');
+        const cRing = document.getElementById('cursor-ring');
+        window.addEventListener('mousemove', e => {
+            const x = e.clientX, y = e.clientY;
+            cDot.style.left = x + 'px'; cDot.style.top = y + 'px';
+            gsap.to(cRing, { left: x, top: y, duration: 0.15, ease: "power2.out" });
+        });
+        document.querySelectorAll('.sound-hover').forEach(el => {
+            el.addEventListener('mouseenter', () => cRing.classList.add('active'));
+            el.addEventListener('mouseleave', () => cRing.classList.remove('active'));
+        });
+
+        // --- 4. THREE.JS 3D BACKGROUND (NEURAL UNIVERSE) ---
+        const scene = new THREE.Scene();
+        // Туман для растворения частиц вдали
+        scene.fog = new THREE.FogExp2(0x030305, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Создаем частицы
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 5000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Разброс частиц по сфере
+            posArray[i] = (Math.random() - 0.5) * 1000;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 2,
+            color: 0x00ffcc,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, material);
+        scene.add(particlesMesh);
+        camera.position.z = 200;
+
+        // Физика мыши для 3D
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Плавное вращение галактики
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            // Параллакс от мыши
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+            particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
+            particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+
+            renderer.render(scene, camera);
+        }
+        animate3D();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 5. GSAP SCROLL АНИМАЦИИ ---
         gsap.registerPlugin(ScrollTrigger);
 
-        // --- 1. КУРСОР ---
-        const cursor = document.getElementById('cursor');
-        window.addEventListener('mousemove', e => {
-            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
-        });
+        function initGSAP() {
+            // Появление элементов при скролле
+            gsap.utils.toArray('.gsap-fade').forEach(elem => {
+                gsap.from(elem, {
+                    scrollTrigger: { trigger: elem, start: "top 85%" },
+                    y: 50, opacity: 0, duration: 1, ease: "power3.out"
+                });
+            });
 
-        // Hover эффекты для курсора
-        document.querySelectorAll('.interactive-hover').forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
-        });
+            // Каскадное появление карточек
+            gsap.from(".gsap-card", {
+                scrollTrigger: { trigger: ".bento-grid", start: "top 80%" },
+                y: 100, opacity: 0, duration: 1, stagger: 0.2, ease: "expo.out"
+            });
 
-        // --- 2. ЖИВЫЕ СФЕРЫ НА ФОНЕ (SPATIAL MESH) ---
-        const orb1 = document.getElementById('orb1');
-        const orb2 = document.getElementById('orb2');
-        
-        window.addEventListener('mousemove', e => {
-            const x = e.clientX / window.innerWidth - 0.5;
-            const y = e.clientY / window.innerHeight - 0.5;
-            
-            // Сферы плавно тянутся за мышкой с разной скоростью
-            gsap.to(orb1, { x: x * 200, y: y * 200, duration: 2, ease: "power2.out" });
-            gsap.to(orb2, { x: -x * 300, y: -y * 300, duration: 3, ease: "power2.out" });
-        });
-
-        // --- 3. GSAP SCROLL АНИМАЦИИ ---
-        
-        // Появление текста в Hero
-        gsap.from(".hero-elem", {
-            y: 100, opacity: 0, duration: 1.5,
-            stagger: 0.2, ease: "expo.out", delay: 0.5
-        });
-
-        // Пакет данных бежит по кабелю
-        gsap.to("#data-packet", {
-            y: () => document.documentElement.scrollHeight - window.innerHeight,
-            ease: "none",
-            scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 0.5 }
-        });
-
-        // Bento Box появление при скролле
-        gsap.from(".bento-item", {
-            y: 100, opacity: 0, duration: 1,
-            stagger: 0.1, ease: "power3.out",
-            scrollTrigger: { trigger: ".bento-grid", start: "top 80%" }
-        });
-
-        // --- 4. ИМИТАЦИЯ ТЕРМИНАЛА (ПЕЧАТАЕТСЯ ПРИ ПОЯВЛЕНИИ) ---
-        const termText = `> Инициализация модуля 'Верочка'...
-> Подключение к API календаря... [OK]
-> Загрузка контекста диалогов... [OK]
-> Голосовой модуль активирован.
-
-Верочка: "Здравствуйте! Я проанализировала ваш график.
-У вас есть окно в четверг в 15:00. Назначить встречу с клиентом?"
-<span class="typing-cursor"></span>`;
-        
-        let i = 0;
-        const speed = 30;
-        const termDiv = document.getElementById('term-typing');
-        let typeStarted = false;
-
-        ScrollTrigger.create({
-            trigger: ".terminal",
-            start: "top 70%",
-            onEnter: () => {
-                if(!typeStarted) {
-                    typeStarted = true;
-                    function typeWriter() {
-                        if (i < termText.length) {
-                            // Обработка HTML тега внутри строки
-                            if(termText.charAt(i) === '<') {
-                                let tag = '';
-                                while(termText.charAt(i) !== '>') { tag += termText.charAt(i); i++; }
-                                tag += '>'; termDiv.innerHTML += tag; i++;
-                            } else {
-                                termDiv.innerHTML += termText.charAt(i); i++;
-                            }
-                            setTimeout(typeWriter, speed);
-                        }
-                    }
-                    typeWriter();
+            // Камера в 3D сцене летит вперед при скролле сайта
+            gsap.to(camera.position, {
+                z: -200, // Погружаемся в нейросеть
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "body",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1
                 }
-            }
-        });
+            });
+        }
 
-        // --- 5. МАГНИТНАЯ КНОПКА (Физика пружины) ---
-        const magnetBtn = document.getElementById('magnet-btn');
-        magnetBtn.addEventListener('mousemove', e => {
-            const rect = magnetBtn.getBoundingClientRect();
-            const h = rect.width / 2;
-            const x = e.clientX - rect.left - h;
-            const y = e.clientY - rect.top - h;
-            
-            gsap.to(magnetBtn, { x: x * 0.4, y: y * 0.4, duration: 0.3, ease: "power2.out" });
-        });
-        magnetBtn.addEventListener('mouseleave', () => {
-            gsap.to(magnetBtn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
-        });
+        // --- 6. ROI КАЛЬКУЛЯТОР ---
+        const iEmp = document.getElementById('inp-emp'), iSal = document.getElementById('inp-sal');
+        const vEmp = document.getElementById('val-emp'), vSal = document.getElementById('val-sal');
+        function calc() {
+            const emp = parseInt(iEmp.value), sal = parseInt(iSal.value) * 1000;
+            vEmp.innerText = emp; vSal.innerText = (sal/1000) + 'k';
+            document.getElementById('out-hours').innerText = Math.round(emp * 160 * 0.35);
+            // Анимация бегущих цифр
+            const targetMoney = ((sal * 1.3 * emp * 12 * 0.35) / 1000000).toFixed(2);
+            document.getElementById('out-money').innerText = targetMoney + 'M ₽';
+        }
+        iEmp.addEventListener('input', calc); iSal.addEventListener('input', calc); calc();
     </script>
 </body>
 </html>
