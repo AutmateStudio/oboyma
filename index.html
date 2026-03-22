@@ -1,230 +1,137 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Обойма Лаб — ИИ-решения для бизнеса</title>
     <style>
-        /* --- CORE VARIABLES --- */
-        :root {
+        /* --- ПЕРЕМЕННЫЕ ТЕМ (Светлая / Темная) --- */
+        :root[data-theme="light"] {
+            --bg-main: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --primary: #0a3d70;
-            --primary-light: #155b9e;
             --accent: #2196f3;
-            --text-main: #1a202c;
-            --text-light: #64748b;
-            --bg-base: #f1f5f9;
-            --glass-bg: rgba(255, 255, 255, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --shadow-soft: 0 10px 40px -10px rgba(10, 61, 112, 0.1);
-            --shadow-hover: 0 20px 40px -10px rgba(33, 150, 243, 0.25);
-            --radius-xl: 32px;
-            --radius-lg: 20px;
-            --transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --invert-val: 0;
+        }
+        :root[data-theme="dark"] {
+            --bg-main: #0b1120;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --accent: #818cf8;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --invert-val: 1;
+        }
+        :root {
+            --radius: 20px;
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* --- BASE & RESET --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; font-size: 16px; }
-        body { 
-            font-family: 'Inter', system-ui, sans-serif; 
-            color: var(--text-main); 
-            background-color: var(--bg-base);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        /* --- DYNAMIC BACKGROUND GLOW --- */
-        .cursor-glow {
-            position: fixed; top: 0; left: 0; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(33, 150, 243, 0.15) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%; pointer-events: none; z-index: -1;
-            transform: translate(-50%, -50%); transition: top 0.1s linear, left 0.1s linear;
-        }
-        .bg-grid {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
-            background-image: linear-gradient(var(--glass-border) 1px, transparent 1px), linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.4;
-            mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
-        }
-
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; color: var(--primary); }
-        h2 { font-size: clamp(32px, 5vw, 56px); text-align: center; margin-bottom: 60px; line-height: 1.1; }
-        .gradient-text { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* --- БАЗА И КУРСОР --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; } /* Скрываем дефолтный курсор */
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); overflow-x: hidden; transition: background var(--transition), color var(--transition); }
         
-        /* --- UTILITIES & GLASSMORPHISM --- */
-        .glass {
-            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+        .custom-cursor {
+            position: fixed; top: 0; left: 0; width: 20px; height: 20px; border: 2px solid var(--accent);
+            border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: difference;
         }
+        .custom-cursor.hovered { width: 60px; height: 60px; background: white; border: none; }
+
+        canvas#network { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0.4; }
+
+        /* --- ТИПОГРАФИКА И КОНТЕЙНЕРЫ --- */
         .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
-        section { padding: 160px 0; position: relative; }
+        section { padding: 140px 0; position: relative; }
+        h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 900; line-height: 1.1; margin-bottom: 30px; }
+        h2 { font-size: clamp(32px, 5vw, 56px); font-weight: 800; text-align: center; margin-bottom: 60px; }
+        .gradient-text { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* --- BUTTONS --- */
+        /* --- КНОПКИ --- */
         .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 16px 36px; border-radius: 50px; font-weight: 700; font-size: 16px;
-            cursor: pointer; border: none; transition: var(--transition);
-            position: relative; overflow: hidden;
+            display: inline-flex; align-items: center; justify-content: center; padding: 16px 36px;
+            border-radius: 50px; font-weight: 700; font-size: 16px; border: none; transition: var(--transition);
+            position: relative; overflow: hidden; background: var(--accent); color: #fff;
         }
-        .btn::after {
-            content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: -100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.5s;
-        }
-        .btn:hover::after { left: 100%; }
-        .btn-primary { background: var(--accent); color: white; box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4); }
-        .btn-primary:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 35px rgba(33, 150, 243, 0.5); }
-        .btn-dark { background: var(--primary); color: white; }
-        .btn-dark:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(10, 61, 112, 0.3); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(129, 140, 248, 0.4); }
 
-        /* --- HEADER --- */
+        /* --- ШАПКА --- */
         header {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 80px); max-width: 1320px;
-            z-index: 1000; transition: var(--transition); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-            border-radius: 100px;
+            background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border);
+            border-radius: 100px; z-index: 1000; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
         }
-        header.scrolled { top: 10px; width: calc(100% - 40px); background: rgba(255,255,255,0.85); backdrop-filter: blur(25px); box-shadow: var(--shadow-soft); }
-        .logo { font-size: 26px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: grid; place-items: center; color: white; font-size: 20px; }
-        .nav-links { display: flex; gap: 40px; }
-        .nav-links a { font-weight: 600; color: var(--text-main); position: relative; padding: 5px 0; }
-        .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: var(--transition); border-radius: 3px; }
-        .nav-links a:hover::after { width: 100%; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 600; }
+        .theme-toggle { background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 14px; transition: var(--transition); }
 
-        /* --- HERO / ABOUT --- */
+        /* --- AI ТЕРМИНАЛ (Главный экран) --- */
         .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 100px; }
         .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-        .hero-content h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.05; margin-bottom: 30px; }
-        .hero-content p { font-size: 20px; color: var(--text-light); margin-bottom: 40px; max-width: 90%; }
-        .hero-visual { position: relative; height: 600px; perspective: 1000px; }
-        .hero-card { 
-            position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4));
-            border-radius: var(--radius-xl); border: 1px solid var(--glass-border); padding: 40px;
-            display: flex; flex-direction: column; justify-content: center; box-shadow: var(--shadow-hover);
-            transform: rotateY(-15deg) rotateX(5deg); transition: transform 0.5s ease-out;
+        .terminal {
+            background: #0f172a; border-radius: var(--radius); padding: 30px; font-family: 'Courier New', monospace;
+            color: #10b981; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+            height: 400px; overflow: hidden; position: relative;
         }
-        .hero-visual:hover .hero-card { transform: rotateY(0) rotateX(0); }
+        .terminal-header { display: flex; gap: 8px; margin-bottom: 20px; }
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; }
+        .terminal-dot:nth-child(2) { background: #f59e0b; }
+        .terminal-dot:nth-child(3) { background: #10b981; }
+        .terminal-body p { margin-bottom: 10px; line-height: 1.5; font-size: 15px; }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        /* --- AUDIENCE --- */
-        .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .audience-card { padding: 60px 50px; transition: var(--transition); cursor: default; position: relative; overflow: hidden; }
-        .audience-card::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(33,150,243,0.05) 0%, transparent 70%);
-            opacity: 0; transition: var(--transition); pointer-events: none;
-        }
-        .audience-card:hover { transform: translateY(-10px) scale(1.01); box-shadow: var(--shadow-hover); }
-        .audience-card:hover::before { opacity: 1; }
-        .audience-card h3 { font-size: 32px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        /* --- КАЛЬКУЛЯТОР ROI (Аналитика) --- */
+        .calculator-wrapper { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 60px; margin-top: 40px; }
+        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .calc-input-group { margin-bottom: 30px; }
+        .calc-input-group label { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 15px; }
+        input[type=range] { width: 100%; appearance: none; height: 6px; background: rgba(148, 163, 184, 0.3); border-radius: 5px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; transition: 0.2s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+        .calc-results { background: rgba(0,0,0,0.2); padding: 40px; border-radius: var(--radius); text-align: center; }
+        .calc-results h4 { font-size: 20px; color: var(--text-muted); margin-bottom: 10px; }
+        .calc-results .val { font-size: 48px; font-weight: 900; color: var(--primary); margin-bottom: 30px; }
 
-        /* --- TABS (HOW IT WORKS) --- */
-        .tabs-wrapper { display: grid; grid-template-columns: 350px 1fr; gap: 60px; align-items: start; }
-        .tabs-menu { display: flex; flex-direction: column; gap: 15px; position: sticky; top: 120px; }
-        .tab-btn {
-            padding: 24px 30px; border-radius: var(--radius-lg); text-align: left; font-size: 18px; font-weight: 700;
-            background: rgba(255,255,255,0.4); border: 1px solid transparent; color: var(--text-light);
-            cursor: pointer; transition: var(--transition); display: flex; justify-content: space-between; align-items: center;
-        }
-        .tab-btn:hover { background: rgba(255,255,255,0.8); color: var(--primary); transform: translateX(10px); }
-        .tab-btn.active { background: white; color: var(--primary); border-color: var(--glass-border); box-shadow: var(--shadow-soft); transform: translateX(20px); }
-        .tab-content-container { position: relative; min-height: 400px; }
-        .tab-content { position: absolute; top: 0; left: 0; width: 100%; opacity: 0; transform: translateY(30px) scale(0.95); transition: var(--transition); pointer-events: none; padding: 50px; }
-        .tab-content.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; position: relative; }
-        .tab-content p { font-size: 18px; line-height: 1.8; margin-bottom: 20px; }
-
-        /* --- SLIDER (SOLUTIONS) --- */
-        .slider-container { width: 100vw; margin-left: calc(-50vw + 50%); padding: 40px 0 80px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; display: flex; gap: 40px; scrollbar-width: none; }
-        .slider-container::-webkit-scrollbar { display: none; }
-        .slide {
-            flex: 0 0 calc(100vw - 80px); max-width: 1000px; scroll-snap-align: center;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; padding: 60px;
-            transform: scale(0.9); opacity: 0.6; transition: var(--transition);
-        }
-        .slide.active-slide { transform: scale(1); opacity: 1; box-shadow: var(--shadow-hover); background: white; }
-        .slide-visual { background: linear-gradient(45deg, #e2e8f0, #ffffff); border-radius: 50%; aspect-ratio: 1; position: relative; overflow: hidden; box-shadow: inset 0 20px 40px rgba(0,0,0,0.05); }
-        .slide-info h3 { font-size: 36px; margin-bottom: 10px; }
-        .slide-info .subtitle { color: var(--accent); font-weight: 700; font-size: 20px; margin-bottom: 25px; }
-        .slide-info ul { margin-bottom: 30px; }
-        .slide-info li { margin-bottom: 12px; font-size: 17px; display: flex; align-items: center; gap: 10px; }
-        .slide-info li::before { content: '✓'; color: white; background: var(--accent); width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
-
-        /* --- INCUBATOR --- */
-        .incubator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 30px; }
-        .incubator-card { padding: 40px; text-align: center; }
-        .incubator-card h4 { font-size: 24px; color: var(--primary); margin-bottom: 15px; }
-        .incubator-main { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; background: linear-gradient(135deg, var(--primary), #05203d); color: white; padding: 80px; border-radius: var(--radius-xl); overflow: hidden; position: relative; }
-        .incubator-main::after { content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(33,150,243,0.3) 0%, transparent 70%); border-radius: 50%; }
-
-        /* --- TEAM --- */
-        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
-        .team-member { position: relative; group; }
-        .team-img { width: 100%; aspect-ratio: 3/4; border-radius: var(--radius-lg); background: #e2e8f0; margin-bottom: 25px; overflow: hidden; position: relative; }
-        .team-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,61,112,0.8), transparent 50%); opacity: 0; transition: var(--transition); }
-        .team-member:hover .team-img::after { opacity: 1; }
-        .team-member h4 { font-size: 24px; margin-bottom: 5px; transition: var(--transition); }
-        .team-member p { color: var(--accent); font-weight: 600; }
-        .team-member:hover h4 { color: var(--accent); transform: translateY(-5px); }
-
-        /* --- CONTACTS & FORM --- */
-        .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 80px; align-items: center; }
-        .contact-info { padding-right: 40px; }
-        .contact-item { margin-bottom: 40px; }
-        .contact-item span { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-light); font-weight: 700; display: block; margin-bottom: 10px; }
-        .contact-item p { font-size: 24px; font-weight: 600; color: var(--primary); }
+        /* --- СЕТКИ КАРТОЧЕК --- */
+        .glass-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 40px; transition: var(--transition); }
+        .glass-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         
-        .form-glass { padding: 60px; background: rgba(255,255,255,0.8); }
-        .form-group { position: relative; margin-bottom: 30px; }
-        .form-control { width: 100%; padding: 20px 25px; border: 2px solid transparent; border-radius: 16px; background: var(--bg-base); font-size: 16px; font-family: inherit; transition: var(--transition); outline: none; }
-        .form-control:focus { background: white; border-color: var(--accent); box-shadow: 0 0 0 5px rgba(33,150,243,0.1); }
-        .file-drop { border: 2px dashed #cbd5e1; padding: 40px; text-align: center; border-radius: 16px; transition: var(--transition); cursor: pointer; }
-        .file-drop:hover { border-color: var(--accent); background: rgba(33,150,243,0.02); }
+        .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .slider-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .incubator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 30px; }
 
-        footer { padding: 40px 0; text-align: center; color: var(--text-light); border-top: 1px solid rgba(0,0,0,0.05); }
-
-        /* --- ANIMATIONS --- */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        /* --- АНИМАЦИИ ПОЯВЛЕНИЯ --- */
+        .reveal { opacity: 0; transform: translateY(40px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        .stagger-1 { transition-delay: 0.1s; }
-        .stagger-2 { transition-delay: 0.2s; }
-        .stagger-3 { transition-delay: 0.3s; }
 
-        /* --- RESPONSIVE --- */
+        /* --- АДАПТИВНОСТЬ --- */
         @media (max-width: 1024px) {
-            .hero-grid, .tabs-wrapper, .incubator-main, .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-            .tabs-menu { position: static; flex-direction: row; overflow-x: auto; padding-bottom: 20px; }
-            .tab-btn { white-space: nowrap; padding: 15px 20px; font-size: 16px; }
-            .tab-btn.active { transform: translateY(-5px); }
-            .slide { grid-template-columns: 1fr; padding: 40px; }
-            .team-grid { grid-template-columns: repeat(2, 1fr); }
-            .incubator-grid { grid-template-columns: 1fr; }
-            section { padding: 100px 0; }
-        }
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .audience-grid { grid-template-columns: 1fr; }
-            .form-glass { padding: 30px; }
-            h2 { font-size: 32px; }
+            .hero-grid, .calc-grid, .audience-grid { grid-template-columns: 1fr; }
+            .slider-grid, .incubator-grid { grid-template-columns: 1fr; }
+            header { display: none; } /* Здесь можно добавить мобильное меню */
         }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div class="cursor-glow" id="glow"></div>
+    <div class="custom-cursor" id="cursor"></div>
+    <canvas id="network"></canvas>
 
-    <header id="header" class="glass">
-        <div class="logo">
-            <div class="logo-icon">О</div>
-            ОБОЙМА ЛАБ
-        </div>
+    <header class="hover-target">
+        <div class="logo">ОБОЙМА ЛАБ</div>
         <nav class="nav-links">
-            <a href="#about">О нас</a>
-            <a href="#business">Бизнесу</a>
-            <a href="#solutions">Решения</a>
-            <a href="#incubator">Инкубатор</a>
-            <a href="#contacts">Контакты</a>
+            <a href="#about" class="hover-target">О нас</a>
+            <a href="#solutions" class="hover-target">Решения</a>
+            <a href="#roi" class="hover-target">Аналитика</a>
+            <a href="#incubator" class="hover-target">Инкубатор</a>
         </nav>
-        <a href="#contacts" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px;">Оставить заявку</a>
+        <button class="theme-toggle hover-target" onclick="toggleTheme()">☀️ Light Mode</button>
     </header>
 
     <main>
@@ -232,253 +139,251 @@
             <div class="hero-grid">
                 <div class="hero-content reveal">
                     <h1>Интеллект,<br>работающий на<br><span class="gradient-text">Ваш бизнес</span></h1>
-                    <p>Обойма лаб — российский разработчик программного обеспечения на основе искусственного интеллекта. Мы создаем собственные продукты и помогаем технологическим предпринимателям запустить их идеи.</p>
-                    <div style="display: flex; gap: 20px;">
-                        <a href="#solutions" class="btn btn-primary">Смотреть решения</a>
-                        <a href="#how-it-works" class="btn btn-dark" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);">Как мы работаем</a>
-                    </div>
+                    <p style="font-size: 20px; color: var(--text-muted); margin-bottom: 40px;">Разрабатываем программные продукты на базе ИИ. Автоматизируем рутину, находим лиды и создаем умные интеграции для мессенджеров.</p>
+                    <a href="#roi" class="btn hover-target">Рассчитать выгоду</a>
                 </div>
-                <div class="hero-visual reveal stagger-1">
-                    <div class="hero-card">
-                        <h3 style="font-size: 32px; margin-bottom: 20px;">Цифровая лаборатория</h3>
-                        <p style="font-size: 18px; color: var(--text-light);">Автоматизация операционной деятельности, продажи, маркетинг, логистика и устранение рутины с помощью нейросетей.</p>
+                
+                <div class="terminal reveal hover-target">
+                    <div class="terminal-header">
+                        <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
                     </div>
+                    <div class="terminal-body" id="typing-text">
+                        </div>
                 </div>
             </div>
         </section>
 
-        <section id="business" class="container reveal">
-            <h2>Для кого подойдет бизнес-лаборатория?</h2>
+        <section class="container reveal">
+            <h2>Кому мы полезны?</h2>
             <div class="audience-grid">
-                <div class="audience-card glass reveal stagger-1">
-                    <h3><span style="font-size: 40px;">🏢</span> ДЛЯ БИЗНЕСА</h3>
-                    <p style="font-size: 18px; color: var(--text-light); line-height: 1.8;">Готовые решения и индивидуальные разработки для тех, у кого есть желание автоматизировать операционную деятельность с помощью современных ИИ-технологий: продажи, маркетинг, упаковка, логистика, кадры и просто рутина, поглощающая ресурсы.</p>
+                <div class="glass-card hover-target">
+                    <h3 style="font-size: 28px; margin-bottom: 20px; color: var(--primary);">💼 Для бизнеса</h3>
+                    <p style="color: var(--text-muted); line-height: 1.7;">Автоматизация операционки: продажи, маркетинг, логистика. Внедряем ИИ, чтобы избавить команду от рутины, поглощающей ресурсы.</p>
                 </div>
-                <div class="audience-card glass reveal stagger-2">
-                    <h3><span style="font-size: 40px;">💻</span> ДЛЯ РАЗРАБОТЧИКОВ</h3>
-                    <p style="font-size: 18px; color: var(--text-light); line-height: 1.8;">Разработчики с идеями, которые могут создавать ИТ-решения, но упираются в нехватку ресурсов, экспертизы или менеджмента.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="how-it-works" class="container reveal">
-            <h2>Как работает наша лаборатория</h2>
-            <p style="text-align: center; font-size: 20px; color: var(--text-light); max-width: 800px; margin: 0 auto 60px;">Вместо того чтобы месяц рисовать кнопки, месяц писать сервер, а месяц соединять, мы за одну неделю делаем одну кнопку, которая уже работает «под капотом»</p>
-            
-            <div class="tabs-wrapper">
-                <div class="tabs-menu reveal stagger-1">
-                    <button class="tab-btn active glass" data-tab="tab1">1. Начать проще, чем кажется <span>→</span></button>
-                    <button class="tab-btn glass" data-tab="tab2">2. Аудит бизнес-процессов <span>→</span></button>
-                    <button class="tab-btn glass" data-tab="tab3">3. Техническое задание <span>→</span></button>
-                    <button class="tab-btn glass" data-tab="tab4">4. Функция за функцией <span>→</span></button>
-                    <button class="tab-btn glass" data-tab="tab5">5. Бета-тест: проверка боем <span>→</span></button>
-                </div>
-                <div class="tab-content-container glass reveal stagger-2">
-                    <div id="tab1" class="tab-content active">
-                        <h3 style="font-size: 32px; margin-bottom: 30px;">С чего начать?</h3>
-                        <p>Предприниматели часто сомневаются: эффективно ли работают бизнес-процессы, куда уходят ресурсы и что можно улучшить? Тема ИИ сегодня звучит отовсюду — обещают экономию и устранение рутины. Но кажется, что это сложно, дорого и непонятно, с какой стороны подойти.</p>
-                        <p>«Обойма» — это не просто IT-лаборатория. Наша команда имеет глубокую экспертизу в корпоративном мире: оптимизация операционной деятельности и маркетинг для нас такая же привычная задача, как написание кода или обучение нейросетей.</p>
-                        <p>Прежде чем погружаться в разработку, мы предлагаем простой шаг — вместе проанализировать операционку, найти слабые места и оценить реальную выгоду от внедрения ИИ.</p>
-                    </div>
-                    <div id="tab2" class="tab-content">
-                        <h3 style="font-size: 32px; margin-bottom: 30px;">Глубокий аудит</h3>
-                        <p>Мы работаем по одному из двух сценариев. Первый: предприниматель сам точно знает, что его беспокоит, и формулирует задачу. Второй: наша команда проводит комплексный анализ операционки с нуля — исследуем продажи, маркетинг, упаковку, логистику, кадры и скрытую рутину.</p>
-                        <p>Результат аудита — это исчерпывающая картина вашего бизнеса: точка «как есть», конкретный план улучшений и прогноз, как это будет работать. Мы рассчитаем реальный экономический эффект.</p>
-                        <p><strong>Всего 10 дней</strong> потребуется, чтобы взглянуть на свое дело свежим взглядом.</p>
-                    </div>
-                    <div id="tab3" class="tab-content">
-                        <h3 style="font-size: 32px; margin-bottom: 30px;">Нестандартное ТЗ</h3>
-                        <p>После аудита мы фиксируем цель бизнеса и все хотелки. Но формируем ТЗ нестандартно: режем проект не по горизонталям (база данных, логика, интерфейс), а по вертикальным сквозным функциям.</p>
-                        <p>Например: «авторизация по смс», «кнопка заказа», «отправка ссылки на оплату». Каждую функцию ранжируем по ценности для пользователя. Весь проект разбиваем на короткие циклы по 1–2 недели. Команда делает то, что принесет максимальную пользу здесь и сейчас.</p>
-                    </div>
-                    <div id="tab4" class="tab-content">
-                        <h3 style="font-size: 32px; margin-bottom: 30px;">Итеративная разработка</h3>
-                        <p>На каждой итерации команда берет одну конкретную функцию, которая несет реальную ценность для пользователя. Например: «классификация входящих запросов VK» или «обработка диалогов ИИ-модулем».</p>
-                        <p>Мы ведем разработку целиком, чтобы к концу цикла эту функцию можно было показать и отдать в работу. Продукт обретает новую, полностью рабочую функцию, а не просто пополняется «кучей кода».</p>
-                    </div>
-                    <div id="tab5" class="tab-content">
-                        <h3 style="font-size: 32px; margin-bottom: 30px;">Момент истины</h3>
-                        <p>Когда система готова, наступает бета-тестирование. Решение впервые работает на реальных данных и с живыми пользователями. В этот период наши «технари» плотно контактируют с заказчиком.</p>
-                        <p>Мы собираем обратную связь и отслеживаем неочевидные сценарии. В результате продукт выходит из беты полностью готовым. Предприниматель получает отточенный инструмент, который закрывает те самые боли.</p>
-                    </div>
+                <div class="glass-card hover-target">
+                    <h3 style="font-size: 28px; margin-bottom: 20px; color: var(--primary);">👨‍💻 Для разработчиков</h3>
+                    <p style="color: var(--text-muted); line-height: 1.7;">Помогаем технологическим предпринимателям с идеями ИТ-решений. Даем ресурсы, экспертизу и менеджмент для запуска MVP.</p>
                 </div>
             </div>
         </section>
 
-        <section id="solutions" class="reveal">
-            <div class="container">
-                <h2>Готовые решения для бизнеса</h2>
-                <p style="text-align: center; font-size: 20px; color: var(--text-light); margin-top: -40px; margin-bottom: 40px;">Эффективность доказана и проверена заказчиками</p>
+        <section id="solutions" class="container reveal">
+            <h2>Готовые ИИ-решения</h2>
+            <div class="slider-grid">
+                <div class="glass-card hover-target">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">«Верочка»</h3>
+                    <p style="font-weight: 600; color: var(--accent); margin-bottom: 15px;">Telegram-секретарь</p>
+                    <p style="color: var(--text-muted); font-size: 14px;">Управляет календарем, понимает голос, планирует встречи и подбирает тон общения с клиентами.</p>
+                </div>
+                <div class="glass-card hover-target">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">«Открывашка»</h3>
+                    <p style="font-weight: 600; color: var(--accent); margin-bottom: 15px;">EventGate Opener</p>
+                    <p style="color: var(--text-muted); font-size: 14px;">Нейро-сервис для ивентов. Регистрирует клиентов из соцсетей, принимает оплаты и ведет базу.</p>
+                </div>
+                <div class="glass-card hover-target">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">«Лидочка»</h3>
+                    <p style="font-weight: 600; color: var(--accent); margin-bottom: 15px;">Умный лидопоисковик</p>
+                    <p style="color: var(--text-muted); font-size: 14px;">Мониторит тематические чаты в Telegram, ищет прямой спрос и выдает горячие контакты.</p>
+                </div>
             </div>
+        </section>
+
+        <section id="roi" class="container reveal">
+            <h2>Калькулятор окупаемости ИИ</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-top: -40px; margin-bottom: 40px;">Узнайте, сколько ресурсов сэкономит автоматизация процессов.</p>
             
-            <div class="slider-container" id="solutionsSlider">
-                <div class="slide glass active-slide">
-                    <div class="slide-visual"></div>
-                    <div class="slide-info">
-                        <h3>Нейро-секретарь «Верочка»</h3>
-                        <p class="subtitle">Telegram-ассистент с искусственным интеллектом.</p>
-                        <p style="font-size: 18px; margin-bottom: 20px; color: var(--text-light);">Понимает голос и текст. Управляет вашим календарем и контактами. Сама планирует встречи и напоминает о задачах.</p>
-                        <ul>
-                            <li>Помнит всю историю общения</li>
-                            <li>Подбирает тон (вежливо, с юмором, коротко)</li>
-                            <li>Поможет не пропустить дедлайны</li>
-                        </ul>
-                        <button class="btn btn-primary">Хочу тест</button>
+            <div class="calculator-wrapper hover-target">
+                <div class="calc-grid">
+                    <div>
+                        <div class="calc-input-group">
+                            <label>Сотрудников в отделе <span id="emp-val">10</span></label>
+                            <input type="range" id="employees" min="1" max="100" value="10">
+                        </div>
+                        <div class="calc-input-group">
+                            <label>Средняя ЗП (тыс. руб) <span id="salary-val">80 000 ₽</span></label>
+                            <input type="range" id="salary" min="30" max="300" step="10" value="80">
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 14px; margin-top: 30px;">*Расчет основан на усредненных данных: ИИ забирает до 35% рутинных задач (обработка лидов, рассылки, классификация).</p>
                     </div>
-                </div>
-                <div class="slide glass">
-                    <div class="slide-visual"></div>
-                    <div class="slide-info">
-                        <h3>"Открывашка" (EventGate)</h3>
-                        <p class="subtitle">Нейро-Сервис для ивент-предпринимателей</p>
-                        <ul>
-                            <li>"Здоровается", общается с клиентами</li>
-                            <li>"Следит за языком" и отвечает на вопросы</li>
-                            <li>Отправляет платежные инструменты</li>
-                            <li>Ведет базу клиентов и пушит менеджеров</li>
-                        </ul>
-                        <button class="btn btn-primary">Хочу обсудить</button>
-                    </div>
-                </div>
-                <div class="slide glass">
-                    <div class="slide-visual"></div>
-                    <div class="slide-info">
-                        <h3>Умный лидопоисковик "Лидочка"</h3>
-                        <p class="subtitle">Нейроассистент находит «горячих» клиентов в Telegram.</p>
-                        <ul>
-                            <li>Формирует базу тематических чатов</li>
-                            <li>Ищет сообщения с прямым спросом</li>
-                            <li>Выдает готовые контакты для связи</li>
-                        </ul>
-                        <button class="btn btn-primary">Хочу тест</button>
+                    <div class="calc-results">
+                        <h4>Сэкономлено времени в месяц:</h4>
+                        <div class="val"><span id="hours-saved">560</span> часов</div>
+                        <h4>Сохранено бюджета в год:</h4>
+                        <div class="val" style="color: #10b981;"><span id="money-saved">3.36</span> млн ₽</div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="incubator" class="container reveal">
-            <h2>IT-инкубатор для разработчиков</h2>
+            <h2>IT-инкубатор</h2>
             <div class="incubator-grid">
-                <div class="incubator-card glass reveal stagger-1">
-                    <h4>Рекрутинг идей</h4>
-                    <p style="color: var(--text-light);">Отбираем проекты и специалистов на основе потенциала идеи и рыночного спроса.</p>
-                </div>
-                <div class="incubator-card glass reveal stagger-2">
-                    <h4>Безопасный старт</h4>
-                    <p style="color: var(--text-light);">Проверяем гипотезы без лишних затрат: быстрый MVP и тест спроса.</p>
-                </div>
-                <div class="incubator-card glass reveal stagger-3">
-                    <h4>Внешний «проджект»</h4>
-                    <p style="color: var(--text-light);">Берем на себя управление сроками и задачами, чтобы команда не выгорала.</p>
-                </div>
-                <div class="incubator-main reveal">
-                    <div style="z-index: 1;">
-                        <h3 style="font-size: 48px; color: white; margin-bottom: 20px;">Стартап-конвейер</h3>
-                        <p style="font-size: 20px; opacity: 0.9; margin-bottom: 40px; line-height: 1.6;">Мы закрываем все слабые места: от идеи и MVP до упаковки и первых продаж. Хватит пилить пет-проект в стол. За месяц мы превратим вашу идею в работающий бизнес.</p>
-                        <button class="btn" style="background: white; color: var(--primary);">Узнать подробнее</button>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); border-radius: var(--radius-xl); height: 100%; min-height: 300px; backdrop-filter: blur(10px); z-index: 1;"></div>
-                </div>
+                <div class="glass-card hover-target"><h4>Рекрутинг идей</h4><p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Отбираем перспективные проекты и специалистов.</p></div>
+                <div class="glass-card hover-target"><h4>Безопасный старт</h4><p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Проверяем гипотезы без лишних затрат: быстрый MVP.</p></div>
+                <div class="glass-card hover-target"><h4>Внешний «проджект»</h4><p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Берем управление на себя, чтобы команда кодила, а не выгорала.</p></div>
+            </div>
+            <div class="glass-card hover-target" style="text-align: center; background: var(--primary); padding: 60px;">
+                <h3 style="color: white; font-size: 36px; margin-bottom: 20px;">Хватит пилить пет-проект в стол</h3>
+                <p style="color: rgba(255,255,255,0.8); font-size: 18px; max-width: 600px; margin: 0 auto 30px;">За месяц мы превратим вашу идею в работающий MVP с первыми клиентами и четким планом роста.</p>
+                <button class="btn" style="background: white; color: var(--primary);">Оставить заявку</button>
             </div>
         </section>
 
-        <section class="container reveal">
-            <h2>Команда наших профессионалов</h2>
-            <p style="text-align: center; font-size: 20px; color: var(--text-light); margin-top: -40px; margin-bottom: 60px;">Мы соединяем ИТ с реальным бизнесом.</p>
-            <div class="team-grid">
-                <div class="team-member reveal stagger-1"><div class="team-img"></div><h4>Андрей</h4><p>Наставник по запуску</p></div>
-                <div class="team-member reveal stagger-2"><div class="team-img"></div><h4>Богдан</h4><p>Акселератор идей</p></div>
-                <div class="team-member reveal stagger-3"><div class="team-img"></div><h4>Дмитрий</h4><p>Ментор по продукту</p></div>
-                <div class="team-member reveal stagger-1"><div class="team-img"></div><h4>Роман</h4><p>Технический руководитель</p></div>
-            </div>
-        </section>
-
-        <section id="contacts" class="container reveal">
-            <div class="contact-grid">
-                <div class="contact-info">
-                    <h2 style="text-align: left; font-size: 48px; margin-bottom: 50px;">Свяжитесь<br>с нами</h2>
-                    <div class="contact-item"><span>Адрес</span><p>Мытищи, пр-кт Олимпийский,<br>стр. 10, офис 1704</p></div>
-                    <div class="contact-item"><span>Телефон</span><p>+7 987 633 08 19</p></div>
-                    <div class="contact-item"><span>Почта</span><p>corp@oboyma.ai</p></div>
-                </div>
-                <div class="form-glass glass">
-                    <h3 style="font-size: 32px; margin-bottom: 10px;">Заполнить анкету</h3>
-                    <p style="color: var(--text-light); margin-bottom: 40px; font-size: 18px;">Поделись своей идеей или проектом.</p>
-                    <form>
-                        <div class="form-group"><input type="text" class="form-control" placeholder="Имя и Фамилия" required></div>
-                        <div class="form-group"><input type="tel" class="form-control" placeholder="Телефон *" required></div>
-                        <div class="form-group"><input type="text" class="form-control" placeholder="Почта или Telegram (@username)"></div>
-                        <div class="form-group"><div class="file-drop"><p style="color: var(--text-light); font-weight: 600;">📎 Приложить презентацию идеи<br><span style="font-weight: 400; font-size: 14px;">(Нажмите или перетащите файл)</span></p></div></div>
-                        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
-                            <input type="checkbox" id="policy" required style="width: 20px; height: 20px; accent-color: var(--accent);">
-                            <label for="policy" style="font-size: 14px; color: var(--text-light); cursor: pointer;">Я принимаю Положение и даю согласие на обработку персональных данных.</label>
-                        </div>
-                        <button type="submit" class="btn btn-dark" style="width: 100%; font-size: 18px;">Отправить заявку</button>
-                    </form>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <footer>
-        <div class="container">
-            <p>© 2015-2026 ООО "Обойма Лаб" | ИНН: 5029197630 ОГРН: 1155029004184</p>
-        </div>
+    <footer style="text-align: center; padding: 40px; color: var(--text-muted); border-top: 1px solid var(--glass-border);">
+        <p>© 2015-2026 ООО "Обойма Лаб"</p>
     </footer>
 
     <script>
-        // 1. Mouse Glow Effect
-        const glow = document.getElementById('glow');
+        // 1. Смена Темы (Dark/Light)
+        const toggleBtn = document.querySelector('.theme-toggle');
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                toggleBtn.innerText = '🌙 Dark Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                toggleBtn.innerText = '☀️ Light Mode';
+            }
+        }
+
+        // 2. Кастомный курсор с магнитом
+        const cursor = document.getElementById('cursor');
+        const hoverTargets = document.querySelectorAll('.hover-target');
+        
         window.addEventListener('mousemove', (e) => {
-            glow.style.top = e.clientY + 'px';
-            glow.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursor.style.left = e.clientX + 'px';
         });
 
-        // 2. Sticky Header Scroll
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) header.classList.add('scrolled');
-            else header.classList.remove('scrolled');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            target.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        // 3. Staggered Scroll Reveal (Intersection Observer)
+        // 3. Анимация появления при скролле (Scroll Reveal)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('active');
             });
-        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
-        // 4. Tabs Logic
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Убираем активный класс у всех
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                // Добавляем кликнутому
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
+        // 4. Эффект печати текста (Имитация AI Терминала)
+        const terminalText = [
+            "> Обойма Лаб ОС [Версия 2.4.1]",
+            "> Инициализация модулей искусственного интеллекта... ОК",
+            "> Подключение к Telegram API... Успешно",
+            "> Запуск нейро-секретаря 'Верочка'...",
+            "> Анализ бизнес-процессов... Обнаружена рутина.",
+            "> Решение: Внедрение авто-воронок и LLM-агентов.",
+            "> Ожидаю новую задачу..."
+        ];
+        const typingBox = document.getElementById('typing-text');
+        let lineIdx = 0;
 
-        // 5. Slider Active Item Focus
-        const slider = document.getElementById('solutionsSlider');
-        const slides = document.querySelectorAll('.slide');
-        slider.addEventListener('scroll', () => {
-            const center = slider.offsetWidth / 2 + slider.scrollLeft;
-            slides.forEach(slide => {
-                const slideCenter = slide.offsetLeft + slide.offsetWidth / 2 - slider.offsetLeft;
-                if (Math.abs(center - slideCenter) < slide.offsetWidth / 2) {
-                    slide.classList.add('active-slide');
-                } else {
-                    slide.classList.remove('active-slide');
+        function typeLine() {
+            if (lineIdx < terminalText.length) {
+                const p = document.createElement('p');
+                typingBox.appendChild(p);
+                let charIdx = 0;
+                
+                const typeChar = setInterval(() => {
+                    p.innerHTML = terminalText[lineIdx].substring(0, charIdx) + '<span class="cursor-blink">_</span>';
+                    charIdx++;
+                    if (charIdx > terminalText[lineIdx].length) {
+                        clearInterval(typeChar);
+                        p.innerHTML = terminalText[lineIdx];
+                        lineIdx++;
+                        setTimeout(typeLine, 500);
+                    }
+                }, 40);
+            } else {
+                const p = document.createElement('p');
+                p.innerHTML = '<span class="cursor-blink">_</span>';
+                typingBox.appendChild(p);
+            }
+        }
+        setTimeout(typeLine, 1000);
+
+        // 5. Калькулятор Финансового Прогноза
+        const empInput = document.getElementById('employees');
+        const salInput = document.getElementById('salary');
+        const empVal = document.getElementById('emp-val');
+        const salVal = document.getElementById('salary-val');
+        const hoursOut = document.getElementById('hours-saved');
+        const moneyOut = document.getElementById('money-saved');
+
+        function calculateROI() {
+            const emp = parseInt(empInput.value);
+            const sal = parseInt(salInput.value) * 1000;
+            
+            empVal.innerText = emp;
+            salVal.innerText = sal.toLocaleString() + ' ₽';
+            
+            // 160 рабочих часов * 35% экономии
+            const hours = emp * 160 * 0.35; 
+            hoursOut.innerText = Math.round(hours).toLocaleString();
+            
+            // Сохраненный бюджет в год (ЗП + налоги условно 30%)
+            const moneySavedYear = (sal * 1.3 * emp * 0.35 * 12) / 1000000;
+            moneyOut.innerText = moneySavedYear.toFixed(2);
+        }
+        empInput.addEventListener('input', calculateROI);
+        salInput.addEventListener('input', calculateROI);
+
+        // 6. Фон: Нейронная сеть (Canvas Particles)
+        const canvas = document.getElementById('network');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles;
+
+        function initParticles() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? '#38bdf8' : '#0a3d70';
+            ctx.strokeStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(56, 189, 248, 0.1)' : 'rgba(10, 61, 112, 0.1)';
+            
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
                 }
             });
-        });
+            requestAnimationFrame(drawParticles);
+        }
+        
+        window.addEventListener('resize', initParticles);
+        initParticles();
+        drawParticles();
     </script>
 </body>
 </html>
