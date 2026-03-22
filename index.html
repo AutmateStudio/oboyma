@@ -3,446 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обойма Лаб — Интерактивная AI-Среда</title>
+    <title>Обойма Лаб | AI Архитектура</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
-        /* --- КИБЕР-ПЕРЕМЕННЫЕ --- */
+        /* --- SPATIAL VARIABLES --- */
         :root {
-            --bg: #020202; --surface: rgba(15, 15, 20, 0.7);
-            --text: #ffffff; --text-dim: #8b949e;
-            --primary: #00ffcc; --primary-glow: rgba(0, 255, 204, 0.3);
-            --accent: #b026ff; --accent-glow: rgba(176, 38, 255, 0.3);
-            --danger: #ff3366; --warning: #ffcc00;
-            --font-mono: 'Space Mono', 'Courier New', monospace;
-            --font-sans: 'Inter', system-ui, sans-serif;
-            --border: 1px solid rgba(255,255,255,0.1);
+            --bg: #000000;
+            --text: #ffffff;
+            --text-dim: #a1a1aa;
+            --primary: #00ffcc;
+            --accent: #7000ff;
+            --glass: rgba(25, 25, 30, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-main: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'Space Mono', monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-        html { scroll-behavior: smooth; font-family: var(--font-sans); background: var(--bg); color: var(--text); overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* --- КУРСОР --- */
-        .cursor-dot { position: fixed; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); box-shadow: 0 0 10px var(--primary); }
-        .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--primary); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.15s, height 0.15s, background 0.15s; }
-        body:hover .cursor-ring.active { width: 80px; height: 80px; background: rgba(0, 255, 204, 0.1); border-color: transparent; backdrop-filter: blur(2px); }
+        /* --- MAGNETIC CURSOR --- */
+        .cursor { position: fixed; top: 0; left: 0; width: 12px; height: 12px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background 0.3s; mix-blend-mode: exclusion; }
+        .cursor.active { width: 80px; height: 80px; background: var(--primary); mix-blend-mode: normal; opacity: 0.5; filter: blur(10px); }
 
-        /* --- ГЛОБАЛЬНЫЙ ФОН И ФОНАРИК --- */
-        #xray-bg { position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; }
-        .matrix-code { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-family: var(--font-mono); font-size: 14px; color: rgba(0, 255, 204, 0.15); word-wrap: break-word; line-height: 1; opacity: 0; transition: opacity 0.5s; }
-        #xray-mask { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), transparent 0%, var(--bg) 100%); }
+        /* --- SPATIAL MESH BACKGROUND --- */
+        .mesh-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: #000; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.6; will-change: transform; }
+        .orb-1 { width: 40vw; height: 40vw; background: rgba(0, 255, 204, 0.3); top: 0; left: 0; }
+        .orb-2 { width: 50vw; height: 50vw; background: rgba(112, 0, 255, 0.2); bottom: 0; right: 0; }
+        .orb-3 { width: 30vw; height: 30vw; background: rgba(0, 150, 255, 0.2); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .grid-overlay { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--glass-border) 1px, transparent 1px), linear-gradient(90deg, var(--glass-border) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.2; mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%); pointer-events: none; }
 
-        /* --- БАЗА --- */
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
-        section { padding: 150px 0; position: relative; }
-        h1 { font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 900; line-height: 1; letter-spacing: -0.04em; margin-bottom: 20px; }
-        h2 { font-size: clamp(2rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 50px; display: inline-block; position: relative; }
-        .mono-tag { font-family: var(--font-mono); font-size: 13px; color: var(--primary); border: var(--border); padding: 5px 12px; border-radius: 20px; display: inline-block; margin-bottom: 20px; background: var(--primary-glow); }
-
-        /* --- ШАПКА --- */
-        header { position: fixed; top: 0; width: 100%; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: rgba(2,2,2,0.8); backdrop-filter: blur(15px); border-bottom: var(--border); }
-        .logo { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 15px; }
-        .logo-core { width: 24px; height: 24px; background: var(--primary); animation: pulse 2s infinite; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
-        @keyframes pulse { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 var(--primary-glow); } 70% { transform: scale(1); box-shadow: 0 0 0 15px transparent; } 100% { transform: scale(0.9); } }
-        .nav-links { display: flex; gap: 40px; }
-        .nav-links a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-        .nav-links a:hover { color: var(--primary); }
-
-        /* --- ИНТЕРАКТИВНЫЙ ЧАТ С ИИ (LIVE INPUT) --- */
-        .chat-container { display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; align-items: center; }
-        .terminal-box { background: var(--surface); border: var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: flex; flex-direction: column; height: 600px; position: relative; }
-        .terminal-header { background: rgba(0,0,0,0.5); padding: 15px 20px; border-bottom: var(--border); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 14px; color: var(--text-dim); }
-        .status-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary); animation: blink 2s infinite; }
-        @keyframes blink { 50% { opacity: 0.3; } }
-        .chat-history { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 15px 20px; border-radius: 12px; font-size: 15px; max-width: 85%; line-height: 1.5; animation: popIn 0.3s ease forwards; }
-        .msg.bot { background: rgba(255,255,255,0.05); border: var(--border); align-self: flex-start; border-bottom-left-radius: 2px; }
-        .msg.user { background: var(--primary); color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-input-area { padding: 20px; background: rgba(0,0,0,0.5); border-top: var(--border); display: flex; gap: 15px; }
-        .chat-input { flex: 1; background: transparent; border: none; color: var(--text); font-family: var(--font-sans); font-size: 16px; outline: none; }
-        .chat-send-btn { background: var(--primary); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .chat-send-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
+        /* --- LAYOUT --- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 4vw; }
+        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; padding: 100px 0; }
         
-        .typing { display: flex; gap: 5px; padding: 5px 10px; }
-        .typing span { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: typeBlink 1.4s infinite ease-in-out both; }
-        .typing span:nth-child(1) { animation-delay: -0.32s; } .typing span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typeBlink { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        h1 { font-size: clamp(4rem, 10vw, 8rem); font-weight: 900; line-height: 0.9; letter-spacing: -0.05em; text-transform: uppercase; }
+        h2 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 2rem; }
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, #777 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .mono-tag { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 20px; display: inline-block; }
 
-        /* --- КОНФИГУРАТОР ИИ (BUILDER) --- */
-        .builder-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
-        .modules-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .module-card { background: var(--surface); border: var(--border); border-radius: 16px; padding: 30px; transition: 0.3s; position: relative; overflow: hidden; }
-        .module-card::before { content: ''; position: absolute; inset: 0; background: var(--primary); opacity: 0; transition: 0.3s; z-index: -1; }
-        .module-card.selected { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 30px var(--primary-glow); }
-        .module-card.selected::before { opacity: 0.05; }
-        .module-icon { font-size: 32px; margin-bottom: 15px; }
+        /* --- HEADER --- */
+        header { position: fixed; top: 0; width: 100%; padding: 20px 4vw; z-index: 100; mix-blend-mode: difference; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 900; font-size: 24px; letter-spacing: -1px; }
         
-        .receipt-panel { background: rgba(0,0,0,0.8); border: 1px solid var(--primary); border-radius: 16px; padding: 40px; font-family: var(--font-mono); display: flex; flex-direction: column; position: relative; }
-        .receipt-panel::after { content: ''; position: absolute; top: -10px; right: -10px; width: 40px; height: 40px; border-top: 2px solid var(--primary); border-right: 2px solid var(--primary); }
-        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: var(--text-dim); }
-        .receipt-row.active { color: var(--text); }
-        .receipt-total { margin-top: auto; padding-top: 20px; border-top: 1px dashed #555; }
-        .roi-number { font-size: 48px; color: var(--primary); font-weight: bold; margin-top: 10px; }
-
-        /* --- ЛАЙВ-РАДАР (ЛИДОЧКА) --- */
-        .live-radar-container { background: var(--surface); border: var(--border); border-radius: 24px; padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; position: relative; overflow: hidden; }
-        .radar-stream { height: 400px; overflow: hidden; position: relative; border-right: 1px dashed #333; padding-right: 20px; }
-        .stream-item { background: rgba(255,255,255,0.02); border: var(--border); padding: 15px; border-radius: 8px; margin-bottom: 15px; transform: translateX(-100%); animation: slideRight 0.5s forwards; display: flex; justify-content: space-between; align-items: flex-start; transition: 0.5s; }
-        .stream-item.analyzed-spam { opacity: 0.2; filter: grayscale(1); }
-        .stream-item.analyzed-lead { border-color: var(--primary); background: rgba(0, 255, 204, 0.1); box-shadow: 0 0 20px var(--primary-glow); transform: translateX(20px); z-index: 10; }
-        @keyframes slideRight { to { transform: translateX(0); } }
+        /* --- BENTO BOX GRID --- */
+        .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 350px; gap: 20px; }
+        .bento-item { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 30px; padding: 40px; position: relative; overflow: hidden; backdrop-filter: blur(20px); display: flex; flex-direction: column; justify-content: space-between; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .bento-item:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         
-        .crm-pool { display: flex; flex-direction: column; gap: 15px; }
-        .crm-header { font-family: var(--font-mono); color: var(--primary); margin-bottom: 20px; display: flex; justify-content: space-between; }
-        .crm-lead { background: rgba(0, 255, 204, 0.05); border-left: 4px solid var(--primary); padding: 15px; font-size: 14px; animation: popIn 0.5s forwards; }
+        /* Размеры Bento ячеек */
+        .bento-large { grid-column: span 2; grid-row: span 2; background: linear-gradient(135deg, rgba(25,25,30,0.8), rgba(0,0,0,0.9)); }
+        .bento-wide { grid-column: span 2; grid-row: span 1; }
+        .bento-tall { grid-column: span 1; grid-row: span 2; }
+        .bento-small { grid-column: span 1; grid-row: span 1; }
 
-        /* --- КНОПКА ЗАПУСКА --- */
-        .btn-glitch { display: inline-flex; padding: 20px 50px; background: var(--primary); color: #000; font-weight: 900; font-family: var(--font-mono); text-transform: uppercase; font-size: 18px; position: relative; overflow: hidden; border: none; transition: 0.2s; }
-        .btn-glitch:hover { background: #fff; transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.5); }
+        .bento-icon { font-size: 40px; margin-bottom: 20px; }
+        .bento-title { font-size: 28px; font-weight: 700; margin-bottom: 10px; }
+        .bento-desc { color: var(--text-dim); font-size: 16px; line-height: 1.5; }
 
-        /* АНИМАЦИИ */
-        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .reveal { opacity: 0; transform: translateY(40px); transition: 1s cubic-bezier(0.19, 1, 0.22, 1); }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
+        /* --- SVG DATA PIPELINE --- */
+        #pipeline { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: var(--glass-border); z-index: -1; transform: translateX(-50%); }
+        #data-packet { width: 4px; height: 100px; background: var(--primary); box-shadow: 0 0 20px var(--primary); position: absolute; top: 0; left: -1px; border-radius: 10px; }
+
+        /* --- INTERACTIVE AI TERMINAL --- */
+        .terminal { background: #050505; border: 1px solid #333; border-radius: 20px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; height: 100%; position: relative; }
+        .term-header { background: #111; padding: 15px 20px; display: flex; gap: 8px; border-bottom: 1px solid #222; }
+        .term-dot { width: 12px; height: 12px; border-radius: 50%; background: #444; }
+        .term-dot:nth-child(1) { background: #ff5f56; } .term-dot:nth-child(2) { background: #ffbd2e; } .term-dot:nth-child(3) { background: #27c93f; }
+        .term-body { padding: 30px; font-family: var(--font-mono); font-size: 14px; line-height: 1.6; color: var(--primary); flex: 1; overflow: hidden; }
+        .typing-cursor::after { content: '█'; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- FORM & FOOTER --- */
+        .huge-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid #333; font-size: clamp(2rem, 4vw, 4rem); font-weight: 900; color: #fff; padding: 20px 0; outline: none; transition: 0.3s; margin-bottom: 40px; }
+        .huge-input:focus { border-color: var(--primary); }
+        .huge-input::placeholder { color: #333; }
+        
+        .magnet-btn { display: inline-flex; justify-content: center; align-items: center; width: 180px; height: 180px; background: var(--primary); color: #000; border-radius: 50%; font-weight: 900; font-size: 18px; text-transform: uppercase; text-decoration: none; transition: transform 0.1s; will-change: transform; }
 
         @media (max-width: 1024px) {
-            .chat-container, .builder-grid, .live-radar-container { grid-template-columns: 1fr; }
-            .radar-stream { border-right: none; border-bottom: 1px dashed #333; padding-bottom: 20px; height: 300px; }
-            .nav-links { display: none; }
+            .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+            .bento-large, .bento-wide, .bento-tall, .bento-small { grid-column: span 1; grid-row: auto; min-height: 300px; }
+            #pipeline { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <div id="xray-bg"><div class="matrix-code" id="matrix"></div></div>
-    <div id="xray-mask"></div>
+    <div class="mesh-bg">
+        <div class="orb orb-1" id="orb1"></div>
+        <div class="orb orb-2" id="orb2"></div>
+        <div class="orb orb-3" id="orb3"></div>
+    </div>
+    <div class="grid-overlay"></div>
 
-    <div class="cursor-dot" id="cursor-dot"></div>
-    <div class="cursor-ring" id="cursor-ring"></div>
+    <div class="cursor" id="cursor"></div>
+
+    <div id="pipeline"><div id="data-packet"></div></div>
 
     <header>
-        <div class="logo click-target">
-            <div class="logo-core"></div> OBOYMA_LAB
-        </div>
-        <nav class="nav-links">
-            <a href="#chat-sim" class="click-target">Симуляция ИИ</a>
-            <a href="#radar-sim" class="click-target">Лидогенерация</a>
-            <a href="#builder" class="click-target">Конфигуратор</a>
-        </nav>
-        <a href="#footer" class="btn-glitch click-target" style="padding: 10px 20px; font-size: 14px;">SYS.INIT()</a>
+        <div class="logo">OBOYMA</div>
+        <div class="mono-tag" style="margin: 0; color: #fff;">SYS.STATUS: ONLINE</div>
     </header>
 
     <main>
-        <section class="container" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
-            <div class="mono-tag reveal">> SYSTEM: ONLINE</div>
-            <h1 class="reveal" style="transition-delay: 0.1s;">ИНТЕЛЛЕКТ,<br>РАБОТАЮЩИЙ НА<br><span style="color: var(--primary);">ВАШ БИЗНЕС</span></h1>
-            <p class="reveal" style="font-size: 22px; color: var(--text-dim); max-width: 700px; line-height: 1.6; margin-bottom: 50px; transition-delay: 0.2s;">
-                Хватит пилить проекты в стол. Мы разрабатываем ИИ-решения (от Telegram-ботов до LLM агентов типа "Alibi") и инкубируем стартапы до первых продаж.
-            </p>
-            <div class="reveal" style="display: flex; gap: 20px; transition-delay: 0.3s;">
-                <a href="#chat-sim" class="btn-glitch click-target">Запустить песочницу</a>
+        <section class="section" id="hero">
+            <div class="container">
+                <div class="mono-tag hero-elem">> ИНИЦИАЛИЗАЦИЯ ИИ</div>
+                <h1 class="hero-elem">ИНТЕЛЛЕКТ,<br><span class="gradient-text">РАБОТАЮЩИЙ НА</span><br>БИЗНЕС</h1>
+                <p class="hero-elem" style="font-size: 24px; color: var(--text-dim); max-width: 600px; margin-top: 40px; line-height: 1.5;">
+                    Мы разрабатываем кастомные LLM-решения, автоматизируем рутину и инкубируем ИТ-стартапы до первых продаж.
+                </p>
             </div>
         </section>
 
-        <section id="chat-sim" class="container">
-            <div class="mono-tag reveal">[ MODULE: LLM_ASSISTANT ]</div>
-            <h2 class="reveal">Пообщайтесь с нейросетью</h2>
-            
-            <div class="chat-container reveal">
-                <div>
-                    <h3 style="font-size: 32px; margin-bottom: 20px;">«Верочка» и «Alibi»</h3>
-                    <p style="color: var(--text-dim); font-size: 18px; line-height: 1.6; margin-bottom: 30px;">
-                        Это не статичный мокап. Напишите сообщение прямо в терминал справа. 
-                        Спросите про <strong>разработку бота</strong>, <strong>расследование убийства (Alibi)</strong> или <strong>сбор лидов</strong>.
-                    </p>
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 15px; font-family: var(--font-mono); font-size: 14px; color: var(--primary);">
-                        <li>> Промпты генерируются на лету</li>
-                        <li>> Удержание контекста диалога</li>
-                        <li>> Интеграция с Telegram / BiP API</li>
-                    </ul>
-                </div>
-
-                <div class="terminal-box click-target">
-                    <div class="terminal-header">
-                        <div>TERMINAL_UI // AI_CORE_v2.4</div>
-                        <div style="display: flex; gap: 10px; align-items: center;">STATUS <div class="status-dot"></div></div>
-                    </div>
-                    <div class="chat-history" id="chat-history">
-                        <div class="msg bot">Привет! Я ИИ-ассистент лаборатории Обойма. Напишите мне любую фразу, и я покажу, как мы настраиваем логику ботов. Попробуйте спросить: "Как вы ищете лиды?" или "Детектив, у нас труп".</div>
-                    </div>
-                    <div class="chat-input-area">
-                        <input type="text" id="user-input" class="chat-input" placeholder="Введите команду или вопрос..." autocomplete="off">
-                        <button id="send-btn" class="chat-send-btn click-target">SEND</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="radar-sim" class="container">
-            <div class="mono-tag reveal">[ MODULE: LEAD_GENERATION ]</div>
-            <h2 class="reveal">Радар «Лидочка» в реальном времени</h2>
-            <p style="color: var(--text-dim); font-size: 18px; max-width: 800px; margin-bottom: 50px;" class="reveal">
-                Смотрите, как наш алгоритм прямо сейчас фильтрует входящий поток сообщений из Telegram-чатов, отсеивая спам и вытаскивая горячие заявки для вашего бизнеса.
-            </p>
-
-            <div class="live-radar-container reveal">
-                <div class="radar-stream" id="radar-stream">
-                    </div>
+        <section class="section" id="solutions">
+            <div class="container">
+                <div class="mono-tag">> АРХИТЕКТУРА РЕШЕНИЙ</div>
+                <h2 class="gradient-text">Наши Продукты</h2>
                 
-                <div>
-                    <div class="crm-header">
-                        <span>> CRM_DATABASE</span>
-                        <span id="lead-counter" style="color: var(--text);">LEADS: 0</span>
+                <div class="bento-grid">
+                    <div class="bento-item bento-large interactive-hover">
+                        <div style="position: absolute; inset: 0; z-index: 0; background: radial-gradient(circle at top right, rgba(0,255,204,0.1), transparent 50%);"></div>
+                        <div style="z-index: 1;">
+                            <div class="bento-icon">🧠</div>
+                            <div class="bento-title">«Верочка» / EventGate</div>
+                            <div class="bento-desc" style="max-width: 80%;">Нейро-секретарь. Управляет календарем, понимает голос, регистрирует клиентов и принимает оплаты.</div>
+                        </div>
+                        <div class="terminal" style="margin-top: 30px; height: 300px; z-index: 1;">
+                            <div class="term-header">
+                                <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+                            </div>
+                            <div class="term-body" id="term-typing">
+                                </div>
+                        </div>
                     </div>
-                    <div class="crm-pool" id="crm-pool">
-                        <div style="color: var(--text-dim); font-size: 14px; font-style: italic;" id="crm-empty">Ожидание данных от парсера...</div>
+
+                    <div class="bento-item bento-wide interactive-hover">
+                        <div class="bento-icon">🎯</div>
+                        <div>
+                            <div class="bento-title">«Лидочка»</div>
+                            <div class="bento-desc">Умный лидопоисковик. Мониторит тысячи TG-чатов, фильтрует спам и выгружает контакты с горячим спросом вам в CRM.</div>
+                        </div>
+                        <div style="height: 4px; width: 100%; background: #222; margin-top: 20px; border-radius: 2px; overflow: hidden; position: relative;">
+                            <div style="position: absolute; top:0; left:0; height:100%; width: 30%; background: var(--primary); animation: scanLine 2s infinite ease-in-out alternate;"></div>
+                        </div>
+                        <style>@keyframes scanLine { 100% { left: 70%; } }</style>
+                    </div>
+
+                    <div class="bento-item bento-tall interactive-hover" style="background: var(--primary); color: #000;">
+                        <div class="bento-icon">🚀</div>
+                        <div class="bento-title" style="font-size: 40px; line-height: 1.1;">IT Инкубатор</div>
+                        <div class="bento-desc" style="color: rgba(0,0,0,0.7); margin-top: auto;">Хватит пилить пет-проект в стол. Даем ресурсы, берем проджект-менеджмент на себя и доводим стартап до MVP.</div>
+                    </div>
+
+                    <div class="bento-item bento-small interactive-hover">
+                        <div class="bento-title" style="font-size: 20px;">Проект "Alibi"</div>
+                        <div class="bento-desc" style="font-size: 14px;">Кастомная LLM для иммерсивного детективного квеста. Отыгрыш ролей и удержание контекста расследования.</div>
+                    </div>
+
+                    <div class="bento-item bento-small interactive-hover" style="border-color: var(--accent);">
+                        <div class="bento-title" style="font-size: 20px; color: var(--accent);">35%</div>
+                        <div class="bento-desc" style="font-size: 14px;">Времени команды высвобождается при внедрении ИИ агентов.</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="builder" class="container">
-            <div class="mono-tag reveal">[ MODULE: ARCHITECTURE_BUILDER ]</div>
-            <h2 class="reveal">Соберите свою систему</h2>
-            
-            <div class="builder-grid reveal">
-                <div class="modules-panel">
-                    <div class="module-card click-target" data-cost="50" onclick="toggleModule(this, 'Telegram Интеграция')">
-                        <div class="module-icon">📱</div>
-                        <h3>Telegram / BiP Бот</h3>
-                        <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Интерфейс мессенджера для ваших клиентов.</p>
-                    </div>
-                    <div class="module-card click-target" data-cost="120" onclick="toggleModule(this, 'LLM Агент (RAG)')">
-                        <div class="module-icon">🧠</div>
-                        <h3>LLM Агент (Обучение)</h3>
-                        <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Нейросеть, обученная на базе знаний вашей компании.</p>
-                    </div>
-                    <div class="module-card click-target" data-cost="80" onclick="toggleModule(this, 'Синтез и расп. речи')">
-                        <div class="module-icon">🎙️</div>
-                        <h3>Голосовой ИИ</h3>
-                        <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Распознавание аудио и синтез естественного голоса.</p>
-                    </div>
-                    <div class="module-card click-target" data-cost="70" onclick="toggleModule(this, 'CRM Коннектор')">
-                        <div class="module-icon">🔄</div>
-                        <h3>CRM Коннектор</h3>
-                        <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Автоматическая отправка лидов и заявок в amoCRM/Bitrix.</p>
-                    </div>
+        <section class="section" id="contact" style="background: #000;">
+            <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 60px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="mono-tag">> ИНИЦИАЛИЗАЦИЯ ЗАПУСКА</div>
+                    <h2 style="font-size: clamp(3rem, 6vw, 6rem); line-height: 1;">СДЕЛАЙТЕ<br>ШАГ.</h2>
+                    <form style="margin-top: 60px;">
+                        <input type="text" class="huge-input interactive-hover" placeholder="ИМЯ" required>
+                        <input type="tel" class="huge-input interactive-hover" placeholder="ТЕЛЕФОН / ТГ" required>
+                    </form>
                 </div>
-
-                <div class="receipt-panel">
-                    <div style="color: var(--primary); margin-bottom: 30px; font-size: 18px;">> ОЦЕНКА_СИСТЕМЫ</div>
-                    <div id="receipt-items">
-                        <div class="receipt-row">Базовая архитектура <span>Включено</span></div>
-                    </div>
-                    <div class="receipt-total">
-                        <div style="font-size: 12px; color: var(--text-dim);">ПРОГНОЗ ЭКОНОМИИ (В ГОД):</div>
-                        <div class="roi-number" id="roi-total">0 ₽</div>
-                        <a href="#footer" class="btn-glitch click-target" style="margin-top: 30px; text-align: center; font-size: 14px; padding: 15px;">Запросить ТЗ</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="footer" class="container" style="border-top: var(--border); padding-top: 100px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
-                <div>
-                    <h2 class="reveal" style="font-size: 60px;">INITIATE.</h2>
-                    <p style="font-size: 20px; color: var(--text-dim); margin-bottom: 30px;">Свяжитесь с лабораторией. Обсудим ваш бизнес или примем проект в ИТ-инкубатор.</p>
-                    <div style="font-family: var(--font-mono); color: var(--primary); line-height: 2;">
-                        [📞] +7 987 633 08 19<br>
-                        [✉️] corp@oboyma.ai<br>
-                        [📍] Мытищи, пр-кт Олимпийский, 10
-                    </div>
-                </div>
-                <div class="reveal" style="background: var(--surface); padding: 50px; border-radius: 16px; border: var(--border);">
-                    <input type="text" placeholder="ИМЯ" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: #fff; margin-bottom: 20px; outline: none; font-family: var(--font-mono);">
-                    <input type="text" placeholder="ТЕЛЕФОН / TELEGRAM" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: #fff; margin-bottom: 40px; outline: none; font-family: var(--font-mono);">
-                    <button class="btn-glitch click-target" style="width: 100%;">Отправить запрос</button>
+                <div style="display: flex; justify-content: center; align-items: center; padding: 40px;">
+                    <a href="#" class="magnet-btn interactive-hover" id="magnet-btn">Запуск</a>
                 </div>
             </div>
         </section>
     </main>
 
     <script>
-        // --- 1. КУРСОР И X-RAY ЭФФЕКТ ---
-        const cDot = document.getElementById('cursor-dot');
-        const cRing = document.getElementById('cursor-ring');
-        const root = document.documentElement;
+        // Регистрация плагинов
+        gsap.registerPlugin(ScrollTrigger);
 
+        // --- 1. КУРСОР ---
+        const cursor = document.getElementById('cursor');
         window.addEventListener('mousemove', e => {
-            const x = e.clientX, y = e.clientY;
-            cDot.style.left = `${x}px`; cDot.style.top = `${y}px`;
-            cRing.style.left = `${x}px`; cRing.style.top = `${y}px`;
-            // Передаем координаты для маски фона (рентген)
-            root.style.setProperty('--mouse-x', `${x}px`);
-            root.style.setProperty('--mouse-y', `${y}px`);
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
         });
 
-        document.querySelectorAll('.click-target, input, button').forEach(el => {
-            el.addEventListener('mouseenter', () => cRing.classList.add('active'));
-            el.addEventListener('mouseleave', () => cRing.classList.remove('active'));
+        // Hover эффекты для курсора
+        document.querySelectorAll('.interactive-hover').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
         });
 
-        // Матричный фон
-        const matrixEl = document.getElementById('matrix');
-        const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        let matrixContent = '';
-        for(let i=0; i<2000; i++) matrixContent += chars[Math.floor(Math.random()*chars.length)] + (Math.random() > 0.8 ? '<br>' : ' ');
-        matrixEl.innerHTML = matrixContent;
-        setTimeout(() => matrixEl.style.opacity = 1, 1000);
+        // --- 2. ЖИВЫЕ СФЕРЫ НА ФОНЕ (SPATIAL MESH) ---
+        const orb1 = document.getElementById('orb1');
+        const orb2 = document.getElementById('orb2');
+        
+        window.addEventListener('mousemove', e => {
+            const x = e.clientX / window.innerWidth - 0.5;
+            const y = e.clientY / window.innerHeight - 0.5;
+            
+            // Сферы плавно тянутся за мышкой с разной скоростью
+            gsap.to(orb1, { x: x * 200, y: y * 200, duration: 2, ease: "power2.out" });
+            gsap.to(orb2, { x: -x * 300, y: -y * 300, duration: 3, ease: "power2.out" });
+        });
 
-        // --- 2. ИНТЕРАКТИВНЫЙ ЧАТ (СИМУЛЯТОР LLM) ---
-        const chatInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const chatHistory = document.getElementById('chat-history');
+        // --- 3. GSAP SCROLL АНИМАЦИИ ---
+        
+        // Появление текста в Hero
+        gsap.from(".hero-elem", {
+            y: 100, opacity: 0, duration: 1.5,
+            stagger: 0.2, ease: "expo.out", delay: 0.5
+        });
 
-        // База знаний для умных ответов
-        const brain = [
-            { keywords: ['лид', 'клиент', 'поиск', 'продаж'], response: 'Для этого мы внедрим "Лидочку". Она будет парсить Telegram-каналы конкурентов и приносить вам горячие заявки прямо в amoCRM.' },
-            { keywords: ['алиби', 'alibi', 'детектив', 'квест', 'игра', 'труп'], response: 'Дело номер 404... Бот проекта Alibi может вести ветвистый сюжет, отыгрывать роль Архивариуса и давать подсказки только если игрок пришлет правильное фото геолокации в Питере.' },
-            { keywords: ['привет', 'здравствуй'], response: 'Приветствую! Я готов автоматизировать вашу рутину. Что вас интересует больше: чат-боты или поиск клиентов?' },
-            { keywords: ['цена', 'стоимость', 'сколько'], response: 'Стоимость зависит от модулей. Попробуйте конфигуратор ниже на сайте, чтобы собрать примерную смету.' },
-            { keywords: ['инкубатор', 'стартап', 'идея'], response: 'В нашем инкубаторе мы берем техническую и менеджерскую часть на себя. Вы приходите с идеей, мы вместе делаем MVP за месяц.' }
-        ];
+        // Пакет данных бежит по кабелю
+        gsap.to("#data-packet", {
+            y: () => document.documentElement.scrollHeight - window.innerHeight,
+            ease: "none",
+            scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 0.5 }
+        });
 
-        function handleChat() {
-            const text = chatInput.value.trim();
-            if(!text) return;
+        // Bento Box появление при скролле
+        gsap.from(".bento-item", {
+            y: 100, opacity: 0, duration: 1,
+            stagger: 0.1, ease: "power3.out",
+            scrollTrigger: { trigger: ".bento-grid", start: "top 80%" }
+        });
 
-            // Вывод юзера
-            const uMsg = document.createElement('div');
-            uMsg.className = 'msg user'; uMsg.innerText = text;
-            chatHistory.appendChild(uMsg);
-            chatInput.value = '';
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+        // --- 4. ИМИТАЦИЯ ТЕРМИНАЛА (ПЕЧАТАЕТСЯ ПРИ ПОЯВЛЕНИИ) ---
+        const termText = `> Инициализация модуля 'Верочка'...
+> Подключение к API календаря... [OK]
+> Загрузка контекста диалогов... [OK]
+> Голосовой модуль активирован.
 
-            // Поиск ответа
-            let botReply = 'Интересный запрос. Мы можем спроектировать кастомный алгоритм под эту задачу. Свяжитесь с нашей командой для детального ТЗ.';
-            const lowerText = text.toLowerCase();
-            for(let item of brain) {
-                if(item.keywords.some(kw => lowerText.includes(kw))) {
-                    botReply = item.response; break;
+Верочка: "Здравствуйте! Я проанализировала ваш график.
+У вас есть окно в четверг в 15:00. Назначить встречу с клиентом?"
+<span class="typing-cursor"></span>`;
+        
+        let i = 0;
+        const speed = 30;
+        const termDiv = document.getElementById('term-typing');
+        let typeStarted = false;
+
+        ScrollTrigger.create({
+            trigger: ".terminal",
+            start: "top 70%",
+            onEnter: () => {
+                if(!typeStarted) {
+                    typeStarted = true;
+                    function typeWriter() {
+                        if (i < termText.length) {
+                            // Обработка HTML тега внутри строки
+                            if(termText.charAt(i) === '<') {
+                                let tag = '';
+                                while(termText.charAt(i) !== '>') { tag += termText.charAt(i); i++; }
+                                tag += '>'; termDiv.innerHTML += tag; i++;
+                            } else {
+                                termDiv.innerHTML += termText.charAt(i); i++;
+                            }
+                            setTimeout(typeWriter, speed);
+                        }
+                    }
+                    typeWriter();
                 }
             }
+        });
 
-            // Анимация печати
-            setTimeout(() => {
-                const typ = document.createElement('div');
-                typ.className = 'msg bot';
-                typ.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-                chatHistory.appendChild(typ);
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-
-                setTimeout(() => {
-                    typ.remove();
-                    const bMsg = document.createElement('div');
-                    bMsg.className = 'msg bot'; bMsg.innerText = botReply;
-                    chatHistory.appendChild(bMsg);
-                    chatHistory.scrollTop = chatHistory.scrollHeight;
-                }, 1000 + Math.random() * 1000); // Рандомная задержка для реализма
-            }, 400);
-        }
-
-        sendBtn.addEventListener('click', handleChat);
-        chatInput.addEventListener('keypress', e => { if(e.key === 'Enter') handleChat(); });
-
-        // --- 3. ГЕЙМИФИКАЦИЯ: LIVE РАДАР (ЛИДОЧКА) ---
-        const stream = document.getElementById('radar-stream');
-        const crmPool = document.getElementById('crm-pool');
-        const leadCounter = document.getElementById('lead-counter');
-        const emptyMsg = document.getElementById('crm-empty');
-        let leadsCaught = 0;
-
-        const fakeMessages = [
-            { text: "Где скачать драйвера?", type: "spam" },
-            { text: "Ищем команду для разработки TG-бота под ключ. Бюджет 500k.", type: "lead" },
-            { text: "Куплю гараж в Мытищах.", type: "spam" },
-            { text: "Посоветуйте сервис для автообзвона и автоответов.", type: "lead" },
-            { text: "Продам крипту дорого.", type: "spam" },
-            { text: "Кто может настроить нейросеть для техподдержки на сайте?", type: "lead" }
-        ];
-
-        function spawnMessage() {
-            // Если секция не видна, не спамим (оптимизация)
-            const rect = stream.getBoundingClientRect();
-            if(rect.top > window.innerHeight || rect.bottom < 0) return;
-
-            const msgData = fakeMessages[Math.floor(Math.random() * fakeMessages.length)];
-            const el = document.createElement('div');
-            el.className = 'stream-item';
-            el.innerHTML = `<div><span style="color:var(--primary); font-size:11px;">@user_${Math.floor(Math.random()*9999)}</span><br>${msgData.text}</div> <div class="mono-tag" style="background:transparent; border-color:#333; color:#555; font-size:10px;">ANALYZING...</div>`;
+        // --- 5. МАГНИТНАЯ КНОПКА (Физика пружины) ---
+        const magnetBtn = document.getElementById('magnet-btn');
+        magnetBtn.addEventListener('mousemove', e => {
+            const rect = magnetBtn.getBoundingClientRect();
+            const h = rect.width / 2;
+            const x = e.clientX - rect.left - h;
+            const y = e.clientY - rect.top - h;
             
-            stream.prepend(el);
-            if(stream.children.length > 5) stream.lastChild.remove();
-
-            // Симуляция анализа нейросетью
-            setTimeout(() => {
-                const tag = el.querySelector('.mono-tag');
-                if(msgData.type === 'spam') {
-                    el.classList.add('analyzed-spam');
-                    tag.innerText = 'TRASH';
-                } else {
-                    el.classList.add('analyzed-lead');
-                    tag.innerText = 'MATCH';
-                    tag.style.background = 'var(--primary)'; tag.style.color = '#000';
-                    
-                    // Перенос в CRM
-                    setTimeout(() => {
-                        if(emptyMsg) emptyMsg.style.display = 'none';
-                        el.style.opacity = 0;
-                        leadsCaught++;
-                        leadCounter.innerText = `LEADS: ${leadsCaught}`;
-                        
-                        const crmItem = document.createElement('div');
-                        crmItem.className = 'crm-lead';
-                        crmItem.innerText = msgData.text.substring(0, 30) + '...';
-                        crmPool.prepend(crmItem);
-                        if(crmPool.children.length > 4) crmPool.lastChild.remove();
-                    }, 800);
-                }
-            }, 1000);
-        }
-        setInterval(spawnMessage, 2500);
-
-        // --- 4. КОНФИГУРАТОР ИИ ---
-        let totalRoi = 0;
-        const receiptItems = document.getElementById('receipt-items');
-        const roiTotal = document.getElementById('roi-total');
-
-        window.toggleModule = function(card, name) {
-            const cost = parseInt(card.getAttribute('data-cost'));
-            const isSelected = card.classList.toggle('selected');
-            
-            if(isSelected) {
-                totalRoi += cost;
-                const row = document.createElement('div');
-                row.className = 'receipt-row active'; row.id = 'row-' + cost;
-                row.innerHTML = `${name} <span>+${cost}k ₽/год</span>`;
-                receiptItems.appendChild(row);
-            } else {
-                totalRoi -= cost;
-                const row = document.getElementById('row-' + cost);
-                if(row) row.remove();
-            }
-
-            // Анимация бегущих цифр
-            animateValue(roiTotal, parseInt(roiTotal.innerText.replace(/\D/g,'')) || 0, totalRoi * 10000, 500);
-        };
-
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString() + ' ₽';
-                if (progress < 1) window.requestAnimationFrame(step);
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        // --- 5. SCROLL REVEAL ---
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            gsap.to(magnetBtn, { x: x * 0.4, y: y * 0.4, duration: 0.3, ease: "power2.out" });
+        });
+        magnetBtn.addEventListener('mouseleave', () => {
+            gsap.to(magnetBtn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+        });
     </script>
 </body>
 </html>
