@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBOYMA — Интеграция AI в ваш бизнес</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #fff; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(90deg, #fff 0%, #a8a8a8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-glow { position: absolute; top: -10%; left: 50%; transform: translateX(-50%); width: 80%; height: 500px; background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; }
+        .card-hover:hover { border-color: rgba(59, 130, 246, 0.5); transform: translateY(-5px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body x-data="{ mobileMenu: false }">
+
+    <div class="hero-glow"></div>
+
+    <nav class="fixed w-full z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center glass rounded-2xl px-8 py-4">
+            <div class="text-2xl font-extrabold tracking-tighter">
+                OBOYMA<span class="text-blue-500">.AI</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-8 text-sm font-medium tracking-wide uppercase">
+                <a href="#services" class="hover:text-blue-400 transition">Услуги</a>
+                <a href="#cases" class="hover:text-blue-400 transition">Кейсы</a>
+                <a href="#about" class="hover:text-blue-400 transition">О нас</a>
+                <a href="#contacts" class="bg-white text-black px-5 py-2 rounded-full hover:bg-blue-600 hover:text-white transition duration-300">Связаться</a>
+            </div>
+
+            <button @click="mobileMenu = !mobileMenu" class="md:hidden text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+
+        <div x-show="mobileMenu" class="md:hidden glass mt-2 rounded-xl p-6 flex flex-col space-y-4">
+            <a href="#services" @click="mobileMenu = false">Услуги</a>
+            <a href="#cases" @click="mobileMenu = false">Кейсы</a>
+            <a href="#contacts" @click="mobileMenu = false">Контакты</a>
+        </div>
+    </nav>
+
+    <section class="pt-48 pb-24 px-6">
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="inline-block px-4 py-1.5 mb-6 glass rounded-full text-xs font-semibold tracking-widest text-blue-400 uppercase">
+                Будущее бизнеса с Искусственным Интеллектом
+            </div>
+            <h1 class="text-5xl md:text-8xl font-extrabold mb-8 leading-tight gradient-text">
+                Заряжаем ваш бизнес <br> мощностью AI
+            </h1>
+            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+                Мы создаем и внедряем нейросетевых сотрудников, автоматизируем продажи и аналитику, чтобы вы могли сфокусироваться на масштабировании.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+                <a href="#contacts" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-5 rounded-2xl text-lg font-bold transition shadow-lg shadow-blue-900/20">
+                    Заказать проект
+                </a>
+                <a href="#services" class="w-full md:w-auto glass hover:bg-white/10 px-10 py-5 rounded-2xl text-lg font-bold transition">
+                    Наши решения
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+                <div class="max-w-2xl">
+                    <h2 class="text-4xl font-bold mb-4">Наши компетенции</h2>
+                    <p class="text-gray-400">Комплексные AI-решения: от простых чат-ботов до глубокой автоматизации внутренних процессов компании.</p>
+                </div>
+                <div class="text-blue-500 font-semibold cursor-pointer">Все услуги &rarr;</div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass p-8 rounded-[32px] card-hover">
+                    <div class="w-14 h-14 bg-blue-500/20 flex items-center justify-center rounded-2xl mb-8 text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">AI Ассистенты</h3>
+                    <p class="text-gray-400 leading-relaxed">Умные боты для Telegram, WhatsApp и сайтов, которые общаются как люди и закрывают сделки.</p>
+                </div>
+
+                <div class="glass p-8 rounded-[32px] card-hover">
+                    <div class="w-14 h-14 bg-purple-500/20 flex items-center justify-center rounded-2xl mb-8 text-purple-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Аналитика данных</h3>
+                    <p class="text-gray-400 leading-relaxed">Внедрение LLM для анализа больших объемов документов, отзывов и рыночных трендов.</p>
+                </div>
+
+                <div class="glass p-8 rounded-[32px] card-hover">
+                    <div class="w-14 h-14 bg-green-500/20 flex items-center justify-center rounded-2xl mb-8 text-green-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Автоматизация CRM</h3>
+                    <p class="text-gray-400 leading-relaxed">Интеграция AI в AmoCRM и Bitrix24 для автоматического квалифицирования лидов.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cases" class="py-24 px-6 bg-[#080808]">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-16">Наши проекты</h2>
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="group cursor-pointer">
+                    <div class="aspect-video glass rounded-[40px] mb-6 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent"></div>
+                        <img src="https://via.placeholder.com/800x450/111/fff?text=AI+Project+Case" alt="Project" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Бот-продажник для мебельного салона</h4>
+                    <p class="text-gray-500">Увеличили конверсию из заявки в замер на 40% за счет мгновенных ответов AI.</p>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="aspect-video glass rounded-[40px] mb-6 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-transparent"></div>
+                        <img src="https://via.placeholder.com/800x450/111/fff?text=Enterprise+AI" alt="Project" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Автоматизация техподдержки</h4>
+                    <p class="text-gray-500">AI обрабатывает 85% входящих запросов без участия живого оператора.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacts" class="py-24 px-6">
+        <div class="max-w-4xl mx-auto glass rounded-[48px] p-12 text-center relative overflow-hidden">
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-600/10 blur-[80px] rounded-full"></div>
+            
+            <h2 class="text-4xl font-bold mb-6">Готовы внедрить AI?</h2>
+            <p class="text-gray-400 mb-10 text-lg">Оставьте контакты, и мы проведем бесплатный аудит ваших процессов под внедрение нейросетей.</p>
+            
+            <form class="grid md:grid-cols-2 gap-4 text-left">
+                <input type="text" placeholder="Ваше имя" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-blue-500">
+                <input type="text" placeholder="Telegram / WhatsApp" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-blue-500">
+                <button class="md:col-span-2 bg-white text-black font-bold py-5 rounded-xl hover:bg-blue-600 hover:text-white transition duration-300">
+                    Отправить запрос
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="py-12 border-t border-white/5 text-center">
+        <p class="text-gray-600 text-sm">© 2024 OBOYMA.AI. Все права защищены. Сделано для будущего.</p>
+    </footer>
+
+</body>
+</html>
