@@ -3,387 +3,469 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обойма Лаб — ИИ-решения для бизнеса</title>
+    <title>Обойма Лаб — Инновационные ИИ-решения</title>
     <style>
-        /* --- ПЕРЕМЕННЫЕ ТЕМ (Светлая / Темная) --- */
-        :root[data-theme="light"] {
-            --bg-main: #f8fafc;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --primary: #0a3d70;
-            --accent: #2196f3;
-            --card-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.05);
-            --invert-val: 0;
-        }
+        /* --- CORE VARS --- */
         :root[data-theme="dark"] {
-            --bg-main: #0b1120;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg: #030712;
+            --text: #f8fafc;
+            --muted: #64748b;
             --primary: #38bdf8;
             --accent: #818cf8;
-            --card-bg: rgba(30, 41, 59, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --invert-val: 1;
+            --glass: rgba(15, 23, 42, 0.6);
+            --border: rgba(255, 255, 255, 0.08);
+            --glow: 0 0 40px rgba(56, 189, 248, 0.2);
         }
-        :root {
-            --radius: 20px;
-            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        :root[data-theme="light"] {
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #0284c7;
+            --accent: #4f46e5;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.08);
+            --glow: 0 10px 40px rgba(2, 132, 199, 0.15);
         }
-
-        /* --- БАЗА И КУРСОР --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; } /* Скрываем дефолтный курсор */
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); overflow-x: hidden; transition: background var(--transition), color var(--transition); }
         
-        .custom-cursor {
-            position: fixed; top: 0; left: 0; width: 20px; height: 20px; border: 2px solid var(--accent);
-            border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: difference;
-        }
-        .custom-cursor.hovered { width: 60px; height: 60px; background: white; border: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); transition: 0.5s; }
 
-        canvas#network { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0.4; }
+        /* --- КУРСОР --- */
+        .cursor-dot, .cursor-outline { position: fixed; top: 0; left: 0; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; z-index: 10000; }
+        .cursor-dot { width: 8px; height: 8px; background: var(--primary); transition: width 0.2s, height 0.2s; }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid var(--accent); transition: width 0.15s, height 0.15s, transform 0.1s; mix-blend-mode: difference; }
+        body:hover .cursor-outline.hovered { width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-color: transparent; backdrop-filter: blur(2px); }
 
-        /* --- ТИПОГРАФИКА И КОНТЕЙНЕРЫ --- */
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
-        section { padding: 140px 0; position: relative; }
-        h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 900; line-height: 1.1; margin-bottom: 30px; }
-        h2 { font-size: clamp(32px, 5vw, 56px); font-weight: 800; text-align: center; margin-bottom: 60px; }
-        .gradient-text { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* --- ФОН --- */
+        canvas#ai-core { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; opacity: 0.6; }
+        .noise-overlay { position: fixed; inset: 0; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E'); z-index: -1; pointer-events: none; }
 
-        /* --- КНОПКИ --- */
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center; padding: 16px 36px;
-            border-radius: 50px; font-weight: 700; font-size: 16px; border: none; transition: var(--transition);
-            position: relative; overflow: hidden; background: var(--accent); color: #fff;
-        }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(129, 140, 248, 0.4); }
-
+        /* --- БАЗА --- */
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 5%; }
+        section { padding: 150px 0; position: relative; }
+        h1 { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; line-height: 1; letter-spacing: -0.04em; margin-bottom: 30px; }
+        h2 { font-size: clamp(2rem, 5vw, 4rem); font-weight: 800; text-align: center; margin-bottom: 80px; letter-spacing: -0.02em; }
+        .text-gradient { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
         /* --- ШАПКА --- */
-        header {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 80px); max-width: 1320px;
-            background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border);
-            border-radius: 100px; z-index: 1000; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .logo { font-size: 24px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 600; }
-        .theme-toggle { background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 14px; transition: var(--transition); }
-
-        /* --- AI ТЕРМИНАЛ (Главный экран) --- */
-        .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 100px; }
-        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-        .terminal {
-            background: #0f172a; border-radius: var(--radius); padding: 30px; font-family: 'Courier New', monospace;
-            color: #10b981; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
-            height: 400px; overflow: hidden; position: relative;
-        }
-        .terminal-header { display: flex; gap: 8px; margin-bottom: 20px; }
-        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; }
-        .terminal-dot:nth-child(2) { background: #f59e0b; }
-        .terminal-dot:nth-child(3) { background: #10b981; }
-        .terminal-body p { margin-bottom: 10px; line-height: 1.5; font-size: 15px; }
-        .cursor-blink { animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* --- КАЛЬКУЛЯТОР ROI (Аналитика) --- */
-        .calculator-wrapper { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 60px; margin-top: 40px; }
-        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-        .calc-input-group { margin-bottom: 30px; }
-        .calc-input-group label { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 15px; }
-        input[type=range] { width: 100%; appearance: none; height: 6px; background: rgba(148, 163, 184, 0.3); border-radius: 5px; outline: none; }
-        input[type=range]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; transition: 0.2s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
-        .calc-results { background: rgba(0,0,0,0.2); padding: 40px; border-radius: var(--radius); text-align: center; }
-        .calc-results h4 { font-size: 20px; color: var(--text-muted); margin-bottom: 10px; }
-        .calc-results .val { font-size: 48px; font-weight: 900; color: var(--primary); margin-bottom: 30px; }
-
-        /* --- СЕТКИ КАРТОЧЕК --- */
-        .glass-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 40px; transition: var(--transition); }
-        .glass-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        header { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1200px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 100px; z-index: 1000; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; transition: 0.4s; }
+        .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .logo-mark { width: 30px; height: 30px; background: var(--text); color: var(--bg); border-radius: 8px; display: grid; place-items: center; font-size: 16px; transform: rotate(15deg); transition: 0.3s; }
+        header:hover .logo-mark { transform: rotate(0deg) scale(1.1); background: var(--primary); color: white; }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { font-weight: 600; text-decoration: none; color: var(--text); padding: 10px; }
         
-        .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .slider-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .incubator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 30px; }
+        /* --- КНОПКИ (MAGNETIC) --- */
+        .btn-magnetic { display: inline-flex; align-items: center; justify-content: center; padding: 18px 40px; border-radius: 50px; font-weight: 700; font-size: 16px; background: var(--text); color: var(--bg); border: none; position: relative; overflow: hidden; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform; }
+        .btn-magnetic::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.5s; }
+        .btn-magnetic:hover::before { left: 100%; }
 
-        /* --- АНИМАЦИИ ПОЯВЛЕНИЯ --- */
-        .reveal { opacity: 0; transform: translateY(40px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        /* --- HERO --- */
+        .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 100px; }
+        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; }
+        .scramble-text { display: inline-block; min-width: 20px; }
+        
+        /* Глобус / Радар */
+        .radar-box { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; box-shadow: var(--glow); overflow: hidden; }
+        .radar-sweep { position: absolute; top: 50%; left: 50%; width: 50%; height: 50%; background: conic-gradient(from 0deg, transparent 70%, var(--primary) 100%); transform-origin: 0 0; animation: radar 4s linear infinite; }
+        @keyframes radar { to { transform: rotate(360deg); } }
+        .radar-core { width: 20%; height: 20%; background: var(--text); border-radius: 50%; box-shadow: 0 0 50px var(--primary); z-index: 2; animation: pulse 2s ease-in-out infinite alternate; }
+        @keyframes pulse { to { transform: scale(1.2); box-shadow: 0 0 80px var(--accent); } }
 
-        /* --- АДАПТИВНОСТЬ --- */
+        /* --- БЕГУЩАЯ СТРОКА (MARQUEE) --- */
+        .marquee { width: 100vw; margin-left: calc(-50vw + 50%); padding: 30px 0; background: var(--primary); color: #000; overflow: hidden; display: flex; white-space: nowrap; transform: rotate(-2deg) scale(1.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 10; position: relative; }
+        .marquee-inner { display: flex; font-size: 24px; font-weight: 900; text-transform: uppercase; animation: marquee 15s linear infinite; }
+        .marquee-inner span { margin: 0 40px; display: flex; align-items: center; gap: 40px; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* --- 3D TILT КАРТОЧКИ --- */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; perspective: 1000px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; perspective: 1000px; }
+        
+        .tilt-card { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 50px 40px; position: relative; overflow: hidden; transform-style: preserve-3d; will-change: transform; transition: transform 0.1s; }
+        .tilt-card .glare { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2), transparent); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 10; transform: translateZ(1px); }
+        .tilt-card:hover .glare { opacity: 1; }
+        .tilt-content { transform: translateZ(50px); /* Выдавливаем контент вперед */ }
+        .tilt-card h3 { font-size: 28px; margin-bottom: 20px; color: var(--primary); }
+        .tilt-card p { color: var(--muted); font-size: 16px; line-height: 1.6; }
+
+        /* --- КАЛЬКУЛЯТОР 2.0 (GLASSMORPHISM) --- */
+        .roi-wrapper { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 32px; padding: 80px; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+        .roi-wrapper::before { content: ''; position: absolute; top: -50px; left: -50px; width: 300px; height: 300px; background: var(--primary); filter: blur(100px); opacity: 0.2; border-radius: 50%; }
+        .range-slider { -webkit-appearance: none; width: 100%; height: 8px; background: var(--border); border-radius: 4px; outline: none; margin: 20px 0 40px; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 4px solid var(--bg); box-shadow: 0 0 20px var(--accent); transition: 0.2s; }
+        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+        .roi-val { font-size: 64px; font-weight: 900; background: linear-gradient(to right, var(--text), var(--muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+
+        /* --- КОМАНДА (HOVER REVEAL) --- */
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .team-box { aspect-ratio: 3/4; border-radius: 20px; background: var(--border); position: relative; overflow: hidden; display: flex; align-items: flex-end; padding: 30px; border: 1px solid var(--border); }
+        .team-info { transform: translateY(20px); opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 2; }
+        .team-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 10%, transparent 80%); opacity: 0; transition: 0.4s; }
+        .team-box:hover .team-info { transform: translateY(0); opacity: 1; }
+        .team-box:hover::after { opacity: 1; }
+        .team-box h4 { font-size: 24px; margin-bottom: 5px; }
+        .team-box p { color: var(--primary); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- ФОРМА И ПОДВАЛ --- */
+        .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; padding: 100px 0; border-top: 1px solid var(--border); }
+        input, textarea { width: 100%; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: inherit; font-size: 16px; margin-bottom: 20px; transition: 0.3s; outline: none; }
+        input:focus, textarea:focus { border-color: var(--primary); background: rgba(255,255,255,0.05); }
+
+        /* Анимации появления */
+        .fade-up { opacity: 0; transform: translateY(50px); transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
         @media (max-width: 1024px) {
-            .hero-grid, .calc-grid, .audience-grid { grid-template-columns: 1fr; }
-            .slider-grid, .incubator-grid { grid-template-columns: 1fr; }
-            header { display: none; } /* Здесь можно добавить мобильное меню */
+            .hero-grid, .roi-wrapper, .grid-3, .grid-2, .footer-grid { grid-template-columns: 1fr; }
+            .team-grid { grid-template-columns: 1fr 1fr; }
+            .radar-box { width: 60%; margin: 0 auto; }
+            header { display: none; } /* Mobile menu placeholder */
+            h1 { font-size: 48px; }
         }
     </style>
 </head>
 <body>
-    <div class="custom-cursor" id="cursor"></div>
-    <canvas id="network"></canvas>
 
-    <header class="hover-target">
-        <div class="logo">ОБОЙМА ЛАБ</div>
+    <div class="noise-overlay"></div>
+    <canvas id="ai-core"></canvas>
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <header class="magnetic-wrap">
+        <div class="logo magnetic-item"><div class="logo-mark">О</div> ОБОЙМА ЛАБ</div>
         <nav class="nav-links">
-            <a href="#about" class="hover-target">О нас</a>
-            <a href="#solutions" class="hover-target">Решения</a>
-            <a href="#roi" class="hover-target">Аналитика</a>
-            <a href="#incubator" class="hover-target">Инкубатор</a>
+            <a href="#about" class="magnetic-item">О нас</a>
+            <a href="#solutions" class="magnetic-item">Решения</a>
+            <a href="#roi" class="magnetic-item">Аналитика</a>
+            <a href="#contacts" class="magnetic-item">Контакты</a>
         </nav>
-        <button class="theme-toggle hover-target" onclick="toggleTheme()">☀️ Light Mode</button>
+        <button class="btn-magnetic magnetic-item" style="padding: 10px 24px; font-size: 14px;" onclick="toggleTheme()">🌓 Theme</button>
     </header>
 
     <main>
         <section id="about" class="hero container">
             <div class="hero-grid">
-                <div class="hero-content reveal">
-                    <h1>Интеллект,<br>работающий на<br><span class="gradient-text">Ваш бизнес</span></h1>
-                    <p style="font-size: 20px; color: var(--text-muted); margin-bottom: 40px;">Разрабатываем программные продукты на базе ИИ. Автоматизируем рутину, находим лиды и создаем умные интеграции для мессенджеров.</p>
-                    <a href="#roi" class="btn hover-target">Рассчитать выгоду</a>
-                </div>
-                
-                <div class="terminal reveal hover-target">
-                    <div class="terminal-header">
-                        <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
+                <div class="hero-content fade-up">
+                    <h1 class="cyber-title">Интеллект,<br>работающий на<br><span class="text-gradient">Ваш бизнес</span></h1>
+                    <p style="font-size: 22px; color: var(--muted); margin-bottom: 50px; max-width: 90%; line-height: 1.6;">Российский разработчик ПО. Мы создаем собственные ИИ-продукты и инкубируем технологические стартапы от идеи до первых продаж.</p>
+                    <div style="display: flex; gap: 20px;">
+                        <a href="#roi" class="btn-magnetic magnetic-item">Рассчитать выгоду</a>
+                        <a href="#solutions" class="btn-magnetic magnetic-item" style="background: transparent; color: var(--text); border: 1px solid var(--border);">Смотреть продукты</a>
                     </div>
-                    <div class="terminal-body" id="typing-text">
-                        </div>
                 </div>
-            </div>
-        </section>
-
-        <section class="container reveal">
-            <h2>Кому мы полезны?</h2>
-            <div class="audience-grid">
-                <div class="glass-card hover-target">
-                    <h3 style="font-size: 28px; margin-bottom: 20px; color: var(--primary);">💼 Для бизнеса</h3>
-                    <p style="color: var(--text-muted); line-height: 1.7;">Автоматизация операционки: продажи, маркетинг, логистика. Внедряем ИИ, чтобы избавить команду от рутины, поглощающей ресурсы.</p>
-                </div>
-                <div class="glass-card hover-target">
-                    <h3 style="font-size: 28px; margin-bottom: 20px; color: var(--primary);">👨‍💻 Для разработчиков</h3>
-                    <p style="color: var(--text-muted); line-height: 1.7;">Помогаем технологическим предпринимателям с идеями ИТ-решений. Даем ресурсы, экспертизу и менеджмент для запуска MVP.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="solutions" class="container reveal">
-            <h2>Готовые ИИ-решения</h2>
-            <div class="slider-grid">
-                <div class="glass-card hover-target">
-                    <h3 style="color: var(--primary); margin-bottom: 15px;">«Верочка»</h3>
-                    <p style="font-weight: 600; color: var(--accent); margin-bottom: 15px;">Telegram-секретарь</p>
-                    <p style="color: var(--text-muted); font-size: 14px;">Управляет календарем, понимает голос, планирует встречи и подбирает тон общения с клиентами.</p>
-                </div>
-                <div class="glass-card hover-target">
-                    <h3 style="color: var(--primary); margin-bottom: 15px;">«Открывашка»</h3>
-                    <p style="font-weight: 600; color: var(--accent); margin-bottom: 15px;">EventGate Opener</p>
-                    <p style="color: var(--text-muted); font-size: 14px;">Нейро-сервис для ивентов. Регистрирует клиентов из соцсетей, принимает оплаты и ведет базу.</p>
-                </div>
-                <div class="glass-card hover-target">
-                    <h3 style="color: var(--primary); margin-bottom: 15px;">«Лидочка»</h3>
-                    <p style="font-weight: 600; color: var(--accent); margin-bottom: 15px;">Умный лидопоисковик</p>
-                    <p style="color: var(--text-muted); font-size: 14px;">Мониторит тематические чаты в Telegram, ищет прямой спрос и выдает горячие контакты.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="roi" class="container reveal">
-            <h2>Калькулятор окупаемости ИИ</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-top: -40px; margin-bottom: 40px;">Узнайте, сколько ресурсов сэкономит автоматизация процессов.</p>
-            
-            <div class="calculator-wrapper hover-target">
-                <div class="calc-grid">
-                    <div>
-                        <div class="calc-input-group">
-                            <label>Сотрудников в отделе <span id="emp-val">10</span></label>
-                            <input type="range" id="employees" min="1" max="100" value="10">
-                        </div>
-                        <div class="calc-input-group">
-                            <label>Средняя ЗП (тыс. руб) <span id="salary-val">80 000 ₽</span></label>
-                            <input type="range" id="salary" min="30" max="300" step="10" value="80">
-                        </div>
-                        <p style="color: var(--text-muted); font-size: 14px; margin-top: 30px;">*Расчет основан на усредненных данных: ИИ забирает до 35% рутинных задач (обработка лидов, рассылки, классификация).</p>
-                    </div>
-                    <div class="calc-results">
-                        <h4>Сэкономлено времени в месяц:</h4>
-                        <div class="val"><span id="hours-saved">560</span> часов</div>
-                        <h4>Сохранено бюджета в год:</h4>
-                        <div class="val" style="color: #10b981;"><span id="money-saved">3.36</span> млн ₽</div>
+                <div class="hero-visual fade-up">
+                    <div class="radar-box hover-target">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-core"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="incubator" class="container reveal">
-            <h2>IT-инкубатор</h2>
-            <div class="incubator-grid">
-                <div class="glass-card hover-target"><h4>Рекрутинг идей</h4><p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Отбираем перспективные проекты и специалистов.</p></div>
-                <div class="glass-card hover-target"><h4>Безопасный старт</h4><p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Проверяем гипотезы без лишних затрат: быстрый MVP.</p></div>
-                <div class="glass-card hover-target"><h4>Внешний «проджект»</h4><p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Берем управление на себя, чтобы команда кодила, а не выгорала.</p></div>
+        <div class="marquee">
+            <div class="marquee-inner">
+                <span>✦ TELEGRAM БОТЫ ✦ АВТОМАТИЗАЦИЯ БИЗНЕСА ✦ LLM АГЕНТЫ ✦ НЕЙРОСЕТИ ✦ IT ИНКУБАТОР ✦ MVP ЗА 30 ДНЕЙ</span>
+                <span>✦ TELEGRAM БОТЫ ✦ АВТОМАТИЗАЦИЯ БИЗНЕСА ✦ LLM АГЕНТЫ ✦ НЕЙРОСЕТИ ✦ IT ИНКУБАТОР ✦ MVP ЗА 30 ДНЕЙ</span>
             </div>
-            <div class="glass-card hover-target" style="text-align: center; background: var(--primary); padding: 60px;">
-                <h3 style="color: white; font-size: 36px; margin-bottom: 20px;">Хватит пилить пет-проект в стол</h3>
-                <p style="color: rgba(255,255,255,0.8); font-size: 18px; max-width: 600px; margin: 0 auto 30px;">За месяц мы превратим вашу идею в работающий MVP с первыми клиентами и четким планом роста.</p>
-                <button class="btn" style="background: white; color: var(--primary);">Оставить заявку</button>
+        </div>
+
+        <section class="container">
+            <h2 class="cyber-title fade-up">Кому мы полезны?</h2>
+            <div class="grid-2">
+                <div class="tilt-card fade-up hover-target">
+                    <div class="glare"></div>
+                    <div class="tilt-content">
+                        <h3>🏢 Для Бизнеса</h3>
+                        <p>Готовые решения и кастомная разработка для автоматизации операционки. Продажи, маркетинг, логистика, кадры. Нейросети заберут рутину, поглощающую ваши ресурсы и время команды.</p>
+                    </div>
+                </div>
+                <div class="tilt-card fade-up hover-target">
+                    <div class="glare"></div>
+                    <div class="tilt-content">
+                        <h3>👨‍💻 Для Разработчиков</h3>
+                        <p>Бизнес-инкубатор для ИТ-талантов. У вас есть идея алгоритма или продукта? Мы дадим безопасный старт, ресурсы, возьмем на себя проектный менеджмент и доведем вас до релиза.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <section id="solutions" class="container">
+            <h2 class="cyber-title fade-up">Готовые ИИ-решения</h2>
+            <div class="grid-3">
+                <div class="tilt-card fade-up hover-target">
+                    <div class="glare"></div>
+                    <div class="tilt-content">
+                        <div style="font-size: 40px; margin-bottom: 20px;">🤖</div>
+                        <h3>«Верочка»</h3>
+                        <p style="color: var(--accent); font-weight: 700; margin-bottom: 15px;">Нейро-секретарь</p>
+                        <p>Telegram-ассистент, который управляет календарем, понимает голос, планирует встречи и подбирает идеальный тон общения с вашими клиентами.</p>
+                    </div>
+                </div>
+                <div class="tilt-card fade-up hover-target">
+                    <div class="glare"></div>
+                    <div class="tilt-content">
+                        <div style="font-size: 40px; margin-bottom: 20px;">🎟️</div>
+                        <h3>«Открывашка»</h3>
+                        <p style="color: var(--accent); font-weight: 700; margin-bottom: 15px;">EventGate</p>
+                        <p>Сервис для ивентов. Автоматически общается с гостями из соцсетей, принимает оплаты, ведет базу и пингует менеджеров при сложных запросах.</p>
+                    </div>
+                </div>
+                <div class="tilt-card fade-up hover-target">
+                    <div class="glare"></div>
+                    <div class="tilt-content">
+                        <div style="font-size: 40px; margin-bottom: 20px;">🎯</div>
+                        <h3>«Лидочка»</h3>
+                        <p style="color: var(--accent); font-weight: 700; margin-bottom: 15px;">Умный лидопоисковик</p>
+                        <p>Мониторит тысячи тематических чатов в Telegram, выявляет прямой спрос на ваш продукт и выдает контакты горячих клиентов для связи.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roi" class="container">
+            <h2 class="cyber-title fade-up">Окупаемость Интеллекта</h2>
+            <div class="roi-wrapper fade-up">
+                <div>
+                    <h3 style="font-size: 32px; margin-bottom: 40px;">Вводные данные</h3>
+                    <label style="display: flex; justify-content: space-between; font-weight: 600;">Сотрудников в отделе <span id="val-emp">15</span></label>
+                    <input type="range" class="range-slider hover-target" id="inp-emp" min="1" max="50" value="15">
+                    
+                    <label style="display: flex; justify-content: space-between; font-weight: 600;">Средняя ЗП (тыс. руб) <span id="val-sal">100</span></label>
+                    <input type="range" class="range-slider hover-target" id="inp-sal" min="40" max="300" step="10" value="100">
+                    <p style="color: var(--muted); font-size: 14px; margin-top: 20px;">ИИ-агенты забирают на себя до 35% рутинных операций (сбор данных, ответы клиентам, классификация).</p>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <p style="color: var(--muted); font-size: 18px; text-transform: uppercase; letter-spacing: 2px;">Экономия бюджета / год</p>
+                    <div class="roi-val" id="out-money">8.19 млн ₽</div>
+                    
+                    <div style="margin-top: 40px; height: 1px; background: var(--border);"></div>
+                    
+                    <p style="color: var(--muted); font-size: 18px; text-transform: uppercase; letter-spacing: 2px; margin-top: 40px;">Высвобождено часов / мес</p>
+                    <div class="roi-val" style="font-size: 48px; color: var(--primary); background: none; -webkit-text-fill-color: var(--primary);" id="out-hours">840 ч.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <h2 class="cyber-title fade-up">Синтез ИТ и Бизнеса</h2>
+            <div class="team-grid">
+                <div class="team-box fade-up hover-target"><div class="team-info"><h4>Андрей</h4><p>Наставник по запуску</p></div></div>
+                <div class="team-box fade-up hover-target"><div class="team-info"><h4>Богдан</h4><p>Акселератор идей</p></div></div>
+                <div class="team-box fade-up hover-target"><div class="team-info"><h4>Дмитрий</h4><p>Ментор по продукту</p></div></div>
+                <div class="team-box fade-up hover-target"><div class="team-info"><h4>Роман</h4><p>Tech Lead</p></div></div>
+            </div>
+        </section>
+
+        <section id="contacts" class="container">
+            <div class="footer-grid fade-up">
+                <div>
+                    <h1 class="cyber-title">Хватит пилить<br>проект в стол.</h1>
+                    <p style="font-size: 24px; color: var(--muted); margin: 30px 0 60px;">За месяц мы превратим вашу идею в работающий MVP. Ваш следующий шаг — заявка.</p>
+                    <div style="font-size: 18px; line-height: 2;">
+                        <p>📞 +7 987 633 08 19</p>
+                        <p>✉️ corp@oboyma.ai</p>
+                        <p>📍 г. Мытищи, пр-кт Олимпийский, 10</p>
+                    </div>
+                </div>
+                <div style="background: var(--glass); padding: 50px; border-radius: 24px; border: 1px solid var(--border);">
+                    <form>
+                        <input type="text" placeholder="Имя и Фамилия" class="hover-target" required>
+                        <input type="tel" placeholder="Телефон" class="hover-target" required>
+                        <input type="text" placeholder="Telegram @username" class="hover-target">
+                        <div style="border: 2px dashed var(--muted); border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 20px; color: var(--muted);" class="hover-target">
+                            📎 Прикрепить презентацию проекта
+                        </div>
+                        <button class="btn-magnetic magnetic-item" style="width: 100%; font-size: 18px;">Запустить систему</button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer style="text-align: center; padding: 40px; color: var(--text-muted); border-top: 1px solid var(--glass-border);">
-        <p>© 2015-2026 ООО "Обойма Лаб"</p>
-    </footer>
-
     <script>
-        // 1. Смена Темы (Dark/Light)
-        const toggleBtn = document.querySelector('.theme-toggle');
+        // --- 1. ТЕМА ---
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.getAttribute('data-theme') === 'dark') {
-                html.setAttribute('data-theme', 'light');
-                toggleBtn.innerText = '🌙 Dark Mode';
-            } else {
-                html.setAttribute('data-theme', 'dark');
-                toggleBtn.innerText = '☀️ Light Mode';
-            }
+            html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
 
-        // 2. Кастомный курсор с магнитом
-        const cursor = document.getElementById('cursor');
-        const hoverTargets = document.querySelectorAll('.hover-target');
-        
+        // --- 2. КУРСОР ---
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
         window.addEventListener('mousemove', (e) => {
-            cursor.style.top = e.clientY + 'px';
-            cursor.style.left = e.clientX + 'px';
+            const x = e.clientX, y = e.clientY;
+            dot.style.transform = `translate(${x}px, ${y}px)`;
+            // Небольшая задержка для внешнего круга
+            outline.animate({ transform: `translate(${x}px, ${y}px)` }, { duration: 150, fill: "forwards" });
         });
 
-        hoverTargets.forEach(target => {
-            target.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-            target.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        // Расширение курсора при наведении на кликабельные элементы
+        document.querySelectorAll('.hover-target, .magnetic-item, a').forEach(el => {
+            el.addEventListener('mouseenter', () => outline.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => outline.classList.remove('hovered'));
         });
 
-        // 3. Анимация появления при скролле (Scroll Reveal)
+        // --- 3. МАГНИТНЫЕ ЭЛЕМЕНТЫ ---
+        document.querySelectorAll('.magnetic-item').forEach(elem => {
+            elem.addEventListener('mousemove', (e) => {
+                const rect = elem.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                elem.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+            });
+            elem.addEventListener('mouseleave', () => {
+                elem.style.transform = `translate(0px, 0px)`;
+            });
+        });
+
+        // --- 4. 3D TILT EFFECT & GLARE ---
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            const glare = card.querySelector('.glare');
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Вычисление угла поворота
+                const rotateX = -((y / rect.height) - 0.5) * 15; // Макс наклон 15 градусов
+                const rotateY = ((x / rect.width) - 0.5) * 15;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                
+                // Движение блика
+                if(glare) glare.style.transform = `translateZ(1px) translate(${x - rect.width/2}px, ${y - rect.height/2}px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                if(glare) glare.style.transform = `translateZ(1px) translate(0px, 0px)`;
+            });
+        });
+
+        // --- 5. CYBER-SCRAMBLE TEXT ---
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789!@#$%^&*";
+        document.querySelectorAll('.cyber-title').forEach(el => {
+            el.dataset.original = el.innerText;
+            el.addEventListener('mouseenter', () => {
+                let iterations = 0;
+                const originalText = el.dataset.original;
+                clearInterval(el.interval);
+                
+                el.interval = setInterval(() => {
+                    el.innerText = originalText.split('').map((char, index) => {
+                        if(index < iterations || char === ' ' || char === '\n') return originalText[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    }).join('');
+                    
+                    if(iterations >= originalText.length) clearInterval(el.interval);
+                    iterations += 1; // Скорость расшифровки
+                }, 30);
+            });
+        });
+
+        // --- 6. SCROLL REVEAL (Анимация при скролле) ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('active');
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // Небольшой параллакс эффект если элемент видим
+                    window.addEventListener('scroll', () => {
+                        const rate = window.scrollY * 0.05;
+                        if(entry.target.classList.contains('hero-visual')) {
+                            entry.target.style.transform = `translateY(${rate}px)`;
+                        }
+                    });
+                }
             });
         }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // 4. Эффект печати текста (Имитация AI Терминала)
-        const terminalText = [
-            "> Обойма Лаб ОС [Версия 2.4.1]",
-            "> Инициализация модулей искусственного интеллекта... ОК",
-            "> Подключение к Telegram API... Успешно",
-            "> Запуск нейро-секретаря 'Верочка'...",
-            "> Анализ бизнес-процессов... Обнаружена рутина.",
-            "> Решение: Внедрение авто-воронок и LLM-агентов.",
-            "> Ожидаю новую задачу..."
-        ];
-        const typingBox = document.getElementById('typing-text');
-        let lineIdx = 0;
+        // --- 7. КАЛЬКУЛЯТОР ---
+        const inpEmp = document.getElementById('inp-emp'), inpSal = document.getElementById('inp-sal');
+        const valEmp = document.getElementById('val-emp'), valSal = document.getElementById('val-sal');
+        const outHours = document.getElementById('out-hours'), outMoney = document.getElementById('out-money');
 
-        function typeLine() {
-            if (lineIdx < terminalText.length) {
-                const p = document.createElement('p');
-                typingBox.appendChild(p);
-                let charIdx = 0;
-                
-                const typeChar = setInterval(() => {
-                    p.innerHTML = terminalText[lineIdx].substring(0, charIdx) + '<span class="cursor-blink">_</span>';
-                    charIdx++;
-                    if (charIdx > terminalText[lineIdx].length) {
-                        clearInterval(typeChar);
-                        p.innerHTML = terminalText[lineIdx];
-                        lineIdx++;
-                        setTimeout(typeLine, 500);
-                    }
-                }, 40);
-            } else {
-                const p = document.createElement('p');
-                p.innerHTML = '<span class="cursor-blink">_</span>';
-                typingBox.appendChild(p);
-            }
+        function calcROI() {
+            const emp = parseInt(inpEmp.value), sal = parseInt(inpSal.value) * 1000;
+            valEmp.innerText = emp; valSal.innerText = (sal/1000) + 'k';
+            
+            // 160 часов в месяц * 35%
+            outHours.innerText = Math.round(emp * 160 * 0.35) + ' ч.';
+            // ЗП + 30% налоги * 12 месяцев * 35% экономии
+            const saved = (sal * 1.3 * emp * 12 * 0.35) / 1000000;
+            outMoney.innerText = saved.toFixed(2) + ' млн ₽';
         }
-        setTimeout(typeLine, 1000);
+        inpEmp.addEventListener('input', calcROI);
+        inpSal.addEventListener('input', calcROI);
+        calcROI(); // Init
 
-        // 5. Калькулятор Финансового Прогноза
-        const empInput = document.getElementById('employees');
-        const salInput = document.getElementById('salary');
-        const empVal = document.getElementById('emp-val');
-        const salVal = document.getElementById('salary-val');
-        const hoursOut = document.getElementById('hours-saved');
-        const moneyOut = document.getElementById('money-saved');
-
-        function calculateROI() {
-            const emp = parseInt(empInput.value);
-            const sal = parseInt(salInput.value) * 1000;
-            
-            empVal.innerText = emp;
-            salVal.innerText = sal.toLocaleString() + ' ₽';
-            
-            // 160 рабочих часов * 35% экономии
-            const hours = emp * 160 * 0.35; 
-            hoursOut.innerText = Math.round(hours).toLocaleString();
-            
-            // Сохраненный бюджет в год (ЗП + налоги условно 30%)
-            const moneySavedYear = (sal * 1.3 * emp * 0.35 * 12) / 1000000;
-            moneyOut.innerText = moneySavedYear.toFixed(2);
-        }
-        empInput.addEventListener('input', calculateROI);
-        salInput.addEventListener('input', calculateROI);
-
-        // 6. Фон: Нейронная сеть (Canvas Particles)
-        const canvas = document.getElementById('network');
+        // --- 8. ГРАВИТАЦИОННЫЙ CANVAS (AI CORE) ---
+        const canvas = document.getElementById('ai-core');
         const ctx = canvas.getContext('2d');
-        let width, height, particles;
+        let width, height, nodes = [];
+        let mouse = { x: -1000, y: -1000 };
 
-        function initParticles() {
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+        function initNodes() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-            particles = [];
-            for (let i = 0; i < 50; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5
+            nodes = [];
+            const count = window.innerWidth > 768 ? 80 : 40;
+            for (let i = 0; i < count; i++) {
+                nodes.push({
+                    x: Math.random() * width, y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 1, vy: (Math.random() - 0.5) * 1,
+                    baseX: Math.random() * width, baseY: Math.random() * height
                 });
             }
         }
 
-        function drawParticles() {
+        function drawNodes() {
             ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? '#38bdf8' : '#0a3d70';
-            ctx.strokeStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(56, 189, 248, 0.1)' : 'rgba(10, 61, 112, 0.1)';
-            
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0 || p.x > width) p.vx *= -1;
-                if (p.y < 0 || p.y > height) p.vy *= -1;
-                
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-                ctx.fill();
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+            ctx.strokeStyle = isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.15)';
 
-                for (let j = i + 1; j < particles.length; j++) {
-                    const p2 = particles[j];
-                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if (dist < 150) {
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
+            nodes.forEach((node, i) => {
+                // Движение
+                node.x += node.vx; node.y += node.vy;
+                
+                // Отскок от краев
+                if (node.x < 0 || node.x > width) node.vx *= -1;
+                if (node.y < 0 || node.y > height) node.vy *= -1;
+
+                // Взаимодействие с мышью (Гравитация / Отталкивание)
+                const dx = mouse.x - node.x;
+                const dy = mouse.y - node.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 200) {
+                    const force = (200 - dist) / 200;
+                    node.x -= dx * force * 0.05;
+                    node.y -= dy * force * 0.05;
+                }
+
+                // Отрисовка точек
+                ctx.beginPath(); ctx.arc(node.x, node.y, 2, 0, Math.PI * 2); ctx.fill();
+
+                // Отрисовка связей
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const node2 = nodes[j];
+                    const d = Math.hypot(node.x - node2.x, node.y - node2.y);
+                    if (d < 150) {
+                        ctx.beginPath(); ctx.moveTo(node.x, node.y); ctx.lineTo(node2.x, node2.y); ctx.stroke();
                     }
                 }
             });
-            requestAnimationFrame(drawParticles);
+            requestAnimationFrame(drawNodes);
         }
-        
-        window.addEventListener('resize', initParticles);
-        initParticles();
-        drawParticles();
+
+        window.addEventListener('resize', initNodes);
+        initNodes(); drawNodes();
     </script>
 </body>
 </html>
