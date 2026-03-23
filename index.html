@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обойма Лаб | AI Laboratory</title>
+    <title>Обойма Лаб | Лаборатория ИИ-решений</title>
+    
     <meta name="description" content="Внедряем ИИ-агентов, которые заменяют отделы продаж и маркетинга. Автоматизируем бизнес и масштабируем идеи.">
-    <meta property="og:title" content="Обойма Лаб | AI Laboratory">
-    <meta property="og:description" content="Внедряем ИИ-агентов, которые заменяют отделы продаж и маркетинга.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,10 +23,12 @@
             --text-muted: #94a3b8;
             --brand-main: #003D72;
             --brand-accent: #005EB1;
-            --neon-accent: #00ffcc; /* Кислотно-зеленый/неоновый блю */
+            --neon-accent: #00ffcc; /* Акцентный кибер-цвет */
+            
             --glass-bg: rgba(2, 6, 17, 0.6);
             --glass-border: rgba(0, 255, 204, 0.2);
-            --glass-glow: rgba(0, 255, 204, 0.1);
+            --glass-glow: rgba(0, 255, 204, 0.05);
+            --input-bg: rgba(0, 0, 0, 0.5);
         }
 
         :root[data-theme="light"] {
@@ -37,9 +38,11 @@
             --brand-main: #003D72;
             --brand-accent: #005EB1;
             --neon-accent: #005EB1;
+            
             --glass-bg: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(0, 61, 114, 0.2);
-            --glass-glow: rgba(0, 94, 177, 0.1);
+            --glass-glow: rgba(0, 94, 177, 0.05);
+            --input-bg: rgba(255, 255, 255, 0.8);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
@@ -50,25 +53,23 @@
         .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--neon-accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; }
         body:hover .cursor-ring.active { width: 70px; height: 70px; background: var(--glass-glow); backdrop-filter: blur(2px); }
 
-        /* --- 3D ФОН --- */
+        /* --- 3D ФОН (СОХРАНЕННЫЙ КОСМОС) --- */
         #webgl-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
 
         /* --- ТИПОГРАФИКА И ЛЕЙАУТ --- */
         h1, h2, h3, .mono-text { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
-        h1 { font-size: clamp(2rem, 4vw, 4.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
-        h2 { font-size: clamp(1.8rem, 3vw, 3.5rem); font-weight: 700; margin-bottom: 50px; }
+        h1 { font-size: clamp(2rem, 4vw, 4rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -1px; }
+        h2 { font-size: clamp(1.8rem, 3vw, 3rem); font-weight: 700; margin-bottom: 40px; }
         p { font-size: 16px; line-height: 1.6; color: var(--text-muted); }
         
         .container { max-width: 1400px; margin: 0 auto; padding: 0 5vw; position: relative; z-index: 10; }
-        section { padding: 120px 0; display: flex; flex-direction: column; justify-content: center; }
+        section { padding: 80px 0; display: flex; flex-direction: column; justify-content: center; } /* Отступы оптимизированы */
         
         .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 6px 14px; border: 1px solid var(--glass-border); border-radius: 20px; color: var(--neon-accent); background: var(--glass-glow); margin-bottom: 20px; backdrop-filter: blur(5px); }
 
         /* --- HEADER --- */
-        header { position: fixed; top: 0; width: 100%; padding: 20px 5vw; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid var(--glass-border); background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: 0.5s; }
+        header { position: fixed; top: 0; width: 100%; padding: 15px 5vw; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid var(--glass-border); background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: 0.5s; }
         .logo { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 20px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 10px; }
-        .logo-icon { width: 12px; height: 12px; background: var(--neon-accent); box-shadow: 0 0 10px var(--neon-accent); animation: pulse 2s infinite; }
-        @keyframes pulse { 50% { opacity: 0.4; } }
         
         .nav-links { display: flex; gap: 30px; align-items: center; }
         .nav-links a { color: var(--text-main); text-decoration: none; font-size: 13px; font-weight: 500; text-transform: uppercase; transition: 0.3s; font-family: 'JetBrains Mono', monospace; }
@@ -84,27 +85,41 @@
         .btn-outline:hover { background: var(--neon-accent); color: var(--bg-color); box-shadow: 0 0 20px var(--glass-glow); }
 
         /* --- HERO SECTION --- */
-        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; min-height: 90vh; padding-top: 100px; }
-        .hero-3d-box { width: 100%; aspect-ratio: 1; perspective: 1000px; display: flex; justify-content: center; align-items: center; }
-        .tesseract { width: 200px; height: 200px; transform-style: preserve-3d; animation: rotate3d 15s linear infinite; position: relative; }
-        .tesseract-face { position: absolute; width: 200px; height: 200px; border: 2px solid var(--neon-accent); background: rgba(0, 255, 204, 0.05); box-shadow: inset 0 0 30px rgba(0, 255, 204, 0.2); }
-        .tesseract-face:nth-child(1) { transform: translateZ(100px); } .tesseract-face:nth-child(2) { transform: rotateY(180deg) translateZ(100px); }
-        .tesseract-face:nth-child(3) { transform: rotateY(90deg) translateZ(100px); } .tesseract-face:nth-child(4) { transform: rotateY(-90deg) translateZ(100px); }
-        .tesseract-face:nth-child(5) { transform: rotateX(90deg) translateZ(100px); } .tesseract-face:nth-child(6) { transform: rotateX(-90deg) translateZ(100px); }
-        @keyframes rotate3d { 100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); } }
+        .hero-section { min-height: 90vh; display: flex; align-items: center; padding-top: 100px; }
+        .hero-content { max-width: 900px; text-align: left; }
+
+        /* --- ИНТЕРАКТИВНЫЙ AI-МЕНЕДЖЕР (О НАС) --- */
+        .ai-chat-wrapper { display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; align-items: stretch; }
+        .chat-menu { display: flex; flex-direction: column; gap: 15px; }
+        .chat-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 20px; border-radius: 16px; text-align: left; font-size: 15px; font-weight: 500; transition: 0.4s; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; backdrop-filter: blur(10px); }
+        .chat-btn:hover, .chat-btn.active { background: var(--brand-accent); border-color: var(--brand-accent); color: #fff; transform: translateX(15px); box-shadow: 0 10px 30px rgba(0, 94, 177, 0.3); }
+        
+        .chat-window { background: rgba(2, 6, 17, 0.8); border: 1px solid var(--glass-border); border-radius: 24px; padding: 30px; height: 400px; display: flex; flex-direction: column; backdrop-filter: blur(20px); }
+        .chat-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); }
+        .ai-avatar { width: 40px; height: 40px; background: var(--brand-accent); border-radius: 50%; display: grid; place-items: center; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; }
+        .chat-history { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px; }
+        .msg { padding: 15px 20px; border-radius: 16px; font-size: 15px; line-height: 1.5; max-width: 85%; animation: msgIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .msg.bot { background: var(--glass-bg); border: 1px solid var(--glass-border); align-self: flex-start; border-bottom-left-radius: 4px; color: var(--text-main); }
+        .msg.user { background: var(--brand-accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(15px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        .typing { display: flex; gap: 6px; padding: 10px; }
+        .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: type 1.4s infinite ease-in-out; }
+        .typing span:nth-child(1) { animation-delay: -0.32s; } .typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes type { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); background: var(--neon-accent); } }
 
         /* --- METHODOLOGY (STEPPER & COMPARISON) --- */
-        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 60px; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
         .comp-card { padding: 30px; border-radius: 16px; border: 1px solid var(--glass-border); background: var(--glass-bg); backdrop-filter: blur(10px); }
-        .comp-card.bad { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+        .comp-card.bad { border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
         .comp-card.good { border-color: var(--neon-accent); background: var(--glass-glow); }
         
         .stepper-container { display: flex; gap: 40px; position: relative; }
-        .stepper-nav { display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 2; width: 300px; }
+        .stepper-nav { display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 2; width: 320px; }
         .stepper-line { position: absolute; left: 24px; top: 20px; bottom: 20px; width: 2px; background: var(--glass-border); z-index: 1; }
-        .step-btn { display: flex; align-items: center; gap: 20px; background: transparent; border: none; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 16px; text-align: left; transition: 0.3s; opacity: 0.5; }
+        .step-btn { display: flex; align-items: center; gap: 20px; background: transparent; border: none; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: left; transition: 0.3s; opacity: 0.5; }
         .step-btn:hover, .step-btn.active { opacity: 1; color: var(--text-main); }
-        .step-btn .step-num { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-color); border: 2px solid var(--glass-border); display: grid; place-items: center; transition: 0.3s; z-index: 2; }
+        .step-btn .step-num { width: 50px; height: 50px; min-width: 50px; border-radius: 50%; background: var(--bg-color); border: 2px solid var(--glass-border); display: grid; place-items: center; transition: 0.3s; z-index: 2; }
         .step-btn.active .step-num { border-color: var(--neon-accent); background: var(--neon-accent); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-accent); }
         
         .step-content-area { flex: 1; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px; backdrop-filter: blur(10px); }
@@ -113,89 +128,117 @@
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- PRODUCTS (GLASSMORPHISM & MOCKUPS) --- */
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px; }
-        .product-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; backdrop-filter: blur(12px); display: flex; flex-direction: column; transition: 0.4s; }
+        .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .product-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 30px; backdrop-filter: blur(12px); display: flex; flex-direction: column; transition: 0.4s; }
         .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 50px var(--glass-glow); border-color: var(--neon-accent); }
         
-        .mockup-wrapper { width: 100%; height: 250px; background: rgba(0,0,0,0.5); border-radius: 16px; margin-bottom: 30px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: flex-end; }
-        .css-phone { width: 200px; height: 220px; background: #0f172a; border-top-left-radius: 24px; border-top-right-radius: 24px; border: 6px solid #1e293b; border-bottom: none; display: flex; flex-direction: column; }
-        .css-phone-header { padding: 10px; background: #1e293b; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #334155; }
-        .css-phone-avatar { width: 24px; height: 24px; background: var(--neon-accent); border-radius: 50%; }
-        .css-phone-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 10px; }
-        .mock-msg { padding: 8px 12px; border-radius: 8px; color: #fff; max-width: 85%; }
+        .mockup-wrapper { width: 100%; height: 220px; background: rgba(0,0,0,0.5); border-radius: 16px; margin-bottom: 25px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: flex-end; }
+        .css-phone { width: 180px; height: 200px; background: #0f172a; border-top-left-radius: 20px; border-top-right-radius: 20px; border: 5px solid #1e293b; border-bottom: none; display: flex; flex-direction: column; }
+        .css-phone-header { padding: 8px; background: #1e293b; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #334155; }
+        .css-phone-avatar { width: 20px; height: 20px; background: var(--brand-accent); border-radius: 50%; }
+        .css-phone-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 9px; }
+        .mock-msg { padding: 6px 10px; border-radius: 6px; color: #fff; max-width: 85%; }
         .mock-msg.bot { background: #334155; align-self: flex-start; }
-        .mock-msg.user { background: var(--neon-accent); color: #000; align-self: flex-end; }
+        .mock-msg.user { background: var(--brand-accent); color: #fff; align-self: flex-end; }
 
-        .case-stats { display: flex; align-items: center; gap: 15px; margin: 20px 0; padding: 15px; background: rgba(0, 255, 204, 0.05); border-radius: 12px; border-left: 2px solid var(--neon-accent); }
-        .btn-group { display: flex; gap: 15px; margin-top: auto; }
-        .btn-primary { flex: 1; padding: 14px; background: var(--neon-accent); color: var(--bg-color); border: none; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; transition: 0.3s; text-align: center; text-decoration: none; }
-        .btn-primary:hover { background: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
-        .btn-secondary { flex: 1; padding: 14px; background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; transition: 0.3s; text-align: center; text-decoration: none; }
-        .btn-secondary:hover { border-color: var(--text-main); }
+        .case-stats { margin: 20px 0; padding: 15px; background: var(--glass-glow); border-radius: 12px; border-left: 2px solid var(--neon-accent); }
+        .btn-group { display: flex; gap: 10px; margin-top: auto; }
+        .btn-primary { flex: 1; padding: 12px; background: var(--brand-accent); color: #fff; border: none; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; transition: 0.3s; text-align: center; text-decoration: none; }
+        .btn-primary:hover { background: var(--neon-accent); color: var(--bg-color); }
+        .btn-secondary { flex: 1; padding: 12px; background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; transition: 0.3s; text-align: center; text-decoration: none; }
+        .btn-secondary:hover { border-color: var(--neon-accent); }
 
         /* --- ROI CALCULATOR --- */
-        .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 60px; backdrop-filter: blur(12px); }
+        .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 50px; backdrop-filter: blur(12px); }
         .range-group { margin-bottom: 30px; }
-        .range-label { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; margin-bottom: 15px; }
+        .range-label { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; margin-bottom: 15px; font-size: 14px; }
         input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--neon-accent); border-radius: 50%; cursor: pointer; transition: 0.2s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); box-shadow: 0 0 15px var(--neon-accent); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--neon-accent); border-radius: 50%; cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px var(--neon-accent); }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
         
         .roi-result { display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--glass-border); padding-left: 40px; }
-        .roi-value { font-size: clamp(3rem, 5vw, 5rem); font-weight: 900; font-family: 'JetBrains Mono', monospace; color: var(--neon-accent); line-height: 1; margin: 10px 0; text-shadow: 0 0 20px var(--glass-glow); }
+        .roi-value { font-size: clamp(2.5rem, 4vw, 4.5rem); font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--neon-accent); line-height: 1; margin: 10px 0; text-shadow: 0 0 20px var(--glass-glow); }
 
+        /* --- ИНКУБАТОР BENTO --- */
+        .grid-3-bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .glass-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; backdrop-filter: blur(12px); transition: 0.4s; }
+        .glass-card:hover { transform: translateY(-5px); border-color: var(--neon-accent); }
+        .bento-large { grid-column: span 3; background: linear-gradient(135deg, var(--brand-main), var(--brand-accent)); border: none; color: #fff; }
+        
         /* --- CYBERPUNK TEAM --- */
-        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
-        .team-member { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); aspect-ratio: 3/4; }
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; }
+        .team-member { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-border); aspect-ratio: 3/4; }
         .team-img { width: 100%; height: 100%; background: linear-gradient(135deg, var(--brand-main), var(--bg-color)); filter: grayscale(80%) contrast(120%); transition: 0.5s; object-fit: cover; }
-        /* Placeholder gradients since no real images */
         .team-member:nth-child(1) .team-img { background: radial-gradient(circle at 50% 30%, #1e293b, #020611); }
         .team-member:nth-child(2) .team-img { background: radial-gradient(circle at 50% 30%, #334155, #020611); }
         .team-member:nth-child(3) .team-img { background: radial-gradient(circle at 50% 30%, #0f172a, #020611); }
         .team-member:nth-child(4) .team-img { background: radial-gradient(circle at 50% 30%, #1e1e1e, #020611); }
-        
-        .team-member::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-color) 10%, transparent); opacity: 0.8; }
+        .team-member::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-color) 10%, transparent); opacity: 0.9; transition: 0.5s; }
         .team-member:hover .team-img { filter: grayscale(0) hue-rotate(90deg); transform: scale(1.05); }
-        .team-info { position: absolute; bottom: 20px; left: 20px; z-index: 2; }
-        .team-name { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; }
-        .team-role { font-size: 14px; color: var(--neon-accent); margin-bottom: 10px; }
-        .team-tooltip { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; z-index: 3; text-align: center; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--neon-accent); }
+        .team-info { position: absolute; bottom: 20px; left: 20px; z-index: 2; transition: 0.3s; }
+        .team-name { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #fff; }
+        .team-role { font-size: 13px; color: var(--neon-accent); margin-bottom: 10px; }
+        .team-tooltip { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; z-index: 3; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--neon-accent); line-height: 2; }
         .team-member:hover .team-tooltip { opacity: 1; }
 
-        /* --- CONTACT FORM (FLOATING LABELS & GRID) --- */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-        .form-box { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 50px; backdrop-filter: blur(12px); }
+        /* --- CONTACT FORM (FLOATING LABELS) --- */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .form-box { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px; backdrop-filter: blur(12px); }
         
-        .input-group { position: relative; margin-bottom: 30px; }
-        .input-group input { width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 25px 20px 10px; color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 16px; outline: none; transition: 0.3s; }
-        .input-group label { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); color: var(--text-muted); transition: 0.3s; pointer-events: none; font-size: 16px; font-family: 'JetBrains Mono', monospace; }
+        .input-group { position: relative; margin-bottom: 25px; }
+        .input-group input, .input-group textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 25px 20px 10px; color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: 0.3s; }
+        .input-group label { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); color: var(--text-muted); transition: 0.3s; pointer-events: none; font-size: 15px; font-family: 'JetBrains Mono', monospace; }
         
         .input-group input:focus, .input-group input:not(:placeholder-shown) { border-color: var(--neon-accent); }
-        .input-group input:focus + label, .input-group input:not(:placeholder-shown) + label { top: 12px; font-size: 11px; color: var(--neon-accent); }
+        .input-group input:focus + label, .input-group input:not(:placeholder-shown) + label { top: 12px; font-size: 10px; color: var(--neon-accent); }
         
         .input-error { border-color: #ef4444 !important; }
-        .error-text { color: #ef4444; font-size: 12px; position: absolute; bottom: -20px; left: 0; display: none; font-family: 'JetBrains Mono', monospace; }
+        .error-text { color: #ef4444; font-size: 11px; position: absolute; bottom: -18px; left: 0; display: none; font-family: 'JetBrains Mono', monospace; }
 
-        /* --- FOOTER & SYSTEM STATUS --- */
-        footer { padding: 40px 5vw; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; margin-top: 50px; flex-wrap: wrap; gap: 20px; }
-        .sys-status { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); background: var(--glass-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); }
-        .sys-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: pulseSys 2s infinite; }
+        .btn-submit { display: inline-flex; justify-content: center; align-items: center; padding: 20px; width: 100%; background: var(--brand-accent); color: #fff; border: none; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .btn-submit:hover { background: var(--neon-accent); color: var(--bg-color); box-shadow: 0 0 20px var(--glass-glow); }
+
+        /* --- FOOTER & LIVE STATUS --- */
+        footer { padding: 30px 5vw; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; background: var(--glass-bg); backdrop-filter: blur(10px); }
+        .sys-status { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--neon-accent); background: rgba(0, 255, 204, 0.05); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); }
+        .sys-dot { width: 8px; height: 8px; background: var(--neon-accent); border-radius: 50%; box-shadow: 0 0 10px var(--neon-accent); animation: pulseSys 2s infinite; }
         @keyframes pulseSys { 50% { opacity: 0.3; } }
 
-        .gsap-reveal { opacity: 0; transform: translateY(40px); }
+        .gsap-reveal { opacity: 0; transform: translateY(30px); }
 
         @media (max-width: 1024px) {
             .hero-grid, .comparison-grid, .roi-grid, .form-grid { grid-template-columns: 1fr; }
             .team-grid { grid-template-columns: 1fr 1fr; }
+            .ai-chat-wrapper { grid-template-columns: 1fr; }
             .stepper-container { flex-direction: column; }
-            .stepper-nav { width: 100%; flex-direction: row; overflow-x: auto; padding-bottom: 20px; }
+            .stepper-nav { width: 100%; flex-direction: row; overflow-x: auto; padding-bottom: 10px; }
             .stepper-line { display: none; }
-            .step-btn { flex-direction: column; text-align: center; gap: 10px; font-size: 12px; min-width: 100px; }
-            .nav-links, .header-actions { display: none; } /* Mobile menu needed in reality */
+            .step-btn { flex-direction: column; gap: 10px; font-size: 12px; min-width: 100px; text-align: center; }
+            .products-grid { grid-template-columns: 1fr; }
+            .nav-links, .header-actions { display: none; }
         }
     </style>
 </head>
 <body>
+
+    <div id="boot-screen">
+        <svg class="boot-logo-svg" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="18" />
+            <path d="M 25 55 A 28 28 0 0 0 75 55" />
+            <line x1="25" y1="55" x2="10" y2="55" />
+            <line x1="75" y1="55" x2="90" y2="55" />
+            <line x1="50" y1="28" x2="50" y2="10" />
+            <line x1="50" y1="15" x2="40" y2="15" />
+            <line x1="32" y1="32" x2="20" y2="20" />
+            <line x1="68" y1="32" x2="80" y2="20" />
+            <line x1="24" y1="44" x2="12" y2="40" />
+            <line x1="76" y1="44" x2="88" y2="40" />
+        </svg>
+        <div class="progress-container">
+            <div class="progress-text">OBOYMA_LAB OS INITIALIZING...</div>
+            <div class="progress-bar"><div class="progress-fill" id="boot-fill"></div></div>
+        </div>
+    </div>
 
     <canvas id="webgl-canvas"></canvas>
 
@@ -208,9 +251,10 @@
             ОБОЙМА ЛАБ
         </a>
         <nav class="nav-links">
+            <a href="#about" class="hover-target">О нас</a>
             <a href="#methodology" class="hover-target">Методология</a>
             <a href="#products" class="hover-target">Продукты</a>
-            <a href="#roi" class="hover-target">ROI Калькулятор</a>
+            <a href="#roi" class="hover-target">ROI</a>
             <a href="#incubator" class="hover-target">Инкубатор</a>
         </nav>
         <div class="header-actions">
@@ -223,21 +267,39 @@
     </header>
 
     <main>
-        <section class="container" id="hero">
-            <div class="hero-grid">
-                <div>
-                    <div class="badge gsap-reveal">SYS.INIT // О НАС</div>
-                    <h1 class="gsap-reveal">Лаборатория ИИ-решений: Автоматизируем бизнес и масштабируем идеи</h1>
-                    <p class="gsap-reveal" style="font-size: 20px; margin-bottom: 40px;">Мы разрабатываем собственные программные продукты на базе ИИ. Для бизнеса — готовые решения и автоматизация рутины. Для разработчиков — IT-инкубатор и ресурсы для запуска.</p>
-                    <div class="gsap-reveal" style="display: flex; gap: 20px;">
-                        <a href="#methodology" class="btn-primary hover-target">Как мы работаем</a>
-                        <a href="#products" class="btn-outline hover-target" style="padding: 14px 24px;">Продукты</a>
-                    </div>
+        <section class="container hero-section" id="hero">
+            <div class="hero-content">
+                <div class="badge gsap-reveal">ОБОЙМА ЛАБ // О НАС</div>
+                <h1 class="gsap-reveal">Лаборатория ИИ-решений: Автоматизируем бизнес и масштабируем идеи</h1>
+                <p class="gsap-reveal" style="font-size: 20px; margin-bottom: 40px; max-width: 800px;">
+                    Мы разрабатываем собственные программные продукты на основе искусственного интеллекта. Для бизнеса мы создаем агентов, которые забирают рутину. Разработчикам даем ресурсы в IT-инкубаторе.
+                </p>
+                <div class="gsap-reveal" style="display: flex; gap: 20px;">
+                    <a href="#methodology" class="btn-outline hover-target" style="background: var(--brand-accent); color: #fff; padding: 15px 30px; font-size: 14px;">Как мы работаем</a>
                 </div>
-                <div class="hero-3d-box gsap-reveal hover-target">
-                    <div class="tesseract">
-                        <div class="tesseract-face"></div><div class="tesseract-face"></div><div class="tesseract-face"></div>
-                        <div class="tesseract-face"></div><div class="tesseract-face"></div><div class="tesseract-face"></div>
+            </div>
+        </section>
+
+        <section class="container" id="about">
+            <h2 class="gsap-reveal">Интерактивный AI-Менеджер</h2>
+            
+            <div class="ai-chat-wrapper gsap-reveal">
+                <div class="chat-menu">
+                    <button class="chat-btn hover-target active" onclick="askAI('business', this)">Что даете бизнесу?</button>
+                    <button class="chat-btn hover-target" onclick="askAI('incubator', this)">Что за инкубатор?</button>
+                    <button class="chat-btn hover-target" onclick="askAI('partners', this)">С кем работаете?</button>
+                </div>
+                
+                <div class="chat-window">
+                    <div class="chat-header">
+                        <div class="ai-avatar">ИИ</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 16px; font-family: 'JetBrains Mono', monospace;">Менеджер Обойма Лаб</div>
+                            <div style="font-size: 12px; color: var(--neon-accent); font-family: 'JetBrains Mono', monospace;">Status: Online</div>
+                        </div>
+                    </div>
+                    <div class="chat-history" id="ai-chat-history">
+                        <div class="msg bot">Приветствую! Задайте мне вопрос, выбрав опцию слева.</div>
                     </div>
                 </div>
             </div>
@@ -248,11 +310,11 @@
             
             <div class="comparison-grid gsap-reveal">
                 <div class="comp-card bad">
-                    <h3 style="color: #ef4444; font-family: 'JetBrains Mono', monospace;">[X] Classic Waterfall</h3>
-                    <p>Месяц писать ТЗ, месяц рисовать кнопки, месяц писать сервер, а месяц соединять. Итог: долго, дорого и часто не то, что нужно бизнесу прямо сейчас.</p>
+                    <h3 style="color: #ef4444; font-family: 'JetBrains Mono', monospace; margin-bottom: 15px;">[X] Classic Waterfall</h3>
+                    <p>Месяц писать ТЗ, месяц рисовать кнопки, месяц писать сервер, а месяц соединять. Итог: долго, дорого и часто не то, что нужно бизнесу.</p>
                 </div>
                 <div class="comp-card good hover-target">
-                    <h3 style="color: var(--neon-accent); font-family: 'JetBrains Mono', monospace;">[✓] Oboyma Agile</h3>
+                    <h3 style="color: var(--neon-accent); font-family: 'JetBrains Mono', monospace; margin-bottom: 15px;">[✓] Oboyma Agile</h3>
                     <p>Режем проект по вертикальным функциям. За одну неделю делаем одну кнопку, которая уже работает «под капотом» и приносит реальную ценность.</p>
                 </div>
             </div>
@@ -280,56 +342,55 @@
                     <div class="step-content active" id="s1">
                         <div class="badge">STEP 01</div>
                         <h3>Аудит бизнес-процессов</h3>
-                        <p>Мы работаем по одному из двух сценариев. Первый: предприниматель сам точно знает, что его беспокоит. Второй: наша команда проводит комплексный анализ операционки с нуля — исследуем продажи, маркетинг, логистику, кадры и скрытую рутину.<br><br>Итог: исчерпывающая картина бизнеса и расчет экономического эффекта. Всего за 10 дней.</p>
+                        <p>Предприниматель сам формулирует задачу, либо мы проводим комплексный анализ с нуля — исследуем продажи, маркетинг, логистику, кадры и рутину.<br><br>Итог: исчерпывающая картина бизнеса и расчет экономического эффекта. Всего за 10 дней.</p>
                     </div>
                     <div class="step-content" id="s2">
                         <div class="badge">STEP 02</div>
                         <h3>Нестандартное ТЗ</h3>
-                        <p>После аудита мы фиксируем цель бизнеса и все пожелания заказчика. Но формируем ТЗ нестандартно: режем проект не по горизонталям (база данных, логика, интерфейс), а по вертикальным сквозным функциям. Например: «авторизация по смс», «отправка ссылки на оплату».</p>
+                        <p>После аудита мы фиксируем цель бизнеса и формируем ТЗ нестандартно: режем проект не по горизонталям, а по вертикальным сквозным функциям. Например: «авторизация по смс», «отправка ссылки на оплату».</p>
                     </div>
                     <div class="step-content" id="s3">
                         <div class="badge">STEP 03</div>
                         <h3>Короткие циклы</h3>
-                        <p>Каждую функцию ранжируем по ценности для пользователя — от самой важной к второстепенной. Весь проект разбиваем на короткие циклы (итерации) по 1–2 недели. Так команда делает то, что принесет максимальную пользу бизнесу здесь и сейчас.</p>
+                        <p>Каждую функцию ранжируем по ценности для пользователя. Весь проект разбиваем на короткие циклы по 1–2 недели. Команда делает то, что принесет максимальную пользу бизнесу здесь и сейчас.</p>
                     </div>
                     <div class="step-content" id="s4">
                         <div class="badge">STEP 04</div>
                         <h3>Функция за функцией</h3>
-                        <p>На каждой итерации берем одну конкретную функцию. Мы ведем разработку целиком — от интерфейса до базы данных. После каждой итерации продукт обретает новую, полностью рабочую функцию, а не просто пополняется «кучей кода».</p>
+                        <p>На каждой итерации берем одну функцию. Мы ведем разработку целиком — от интерфейса до базы данных. После каждой итерации продукт обретает новую, полностью рабочую функцию.</p>
                     </div>
                     <div class="step-content" id="s5">
                         <div class="badge">STEP 05</div>
                         <h3>Проверка боем</h3>
-                        <p>Когда система готова, наступает бета-тестирование. Решение впервые работает на реальных данных и с живыми пользователями. Мы собираем обратную связь, отслеживаем сценарии. Предприниматель получает отточенный инструмент.</p>
+                        <p>Когда система готова, наступает бета-тестирование. Решение впервые работает на реальных данных и с живыми пользователями. Мы собираем обратную связь и доводим инструмент до идеала.</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <section class="container" id="products">
-            <h2 class="gsap-reveal">Готовые решения для бизнеса</h2>
+            <h2 class="gsap-reveal">Готовые продукты для бизнеса</h2>
             
             <div class="products-grid">
                 <div class="product-card gsap-reveal">
                     <div class="mockup-wrapper">
                         <div class="css-phone">
                             <div class="css-phone-header">
-                                <div class="css-phone-avatar"></div> <span style="color:#fff; font-size:12px;">Лидочка (AI)</span>
+                                <div class="css-phone-avatar"></div> <span style="color:#fff;">Лидочка (AI)</span>
                             </div>
                             <div class="css-phone-body">
-                                <div class="mock-msg bot">Найден горячий лид: "Ищу интегратора ИИ". Отправить в CRM?</div>
+                                <div class="mock-msg bot">Найден лид: "Ищу ИИ-интегратора". Отправить в CRM?</div>
                                 <div class="mock-msg user">Да, отправляй.</div>
                             </div>
                         </div>
                     </div>
-                    <h3 style="color: var(--neon-accent); font-family: 'Unbounded', sans-serif;">Умный лидо-поисковик "Лидочка"</h3>
-                    <p style="flex: 1;">Нейроассистент находит «горячих» клиентов в Telegram. Формирует базу чатов, ищет спрос и выдает контакты.</p>
+                    <h3 style="color: var(--neon-accent);">"Лидочка"</h3>
+                    <p style="flex: 1;">Умный лидопоисковик. Находит «горячих» клиентов в Telegram. Формирует базу чатов, ищет спрос и выдает контакты.</p>
                     
                     <div class="case-stats">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                         <div>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
-                            <div style="font-weight: 600; color: #fff;">+150 горячих лидов в месяц</div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
+                            <div style="font-weight: 600; color: var(--text-main); font-size: 14px;">+150 горячих лидов в месяц</div>
                         </div>
                     </div>
                     
@@ -343,22 +404,21 @@
                     <div class="mockup-wrapper">
                         <div class="css-phone">
                             <div class="css-phone-header">
-                                <div class="css-phone-avatar"></div> <span style="color:#fff; font-size:12px;">Верочка (AI)</span>
+                                <div class="css-phone-avatar"></div> <span style="color:#fff;">Верочка (AI)</span>
                             </div>
                             <div class="css-phone-body">
                                 <div class="mock-msg user">Перенеси созвон на завтра.</div>
-                                <div class="mock-msg bot">Ок. Созвон перенесен на 14:00. Всем участникам отправлено уведомление. 🗓️</div>
+                                <div class="mock-msg bot">Ок. Созвон перенесен на 14:00. Уведомления отправлены.</div>
                             </div>
                         </div>
                     </div>
-                    <h3 style="color: var(--neon-accent); font-family: 'Unbounded', sans-serif;">Нейро-секретарь «Верочка»</h3>
-                    <p style="flex: 1;">Telegram-ассистент с ИИ. Понимает голос и текст. Управляет календарем, планирует встречи и подбирает тон общения.</p>
+                    <h3 style="color: var(--neon-accent);">«Верочка»</h3>
+                    <p style="flex: 1;">Нейро-секретарь. Понимает голос и текст. Управляет календарем, планирует встречи и подбирает тон общения.</p>
                     
                     <div class="case-stats">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-accent)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                         <div>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
-                            <div style="font-weight: 600; color: #fff;">Экономия: 40 часов в неделю</div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
+                            <div style="font-weight: 600; color: var(--text-main); font-size: 14px;">Экономия: 40 часов в неделю</div>
                         </div>
                     </div>
                     
@@ -372,22 +432,21 @@
                     <div class="mockup-wrapper">
                         <div class="css-phone">
                             <div class="css-phone-header">
-                                <div class="css-phone-avatar"></div> <span style="color:#fff; font-size:12px;">EventGate (AI)</span>
+                                <div class="css-phone-avatar"></div> <span style="color:#fff;">EventGate (AI)</span>
                             </div>
                             <div class="css-phone-body">
-                                <div class="mock-msg user">Хочу купить билет на форум.</div>
-                                <div class="mock-msg bot">Отлично! Вот ссылка на оплату. После оплаты я вышлю вам пропуск. 🎫</div>
+                                <div class="mock-msg user">Хочу купить билет.</div>
+                                <div class="mock-msg bot">Отлично! Вот ссылка на оплату. Жду вас.</div>
                             </div>
                         </div>
                     </div>
-                    <h3 style="color: var(--neon-accent); font-family: 'Unbounded', sans-serif;">"Открывашка" (EventGate)</h3>
-                    <p style="flex: 1;">Нейросервис для ивентов. Общается с клиентами из соцсетей, отправляет платежи, регистрирует и ведет базу.</p>
+                    <h3 style="color: var(--neon-accent);">"Открывашка"</h3>
+                    <p style="flex: 1;">EventGate. Нейросервис для ивентов. Общается с клиентами из соцсетей, отправляет платежи и ведет базу.</p>
                     
                     <div class="case-stats">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-accent)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         <div>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
-                            <div style="font-weight: 600; color: #fff;">24/7 обработка заявок</div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
+                            <div style="font-weight: 600; color: var(--text-main); font-size: 14px;">24/7 обработка заявок</div>
                         </div>
                     </div>
                     
@@ -415,42 +474,42 @@
                         <div class="range-label"><span>Процент рутинных задач (%)</span> <span id="v-rout" style="color: var(--neon-accent);">35%</span></div>
                         <input type="range" id="i-rout" min="10" max="80" step="5" value="35">
                     </div>
-                    <p style="font-size: 13px; margin-top: 20px;">*Расчет базируется на внедрении LLM-агентов, забирающих первичную обработку и маршрутизацию данных.</p>
                 </div>
                 <div class="roi-result">
-                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted); text-transform: uppercase;">Потенциальная экономия</p>
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted); text-transform: uppercase;">Экономия при внедрении Верочки</p>
                     <div class="roi-value" id="o-money">4.36M ₽</div>
-                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted); margin-top: 10px;">В ГОД</p>
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted);">В ГОД</p>
                 </div>
             </div>
         </section>
 
         <section class="container" id="incubator">
             <h2 class="gsap-reveal">IT-Инкубатор для разработчиков</h2>
-            <div class="grid-3">
-                <div class="glass-card hover-target gsap-reveal">
+            <div class="grid-3-bento gsap-reveal">
+                <div class="glass-card hover-target">
                     <div class="badge">01</div>
-                    <h3 style="font-family: 'Unbounded', sans-serif;">Рекрутинг идей</h3>
-                    <p>Отбираем проекты и специалистов на основе потенциала идеи, готовности команды и рыночного спроса.</p>
+                    <h3 style="font-size: 20px;">Рекрутинг идей</h3>
+                    <p>Отбираем проекты на основе потенциала идеи и рыночного спроса.</p>
                 </div>
-                <div class="glass-card hover-target gsap-reveal">
+                <div class="glass-card hover-target">
                     <div class="badge">02</div>
-                    <h3 style="font-family: 'Unbounded', sans-serif;">Безопасный старт</h3>
+                    <h3 style="font-size: 20px;">Безопасный старт</h3>
                     <p>Проверяем гипотезы без лишних затрат: быстрый MVP и тест спроса.</p>
                 </div>
-                <div class="glass-card hover-target gsap-reveal">
+                <div class="glass-card hover-target">
                     <div class="badge">03</div>
-                    <h3 style="font-family: 'Unbounded', sans-serif;">Внешний «проджект»</h3>
-                    <p>Берем на себя управление сроками и задачами, чтобы команда не выгорала.</p>
+                    <h3 style="font-size: 20px;">Внешний «проджект»</h3>
+                    <p>Берем управление на себя, чтобы команда не выгорала.</p>
                 </div>
-            </div>
-            <div class="glass-card hover-target gsap-reveal" style="margin-top: 30px; background: linear-gradient(135deg, var(--brand-main), var(--brand-accent)); border: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
-                    <div style="max-width: 800px;">
-                        <h3 class="holo-title" style="font-size: clamp(2rem, 4vw, 3rem); color: #fff;">Стартап-конвейер</h3>
-                        <p style="color: rgba(255,255,255,0.9); font-size: 18px;">Мы закрываем все слабые места: от идеи и MVP до упаковки и первых продаж. Вы фокусируетесь на коде, мы — на всем, что нужно для роста. Хватит пилить пет-проект в стол.</p>
+                
+                <div class="glass-card bento-large hover-target">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
+                        <div style="max-width: 800px;">
+                            <h3 style="font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px;">Стартап-конвейер</h3>
+                            <p style="font-size: 18px;">Мы закрываем все слабые места: от идеи и MVP до упаковки и первых продаж. Вы фокусируетесь на коде. Хватит пилить пет-проект в стол.</p>
+                        </div>
+                        <a href="#contacts" class="btn-primary hover-target" style="background: var(--bg-color); color: var(--text-main);">Подать заявку →</a>
                     </div>
-                    <a href="#contacts" class="btn-primary hover-target" style="background: #fff; color: var(--brand-main);">Подать заявку →</a>
                 </div>
             </div>
         </section>
@@ -459,7 +518,7 @@
             <h2 class="gsap-reveal">Команда профессионалов</h2>
             <div class="team-grid gsap-reveal">
                 <div class="team-member hover-target">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Андрей">
+                    <div class="team-img"></div>
                     <div class="team-info">
                         <div class="team-name">Андрей</div>
                         <div class="team-role">Оптимизация процессов</div>
@@ -469,7 +528,7 @@
                     </div>
                 </div>
                 <div class="team-member hover-target">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Богдан">
+                    <div class="team-img"></div>
                     <div class="team-info">
                         <div class="team-name">Богдан</div>
                         <div class="team-role">Маркетинг и продвижение</div>
@@ -479,7 +538,7 @@
                     </div>
                 </div>
                 <div class="team-member hover-target">
-                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Дмитрий">
+                    <div class="team-img"></div>
                     <div class="team-info">
                         <div class="team-name">Дмитрий</div>
                         <div class="team-role">Стратегическое развитие</div>
@@ -489,7 +548,7 @@
                     </div>
                 </div>
                 <div class="team-member hover-target">
-                    <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Роман">
+                    <div class="team-img"></div>
                     <div class="team-info">
                         <div class="team-name">Роман</div>
                         <div class="team-role">Технический руководитель</div>
@@ -505,7 +564,7 @@
             <div class="form-grid gsap-reveal">
                 <div>
                     <div class="badge">SYS.CONTACT</div>
-                    <h2 class="holo-title" style="font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px;">Заполнить анкету</h2>
+                    <h2 style="font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px;">Заполнить анкету</h2>
                     <p style="font-size: 18px; margin-bottom: 50px;">Поделись своей идеей. Вместе оценим объемы, найдем решения и сделаем первый шаг к реализации.</p>
                     
                     <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 2; color: var(--text-muted);">
@@ -515,37 +574,36 @@
                     </div>
                 </div>
                 
-                <div class="form-box">
+                <div class="form-box hover-target">
                     <form id="contact-form">
                         <div class="input-group">
-                            <input type="text" id="inp-name" class="hover-target" placeholder=" " required>
+                            <input type="text" id="inp-name" placeholder=" " required>
                             <label for="inp-name">Имя и Фамилия</label>
                         </div>
                         
                         <div class="input-group">
-                            <input type="tel" id="phone-input" class="hover-target" placeholder=" " required>
+                            <input type="tel" id="phone-input" placeholder=" " required>
                             <label for="phone-input">Телефон *</label>
                             <span class="error-text" id="phone-error">Некорректный номер</span>
                         </div>
                         
                         <div class="input-group">
-                            <input type="text" id="inp-contact" class="hover-target" placeholder=" ">
+                            <input type="text" id="inp-contact" placeholder=" ">
                             <label for="inp-contact">Почта или Телеграм</label>
                         </div>
                         
-                        <div class="input-group">
-                            <input type="text" id="inp-file" class="hover-target" placeholder=" " readonly style="cursor: pointer;">
-                            <label for="inp-file">📎 Приложить презентацию (Клик)</label>
+                        <div style="border: 1px dashed var(--text-muted); padding: 20px; text-align: center; border-radius: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 25px; cursor: pointer;">
+                            📎 Приложить презентацию
                         </div>
                         
-                        <button type="submit" class="btn-primary hover-target" style="width: 100%; padding: 20px;">Отправить пакет данных</button>
+                        <button type="submit" class="btn-submit hover-target" style="width: 100%;">Отправить данные</button>
                     </form>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer style="border-top: 1px solid var(--glass-border); padding: 30px 5vw; background: var(--glass-bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; z-index: 100; position: relative; backdrop-filter: blur(10px);">
+    <footer>
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">
             © 2015-2026 ООО "Обойма Лаб" | ИНН: 5029197630
         </div>
@@ -563,7 +621,6 @@
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', newTheme);
             
-            // Смена цвета в 3D
             if(newTheme === 'light') {
                 scene.fog.color.setHex(0xf8fafc);
                 particlesMaterial.color.setHex(0x005EB1);
@@ -585,7 +642,7 @@
             el.addEventListener('mouseleave', () => cRing.classList.remove('active'));
         });
 
-        // --- 3. THREE.JS ФОН (Vanta.js NET Alternative) ---
+        // --- 3. THREE.JS ФОН (КОСМОС СОХРАНЕН) ---
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x020611, 0.002);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -593,13 +650,14 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+        // Только точки, без линий (для 120 FPS)
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 1500; // Оптимизация для линий
+        const particlesCount = 5000;
         const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 800;
+        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 1000;
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         
-        const particlesMaterial = new THREE.PointsMaterial({ size: 2, color: 0x00ffcc, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+        const particlesMaterial = new THREE.PointsMaterial({ size: 1.5, color: 0x00ffcc, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         camera.position.z = 200;
@@ -610,12 +668,10 @@
             mouseY = (event.clientY - window.innerHeight / 2);
         });
 
-        const clock = new THREE.Clock();
         function animate3D() {
             requestAnimationFrame(animate3D);
-            const elapsedTime = clock.getElapsedTime();
-            particlesMesh.rotation.y = elapsedTime * 0.05;
-            particlesMesh.rotation.x = elapsedTime * 0.02;
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.0005;
             particlesMesh.rotation.y += 0.05 * (mouseX * 0.001 - particlesMesh.rotation.y);
             particlesMesh.rotation.x += 0.05 * (mouseY * 0.001 - particlesMesh.rotation.x);
             renderer.render(scene, camera);
@@ -639,7 +695,38 @@
             }
         }, 100);
 
-        // --- 5. STEPPER (КАК РАБОТАЕМ) ---
+        // --- 5. ИНТЕРАКТИВНЫЙ AI-МЕНЕДЖЕР ---
+        const aiData = {
+            'business': 'Для бизнеса мы предлагаем автоматизацию операционки. Наши агенты забирают на себя продажи, маркетинг, логистику и кадры. Рутина исчезает.',
+            'incubator': 'Разработчикам с крутыми идеями мы даем безопасный старт: ресурсы, менеджмент и доведение до MVP. Мы берем управление на себя, чтобы вы не выгорали.',
+            'partners': 'Мы имеем опыт с корпоративным сектором и понимаем, как оптимизировать сложные процессы. Партнеры доверяют нашей технической экспертизе.'
+        };
+
+        function askAI(key, btn) {
+            document.querySelectorAll('.chat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const chatHistory = document.getElementById('ai-chat-history');
+            const uMsg = document.createElement('div');
+            uMsg.className = 'msg user'; uMsg.innerText = btn.innerText;
+            chatHistory.appendChild(uMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            setTimeout(() => {
+                const typ = document.createElement('div');
+                typ.className = 'msg bot'; typ.innerHTML = '<div class="typing"><span></span><span></span></div>';
+                chatHistory.appendChild(typ); chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                setTimeout(() => {
+                    typ.remove();
+                    const bMsg = document.createElement('div');
+                    bMsg.className = 'msg bot'; bMsg.innerText = aiData[key];
+                    chatHistory.appendChild(bMsg); chatHistory.scrollTop = chatHistory.scrollHeight;
+                }, 1000);
+            }, 300);
+        }
+
+        // --- 6. STEPPER ---
         function openStep(stepId, btn) {
             document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.step-content').forEach(c => c.classList.remove('active'));
@@ -647,48 +734,41 @@
             document.getElementById(stepId).classList.add('active');
         }
 
-        // --- 6. КАЛЬКУЛЯТОР ЭКОНОМИИ (ROI) ---
+        // --- 7. КАЛЬКУЛЯТОР ЭКОНОМИИ (ROI) ---
         const iEmp = document.getElementById('i-emp'), iSal = document.getElementById('i-sal'), iRout = document.getElementById('i-rout');
         const vEmp = document.getElementById('v-emp'), vSal = document.getElementById('v-sal'), vRout = document.getElementById('v-rout');
         function calcROI() {
             const emp = parseInt(iEmp.value), sal = parseInt(iSal.value) * 1000, rout = parseInt(iRout.value);
             vEmp.innerText = emp; vSal.innerText = (sal/1000) + 'k'; vRout.innerText = rout + '%';
-            
             const targetMoney = ((sal * 1.3 * emp * 12 * (rout/100)) / 1000000).toFixed(2);
             document.getElementById('o-money').innerText = targetMoney + 'M ₽';
         }
         iEmp.addEventListener('input', calcROI); iSal.addEventListener('input', calcROI); iRout.addEventListener('input', calcROI); calcROI();
 
-        // --- 7. МАСКА ТЕЛЕФОНА И ВАЛИДАЦИЯ ---
+        // --- 8. МАСКА ТЕЛЕФОНА ---
         const phoneInput = document.getElementById('phone-input');
         const phoneError = document.getElementById('phone-error');
-
         phoneInput.addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
             if (!x[2]) { e.target.value = '+7'; return; }
             e.target.value = '+7 (' + x[2] + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
-            
-            if(e.target.value.length === 18) {
-                phoneInput.classList.remove('input-error'); phoneError.style.display = 'none';
-            } else {
-                phoneInput.classList.add('input-error'); phoneError.style.display = 'block';
-            }
+            if(e.target.value.length === 18) { phoneInput.classList.remove('input-error'); phoneError.style.display = 'none'; }
+            else { phoneInput.classList.add('input-error'); phoneError.style.display = 'block'; }
         });
 
-        document.getElementById('contact-form').addEventListener('submit', function(e) {
-            if(phoneInput.value.length !== 18) { e.preventDefault(); phoneInput.classList.add('input-error'); phoneError.style.display = 'block'; }
-        });
-
-        // --- 8. GSAP АНИМАЦИИ ---
+        // --- 9. GSAP АНИМАЦИИ ---
         gsap.registerPlugin(ScrollTrigger);
 
         function initGSAP() {
+            // Зум камеры при скролле (Тот самый эффект)
+            gsap.to(camera.position, {
+                z: -50, ease: "none",
+                scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 1 }
+            });
+
             // Появление элементов
             gsap.utils.toArray('.gsap-reveal').forEach(elem => {
-                gsap.fromTo(elem, 
-                    { y: 50, opacity: 0 },
-                    { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } }
-                );
+                gsap.fromTo(elem, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } });
             });
         }
     </script>
