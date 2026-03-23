@@ -3,91 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обойма Лаб | AI OS v3.0</title>
+    <title>Обойма Лаб | Разработка ИИ-решений</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
-        /* --- CORE --- */
+        /* --- ПРЕМИАЛЬНЫЕ ПЕРЕМЕННЫЕ (СИНИЙ/СТЕКЛО ИЗ ТЗ) --- */
         :root {
-            --primary: #00ffcc;
-            --accent: #b026ff;
-            --bg: #030305;
-            --glass: rgba(10, 10, 15, 0.4);
-            --border: rgba(0, 255, 204, 0.2);
-            --font-main: 'Inter', sans-serif;
+            --primary: #0088ff; /* Глубокий синий из макетов */
+            --accent: #00d2ff;  /* Голубой акцент */
+            --bg: #020611;
+            --glass: rgba(10, 15, 30, 0.4);
+            --glass-strong: rgba(15, 25, 45, 0.7);
+            --border: rgba(0, 136, 255, 0.2);
+            --text: #ffffff;
+            --text-dim: #94a3b8;
+            --font-main: 'Inter', system-ui, sans-serif;
             --font-mono: 'Space Mono', monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-        body { background: var(--bg); color: #fff; font-family: var(--font-main); overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
         /* --- КУРСОР --- */
         .cursor-dot { position: fixed; width: 4px; height: 4px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); box-shadow: 0 0 10px #fff; }
-        .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--primary); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: screen; }
-        .cursor-ring.active { width: 80px; height: 80px; background: rgba(0, 255, 204, 0.1); border-color: transparent; }
+        .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: screen; }
+        .cursor-ring.active { width: 80px; height: 80px; background: rgba(0, 210, 255, 0.1); border-color: transparent; }
 
-        /* --- 3D CANVAS --- */
+        /* --- 3D CANVAS ФОН --- */
         #webgl-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
 
-        /* --- BOOT SEQUENCE --- */
-        #boot-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: var(--font-mono); color: var(--primary); font-size: 14px; }
-        .progress-bar { width: 300px; height: 2px; background: #222; margin-top: 20px; position: relative; overflow: hidden; }
-        .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--primary); box-shadow: 0 0 20px var(--primary); }
+        /* --- BOOT SCREEN --- */
+        #boot-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: var(--font-mono); color: var(--accent); font-size: 14px; }
+        .progress-bar { width: 300px; height: 2px; background: #112; margin-top: 20px; position: relative; overflow: hidden; }
+        .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 20px var(--accent); }
 
-        /* --- UI LAYOUT --- */
+        /* --- ЛЕЙАУТ И ТИПОГРАФИКА --- */
         .container { max-width: 1400px; margin: 0 auto; padding: 0 4vw; position: relative; z-index: 10; }
-        section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 0; }
+        section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 120px 0; }
         
-        h1 { font-size: clamp(4rem, 8vw, 7rem); font-weight: 900; line-height: 0.9; text-transform: uppercase; margin-bottom: 30px; }
-        .glitch-text { position: relative; display: inline-block; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
-        h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 50px; }
+        h1 { font-size: clamp(3rem, 6vw, 6rem); font-weight: 900; line-height: 1; text-transform: uppercase; margin-bottom: 20px; }
+        h2 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; margin-bottom: 40px; text-transform: uppercase; }
+        h3 { font-size: 24px; font-weight: 700; margin-bottom: 15px; }
+        p { font-size: 16px; line-height: 1.6; color: var(--text-dim); }
+        .tag { display: inline-block; padding: 6px 14px; border: 1px solid var(--border); color: var(--accent); font-family: var(--font-mono); font-size: 12px; border-radius: 20px; margin-bottom: 20px; background: rgba(0, 136, 255, 0.05); }
 
-        /* --- HEADER HUD --- */
-        header { position: fixed; top: 0; width: 100%; padding: 20px 4vw; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); backdrop-filter: blur(5px); }
-        .logo { font-weight: 900; font-size: 20px; letter-spacing: 2px; display: flex; align-items: center; gap: 15px; }
-        .logo-box { width: 24px; height: 24px; border: 2px solid var(--primary); display: flex; justify-content: center; align-items: center; animation: spin 5s linear infinite; }
-        .logo-box::inner { content: ''; width: 10px; height: 10px; background: var(--primary); }
+        /* --- HEADER --- */
+        header { position: fixed; top: 0; width: 100%; padding: 20px 4vw; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); background: linear-gradient(to bottom, rgba(2,6,17,0.9), transparent); backdrop-filter: blur(10px); }
+        .logo { font-weight: 900; font-size: 22px; display: flex; align-items: center; gap: 15px; text-transform: uppercase; }
+        .logo-box { width: 30px; height: 30px; border: 2px solid var(--accent); border-radius: 6px; display: flex; justify-content: center; align-items: center; animation: spin 6s linear infinite; }
+        .logo-box::inner { content: ''; width: 12px; height: 12px; background: var(--accent); border-radius: 3px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
 
-        /* --- HOLOGRAPHIC BENTO GRID --- */
-        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .holo-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 40px; position: relative; overflow: hidden; backdrop-filter: blur(10px); transform-style: preserve-3d; transition: transform 0.4s ease, border-color 0.4s ease; display: flex; flex-direction: column; }
-        .holo-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); z-index: 0; pointer-events: none; }
-        .holo-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--primary); box-shadow: 0 20px 50px rgba(0, 255, 204, 0.2); }
+        /* --- MARQUEE (ПАРТНЕРЫ) --- */
+        .marquee { width: 100%; overflow: hidden; background: rgba(0, 136, 255, 0.05); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 20px 0; margin-top: 60px; display: flex; white-space: nowrap; }
+        .marquee-inner { display: flex; font-size: 24px; font-weight: 800; color: #fff; text-transform: uppercase; animation: marquee 20s linear infinite; }
+        .marquee-inner span { margin: 0 40px; display: flex; align-items: center; gap: 40px; opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .marquee-inner span:hover { opacity: 1; color: var(--accent); }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* --- КАРТОЧКИ GLASSMORPHISM --- */
+        .glass-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
+        .holo-card { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 50px; position: relative; overflow: hidden; backdrop-filter: blur(15px); transform-style: preserve-3d; transition: 0.4s ease; display: flex; flex-direction: column; }
+        .holo-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); z-index: 0; pointer-events: none; }
+        .holo-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 20px 50px rgba(0, 136, 255, 0.15); }
         .card-content { position: relative; z-index: 1; }
-        
-        .holo-title { font-size: 32px; font-weight: 800; margin-bottom: 15px; background: linear-gradient(90deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .holo-desc { color: #aaa; font-size: 16px; line-height: 1.6; }
-        
-        .tag { display: inline-block; padding: 5px 12px; border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-size: 12px; border-radius: 20px; margin-bottom: 20px; }
 
-        /* --- INTERACTIVE ROI SLIDER --- */
-        .roi-panel { background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 30px; padding: 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; backdrop-filter: blur(20px); }
-        .slider-wrap { margin-bottom: 40px; position: relative; }
-        input[type=range] { -webkit-appearance: none; width: 100%; height: 2px; background: #444; outline: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--primary); border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px var(--primary); transition: 0.2s; transform: scale(1); }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.5); }
-        .roi-output { font-size: 80px; font-weight: 900; line-height: 1; color: var(--primary); text-shadow: 0 0 30px var(--primary-glow); font-family: var(--font-mono); }
+        /* --- ВЕРТИКАЛЬНЫЕ ВКЛАДКИ (КАК РАБОТАЕТ) --- */
+        .tabs-container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .tabs-menu { display: flex; flex-direction: column; gap: 10px; }
+        .tab-btn { padding: 20px; background: transparent; border: 1px solid transparent; border-left: 2px solid var(--border); color: var(--text-dim); text-align: left; font-size: 18px; font-weight: 600; cursor: none; transition: 0.3s; display: flex; align-items: center; gap: 15px; }
+        .tab-btn:hover { background: rgba(255,255,255,0.02); color: #fff; }
+        .tab-btn.active { color: var(--accent); border-left-color: var(--accent); background: linear-gradient(90deg, rgba(0, 136, 255, 0.1), transparent); }
+        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .visual-box { aspect-ratio: 1; background: var(--glass-strong); border: 1px solid var(--border); border-radius: 24px; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
+        
+        /* CSS Иллюстрации для вкладок */
+        .vis-layer { position: absolute; inset: 0; display: none; justify-content: center; align-items: center; transition: 0.5s; }
+        .vis-layer.active { display: flex; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .vis-btn { width: 100px; height: 100px; background: #111; border-radius: 20px; border-bottom: 8px solid #000; box-shadow: 0 20px 30px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; transform: rotateX(20deg) rotateZ(-20deg); }
+        .vis-btn::after { content: ''; width: 40px; height: 40px; border: 3px solid var(--accent); border-radius: 5px; animation: spin 4s linear infinite; }
+        
+        .vis-lamps { display: flex; gap: 30px; }
+        .lamp { width: 40px; height: 40px; border-radius: 50%; background: #fff; box-shadow: 0 0 40px var(--accent), 0 0 80px var(--primary); animation: flicker 3s infinite alternate; }
+        .lamp:nth-child(2) { animation-delay: 1s; opacity: 0.5; box-shadow: none; }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        .vis-chip { width: 120px; height: 120px; border: 2px solid var(--primary); border-radius: 10px; position: relative; display: grid; place-items: center; }
+        .vis-chip::before { content: 'OBOYMA INSIDE'; font-family: var(--font-mono); font-size: 10px; color: var(--primary); }
+        .vis-chip::after { content: ''; position: absolute; inset: -20px; border: 1px dashed var(--accent); animation: spin 10s linear infinite; }
 
-        /* --- BUTTONS --- */
-        .cyber-btn { position: relative; display: inline-flex; align-items: center; padding: 20px 40px; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.2); font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; text-decoration: none; overflow: hidden; transition: 0.3s; }
-        .cyber-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--primary); z-index: -1; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
-        .cyber-btn:hover { color: #000; border-color: var(--primary); box-shadow: 0 0 30px var(--primary-glow); }
-        .cyber-btn:hover::before { left: 0; }
+        /* --- BENTO GRID (ИНКУБАТОР И РЕШЕНИЯ) --- */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .bento-large { grid-column: span 3; background: linear-gradient(135deg, var(--primary), var(--bg)); border: none; }
+        .bento-large:hover { box-shadow: 0 20px 60px rgba(0, 136, 255, 0.3); }
+
+        /* --- КОМАНДА --- */
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+        .team-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; transition: 0.3s; }
+        .team-card:hover { transform: translateY(-10px); border-color: var(--accent); background: var(--glass-strong); }
+        .team-avatar { width: 100px; height: 100px; border-radius: 50%; background: #111; margin: 0 auto 20px; border: 2px solid var(--border); display: grid; place-items: center; font-size: 32px; }
+
+        /* --- ФОРМА И КОНТАКТЫ --- */
+        .form-section { border-top: 1px solid var(--border); padding-top: 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+        input, .file-drop { width: 100%; padding: 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-family: var(--font-main); font-size: 16px; margin-bottom: 20px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
+        .file-drop { border: 1px dashed var(--text-dim); text-align: center; color: var(--text-dim); cursor: none; }
+        .file-drop:hover { border-color: var(--accent); color: var(--accent); }
+        
+        .checkbox-group { display: flex; gap: 15px; margin-bottom: 30px; align-items: flex-start; }
+        .checkbox-group input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+        .checkbox-group label { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+        .cyber-btn { display: inline-flex; justify-content: center; align-items: center; padding: 20px 40px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; transition: 0.3s; position: relative; overflow: hidden; }
+        .cyber-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transform: translateX(-100%); transition: 0.5s; }
+        .cyber-btn:hover::before { transform: translateX(100%); }
+        .cyber-btn:hover { background: var(--accent); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3); color: #000; }
+
+        /* ПЛАВАЮЩИЕ КНОПКИ */
+        .floating-btns { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .float-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--glass-strong); border: 1px solid var(--border); display: grid; place-items: center; color: #fff; text-decoration: none; font-weight: bold; transition: 0.3s; backdrop-filter: blur(10px); }
+        .float-btn:hover { background: var(--primary); transform: scale(1.1); border-color: var(--accent); }
+
+        /* --- АНИМАЦИИ ПОЯВЛЕНИЯ --- */
+        .gsap-fade { opacity: 0; transform: translateY(40px); }
+
+        /* СТИЛИ ДЛЯ ШТОРОК (PIN SECTION) */
+        .pin-section { height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .pin-content { position: absolute; text-align: center; width: 100%; max-width: 1000px; padding: 0 20px; opacity: 0; transform: scale(0.9); }
 
         @media (max-width: 1024px) {
-            .bento-grid, .roi-panel { grid-template-columns: 1fr; }
-            h1 { font-size: 48px; }
+            .glass-grid, .tabs-container, .bento-grid, .team-grid, .form-section { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            h1 { font-size: 40px; }
         }
     </style>
 </head>
 <body>
 
     <div id="boot-screen">
-        <div id="boot-text">OBOYMA_LAB KERNEL v4.0.1 INITIALIZING...</div>
+        <div>OBOYMA_LAB KERNEL v4.0.1 INITIALIZING...</div>
         <div class="progress-bar"><div class="progress-fill" id="boot-fill"></div></div>
     </div>
 
@@ -98,141 +163,338 @@
 
     <header class="gsap-fade">
         <div class="logo sound-hover">
-            <div class="logo-box"></div> OBOYMA_LAB
+            <div class="logo-box"></div> ОБОЙМА ЛАБ
         </div>
-        <div style="font-family: var(--font-mono); font-size: 12px; color: var(--primary);">> AUDIO: ENABLED</div>
+        <nav class="nav-links">
+            <a href="#business" class="sound-hover">Бизнесу</a>
+            <a href="#solutions" class="sound-hover">Готовые решения</a>
+            <a href="#incubator" class="sound-hover">Разработчикам</a>
+            <a href="#contacts" class="sound-hover">Контакты</a>
+        </nav>
+        <div style="display: flex; gap: 15px;">
+            <a href="https://t.me/oboymalab" class="sound-hover" style="color: var(--text);">TG</a>
+            <a href="https://vk.com/oboymalab" class="sound-hover" style="color: var(--text);">VK</a>
+            <a href="https://vc.ru/oboyma" class="sound-hover" style="color: var(--text);">VC</a>
+        </div>
     </header>
 
     <main>
-        <section class="container" id="hero">
-            <div>
-                <div class="tag gsap-fade">> ИИ-АРХИТЕКТУРА ДЛЯ БИЗНЕСА</div>
-                <h1 class="glitch-text gsap-fade">СИНТЕЗ<br>АЛГОРИТМОВ<br>И ПРИБЫЛИ.</h1>
-                <p class="gsap-fade" style="font-size: 24px; color: #aaa; max-width: 700px; margin-bottom: 50px; line-height: 1.6;">
-                    Мы разрабатываем кастомные LLM-модели, автоматизируем операционку и доводим стартапы от идеи до первых продаж в нашем ИТ-инкубаторе.
-                </p>
-                <div class="gsap-fade">
-                    <a href="#products" class="cyber-btn sound-hover">Инициализация систем</a>
+        <div id="pin-master" style="height: 500vh;">
+            <div class="pin-section" id="pin-container">
+                <div class="pin-content slide-1">
+                    <div class="tag">01 // О НАС</div>
+                    <h1>Обойма лаб — российский разработчик ПО</h1>
+                    <p style="font-size: 24px; color: var(--text-dim);">Мы разрабатываем собственные программные продукты на основе искусственного интеллекта.</p>
+                </div>
+                <div class="pin-content slide-2">
+                    <div class="tag">02 // БИЗНЕСУ</div>
+                    <h1>Разработка ИИ-решений</h1>
+                    <p style="font-size: 24px; color: var(--text-dim);">Внедряем нейросети и программное обеспечение под ключ для автоматизации бизнес-процессов.</p>
+                </div>
+                <div class="pin-content slide-3">
+                    <div class="tag">03 // ПРОДУКТЫ</div>
+                    <h1>Готовые решения</h1>
+                    <p style="font-size: 24px; color: var(--text-dim);">Обкатано, отшлифовано, готово к запуску.</p>
+                </div>
+                <div class="pin-content slide-4">
+                    <div class="tag">04 // РАЗРАБОТЧИКАМ</div>
+                    <h1>IT-Инкубатор</h1>
+                    <p style="font-size: 24px; color: var(--text-dim);">Объединяем запросы бизнеса и талант разработчиков.</p>
+                </div>
+                <div class="pin-content slide-5">
+                    <div class="tag">05 // СВЯЗЬ</div>
+                    <h1>Контакты</h1>
+                    <p style="font-size: 24px; color: var(--text-dim);">Создаём выгодные условия сотрудничества для предпринимателей и разработчиков.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="container" id="about">
+            <h2 class="gsap-fade">С кем работаем</h2>
+            <p class="gsap-fade" style="font-size: 20px; max-width: 800px; margin-bottom: 40px;">Мы разрабатываем собственные программные продукты на базе ИИ, а также активно привлекаем к сотрудничеству разработчиков и предпринимателей через бизнес-инкубатор, который помогает получить необходимые ресурсы и экспертизу для запуска.</p>
+            
+            <div class="marquee gsap-fade">
+                <div class="marquee-inner">
+                    <span class="sound-hover">EMCO</span>
+                    <span class="sound-hover">L'ORÉAL</span>
+                    <span class="sound-hover">PIRELLI</span>
+                    <span class="sound-hover">KFC</span>
+                    <span class="sound-hover">OBOYMA</span>
+                    <span class="sound-hover">EMCO</span>
+                    <span class="sound-hover">L'ORÉAL</span>
+                    <span class="sound-hover">PIRELLI</span>
+                    <span class="sound-hover">KFC</span>
+                    <span class="sound-hover">OBOYMA</span>
                 </div>
             </div>
         </section>
 
-        <section class="container" id="products">
-            <h2 class="gsap-fade">ЭКОСИСТЕМА РЕШЕНИЙ</h2>
-            <div class="bento-grid">
+        <section class="container" id="business">
+            <h2 class="gsap-fade">Для кого подойдет бизнес-лаборатория Обойма Лаб?</h2>
+            <div class="glass-grid">
+                <div class="holo-card sound-hover gsap-fade">
+                    <div class="card-content">
+                        <div style="font-size: 40px; margin-bottom: 20px;">🏢</div>
+                        <h3>ДЛЯ БИЗНЕСА</h3>
+                        <p>Готовые решения и индивидуальные разработки для тех, у кого есть желание автоматизировать операционную деятельность с помощью современных ИИ-технологий: продажи, маркетинг, упаковка, логистика, кадры и просто рутина, поглощающая ресурсы.</p>
+                        <a href="#how" style="margin-top: 30px; display: inline-block; color: var(--accent); text-decoration: none; font-weight: 600;">Узнать, как работает лаборатория →</a>
+                    </div>
+                </div>
+                <div class="holo-card sound-hover gsap-fade" style="background: rgba(0, 136, 255, 0.05); border-color: rgba(0, 136, 255, 0.3);">
+                    <div class="card-content">
+                        <div style="font-size: 40px; margin-bottom: 20px;">👨‍💻</div>
+                        <h3>ДЛЯ РАЗРАБОТЧИКОВ</h3>
+                        <p>Разработчики с идеями, которые могут создавать ИТ-решения, но упираются в ресурсы. Ваша команда получит усиление от наших экспертов.</p>
+                        <a href="#incubator" style="margin-top: 30px; display: inline-block; color: var(--accent); text-decoration: none; font-weight: 600;">Узнать об инкубаторе →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" id="how">
+            <h2 class="gsap-fade" style="text-align: center;">Как работает наша лаборатория</h2>
+            <p class="gsap-fade" style="text-align: center; max-width: 800px; margin: 0 auto 60px; font-size: 20px;">Вместо того чтобы месяц рисовать кнопки, месяц писать сервер, а месяц соединять, мы за одну неделю делаем одну кнопку, которая уже работает «под капотом»</p>
+            
+            <div class="tabs-container gsap-fade">
+                <div class="tabs-menu">
+                    <button class="tab-btn sound-hover active" data-tab="t1">1. Начать проще, чем кажется</button>
+                    <button class="tab-btn sound-hover" data-tab="t2">2. Аудит бизнес-процессов</button>
+                    <button class="tab-btn sound-hover" data-tab="t3">3. Техническое задание</button>
+                    <button class="tab-btn sound-hover" data-tab="t4">4. Функция за функцией</button>
+                    <button class="tab-btn sound-hover" data-tab="t5">5. Бета-тест: проверка боем</button>
+                </div>
                 
-                <div class="holo-card sound-hover gsap-card">
+                <div style="position: relative;">
+                    <div class="visual-box" style="margin-bottom: 30px;">
+                        <div class="vis-layer active" id="v1"><div class="vis-btn"></div></div>
+                        <div class="vis-layer" id="v2"><div class="vis-lamps"><div class="lamp"></div><div class="lamp"></div></div></div>
+                        <div class="vis-layer" id="v3"><div class="vis-chip"></div></div>
+                        <div class="vis-layer" id="v4"><div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;"><div class="lamp" style="width:20px;height:20px;"></div><div class="lamp" style="width:20px;height:20px;"></div><div class="lamp" style="width:20px;height:20px;"></div><div class="lamp" style="width:20px;height:20px;"></div></div></div>
+                        <div class="vis-layer" id="v5"><div style="width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--accent); display: grid; place-items: center;"><div style="width: 20px; height: 2px; background: var(--accent); transform: rotate(45deg);"></div></div></div>
+                    </div>
+
+                    <div class="tab-content active" id="t1">
+                        <p style="margin-bottom: 15px;">Предприниматели часто сомневаются: эффективно ли работают бизнес-процессы, куда уходят ресурсы и что можно улучшить? Тема ИИ сегодня звучит отовсюду — обещают экономию и устранение рутины. Но кажется, что это сложно, дорого и непонятно, с какой стороны подойти.</p>
+                        <p style="margin-bottom: 15px;">«Обойма» — это не просто IT-лаборатория. Наша команда имеет глубокую экспертизу в корпоративном мире: оптимизация операционной деятельности и маркетинг для нас такая же привычная задача, как написание кода или обучение нейросетей.</p>
+                        <p>Прежде чем погружаться в разработку, мы предлагаем предпринимателю простой и ни к чему не обязывающий шаг — вместе проанализировать операционку, найти слабые места и оценить реальную выгоду от внедрения ИИ.</p>
+                    </div>
+                    <div class="tab-content" id="t2">
+                        <p style="margin-bottom: 15px;">Мы работаем по одному из двух сценариев. Первый: предприниматель сам точно знает, что его беспокоит, и формулирует задачу. Второй: наша команда проводит комплексный анализ операционки с нуля — исследуем продажи, маркетинг, упаковку, логистику, кадры и скрытую рутину.</p>
+                        <p style="margin-bottom: 15px;">В обоих случаях результат аудита — это исчерпывающая картина вашего бизнеса: точка «как есть», конкретный план улучшений и прогноз, как это будет работать. Ключевое — мы рассчитаем реальный экономический эффект от внедрения новых технологий.</p>
+                        <p>Всего 10 дней потребуется, чтобы взглянуть на свое дело свежим взглядом и увидеть скрытые точки роста.</p>
+                    </div>
+                    <div class="tab-content" id="t3">
+                        <p style="margin-bottom: 15px;">После аудита мы фиксируем цель бизнеса и все пожелания заказчика — хотелки, фичи, требования. Но формируем ТЗ нестандартно: режем проект не по горизонталям (база данных, логика, интерфейс), а по вертикальным сквозным функциям. Например: «авторизация по смс», «кнопка заказа», «отправка ссылки на оплату».</p>
+                        <p>Каждую функцию ранжируем по ценности для пользователя — от самой важной к второстепенной. Весь проект разбиваем на короткие циклы (итерации) по 1–2 недели. Так команда разработки четко понимает приоритеты и делает то, что принесет максимальную пользу бизнесу здесь и сейчас.</p>
+                    </div>
+                    <div class="tab-content" id="t4">
+                        <p style="margin-bottom: 15px;">На каждой итерации команда берет одну конкретную функцию, которая несет реальную ценность для пользователя. Например: «классификация входящих запросов VK» или «обработка диалогов с клиентами ИИ-модулем». Мы ведем разработку целиком — от интерфейса до базы данных.</p>
+                        <p>Такой подход дает главное: после каждой итерации продукт обретает новую, полностью рабочую функцию. А не просто пополняется «кучей кода», который пока ничего не делает. План разработки при этом непрерывно дорабатывается.</p>
+                    </div>
+                    <div class="tab-content" id="t5">
+                        <p style="margin-bottom: 15px;">Когда система готова к реальной эксплуатации, наступает ключевой этап — бета-тестирование. Это момент истины: решение впервые работает на реальных данных и с живыми пользователями. В этот период наши «технари» плотно контактируют с командой заказчика.</p>
+                        <p style="margin-bottom: 15px;">Мы собираем обратную связь, отслеживаем неочевидные сценарии и нюансы, которые невозможно предусмотреть на этапе проектирования. Это нормально. И это ценный материал для тонкой настройки продукта.</p>
+                        <p>В результате продукт выходит из беты полностью готовым к полноценной работе. Предприниматель получает отточенный инструмент, который закрывает те самые боли.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" id="solutions">
+            <h2 class="gsap-fade" style="text-align: center;">Готовые решения для бизнеса</h2>
+            <p class="gsap-fade" style="text-align: center; color: var(--text-dim); margin-top: -30px; margin-bottom: 50px;">Эффективность доказана и проверена заказчиками</p>
+            
+            <div class="bento-grid">
+                <div class="holo-card sound-hover gsap-fade">
                     <div class="card-content">
-                        <div class="tag">01 // ASSISTANT</div>
-                        <h3 class="holo-title">«Верочка»</h3>
-                        <p class="holo-desc">Нейро-секретарь. Понимает контекст и голос. Управляет календарем, планирует встречи и подстраивает тон под клиента. Заменяет целый отдел координаторов.</p>
-                        <div style="display: flex; gap: 4px; height: 30px; align-items: flex-end; margin-top: 30px;">
-                            <div style="width: 4px; background: var(--primary); height: 100%; animation: wave 1s infinite alternate;"></div>
-                            <div style="width: 4px; background: var(--primary); height: 60%; animation: wave 1.2s infinite alternate;"></div>
-                            <div style="width: 4px; background: var(--primary); height: 80%; animation: wave 0.8s infinite alternate;"></div>
-                            <div style="width: 4px; background: var(--primary); height: 40%; animation: wave 1.5s infinite alternate;"></div>
-                            <div style="width: 4px; background: var(--primary); height: 90%; animation: wave 0.9s infinite alternate;"></div>
-                        </div>
-                        <style>@keyframes wave { 0% { height: 20%; } 100% { height: 100%; } }</style>
+                        <div class="tag">Продукт №1</div>
+                        <h3>Умный лидо-поисковик "Лидочка"</h3>
+                        <p style="margin-bottom: 20px;">Нейроассистент находит «горячих» клиентов в Telegram и вы получаете готовую базу тех, кто уже ищет ваши товары.</p>
+                        <ul style="color: var(--text-dim); font-size: 14px; margin-bottom: 30px; padding-left: 20px; line-height: 1.8;">
+                            <li>Формирует базу тематических чатов.</li>
+                            <li>Ищет в них сообщения с прямым спросом.</li>
+                            <li>Выдает готовые контакты для связи.</li>
+                        </ul>
+                        <button class="cyber-btn sound-hover" style="width: 100%; padding: 15px;">Хочу тест</button>
                     </div>
                 </div>
 
-                <div class="holo-card sound-hover gsap-card">
+                <div class="holo-card sound-hover gsap-fade">
                     <div class="card-content">
-                        <div class="tag">02 // LEAD GEN</div>
-                        <h3 class="holo-title">«Лидочка»</h3>
-                        <p class="holo-desc">Сканнер рынка. Мониторит тысячи тематических TG-чатов, отсеивает спам через LLM и доставляет горячие лиды (тех, кто ищет ваш продукт прямо сейчас) прямо в CRM.</p>
-                        <div style="margin-top: 30px; border-top: 1px solid #333; padding-top: 15px; font-family: var(--font-mono); font-size: 12px; color: var(--primary);">> MATCH FOUND: 142 LEADS</div>
+                        <div class="tag">Продукт №2</div>
+                        <h3>Нейро-секретарь «Верочка»</h3>
+                        <p style="margin-bottom: 20px;">Telegram-ассистент с искусственным интеллектом. Понимает голос и текст. Сама планирует встречи и напоминает о задачах.</p>
+                        <ul style="color: var(--text-dim); font-size: 14px; margin-bottom: 30px; padding-left: 20px; line-height: 1.8;">
+                            <li>Помнит всю историю общения.</li>
+                            <li>Подбирает тон (вежливо, с юмором, коротко).</li>
+                            <li>Поможет не пропустить дедлайны.</li>
+                        </ul>
+                        <button class="cyber-btn sound-hover" style="width: 100%; padding: 15px;">Хочу тест</button>
                     </div>
                 </div>
 
-                <div class="holo-card sound-hover gsap-card">
+                <div class="holo-card sound-hover gsap-fade">
                     <div class="card-content">
-                        <div class="tag" style="border-color: var(--accent); color: var(--accent);">03 // CUSTOM LLM</div>
-                        <h3 class="holo-title">Проект Alibi</h3>
-                        <p class="holo-desc">Разработка сложной RAG-архитектуры. ИИ-ассистент для детективного квеста. Отыгрывает роль, ведет сюжет, выдает зацепки по геолокации и отрабатывает возражения игроков.</p>
+                        <div class="tag">Продукт №3</div>
+                        <h3>"Открывашка" (EventGate)</h3>
+                        <p style="margin-bottom: 20px;">Нейросервис для ивент-предпринимателей. "Здоровается", общается с клиентами, отправляет платежные инструменты.</p>
+                        <ul style="color: var(--text-dim); font-size: 14px; margin-bottom: 30px; padding-left: 20px; line-height: 1.8;">
+                            <li>Отвечает на вопросы, "Следит за языком".</li>
+                            <li>Регистрирует на мероприятия.</li>
+                            <li>Пушит менеджеров, если они нужны.</li>
+                        </ul>
+                        <button class="cyber-btn sound-hover" style="width: 100%; padding: 15px;">Хочу обсудить</button>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="holo-card sound-hover gsap-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(0,255,204,0.1), transparent);">
-                    <div class="card-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
+        <section class="container" id="incubator">
+            <h2 class="gsap-fade">IT-Инкубатор для разработчиков</h2>
+            <p class="gsap-fade" style="color: var(--text-dim); font-size: 20px; margin-top: -30px; margin-bottom: 50px;">От идеи до первых клиентов — помогаем с упаковкой, маркетингом и продажами.</p>
+            
+            <div class="bento-grid">
+                <div class="holo-card sound-hover gsap-fade">
+                    <div class="card-content">
+                        <h3>Рекрутинг идей и ресурсов</h3>
+                        <p>Мы отбираем проекты и специалистов на основе потенциала идеи, готовности команды и рыночного спроса.</p>
+                    </div>
+                </div>
+                <div class="holo-card sound-hover gsap-fade">
+                    <div class="card-content">
+                        <h3>Безопасный старт</h3>
+                        <p>Проверяем гипотезы без лишних затрат: быстрый MVP и тест спроса.</p>
+                    </div>
+                </div>
+                <div class="holo-card sound-hover gsap-fade">
+                    <div class="card-content">
+                        <h3>Внешний «проджект»</h3>
+                        <p>Берем на себя управление сроками и задачами, чтобы команда не выгорала.</p>
+                    </div>
+                </div>
+                <div class="holo-card bento-large sound-hover gsap-fade">
+                    <div class="card-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
                         <div style="max-width: 600px;">
-                            <div class="tag">04 // STARTUP LAB</div>
-                            <h3 class="holo-title" style="font-size: 48px;">IT-ИНКУБАТОР</h3>
-                            <p class="holo-desc" style="font-size: 18px;">Хватит пилить пет-проекты в стол. Мы берем перспективные идеи разработчиков, закрываем вопросы менеджмента, ресурсов и упаковки, доводя продукт до MVP за 30 дней.</p>
+                            <h3 style="font-size: 40px; color: #fff;">Стартап-конвейер</h3>
+                            <p style="color: rgba(255,255,255,0.8); font-size: 18px;">Мы закрываем все слабые места: от идеи и MVP до упаковки и первых продаж. Вы фокусируетесь на коде, мы — на всем, что нужно для роста.</p>
                         </div>
-                        <a href="#form" class="cyber-btn sound-hover">Подать проект</a>
+                        <button class="cyber-btn sound-hover" style="background: #fff; color: #000;">Узнать подробнее</button>
                     </div>
                 </div>
-
+                
+                <div class="holo-card bento-large sound-hover gsap-fade" style="background: var(--primary); border: none;">
+                    <div class="card-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
+                        <div style="max-width: 600px;">
+                            <h3 style="font-size: 40px; color: #fff;">Стартуй с нами</h3>
+                            <a href="#form" style="color: #fff; text-decoration: none; font-weight: bold; font-size: 18px; display: inline-flex; align-items: center; gap: 10px;">Связаться с нашим менеджером →</a>
+                        </div>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 16px; max-width: 400px;">Хватит пилить пет-проект в стол. За месяц мы превратим вашу идею в работающий MVP с первыми клиентами и четким планом роста. Ваш следующий шаг — заявка.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section class="container" id="roi">
-            <h2 class="gsap-fade">ПРОГНОЗ ЭКОНОМИКИ</h2>
-            <div class="roi-panel gsap-fade">
+        <section class="container" id="team">
+            <h2 class="gsap-fade" style="text-align: center;">Команда наших профессионалов</h2>
+            <p class="gsap-fade" style="text-align: center; color: var(--text-dim); margin-top: -30px; margin-bottom: 60px; max-width: 800px; margin-inline: auto;">Мы соединяем информационные технологии с реальным бизнесом. Оптимизация процессов, маркетинговая экспертиза и разработка ИИ — наша ежедневная работа.</p>
+            
+            <div class="team-grid">
+                <div class="team-card sound-hover gsap-fade">
+                    <div class="team-avatar">А</div>
+                    <h3>Андрей</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Наставник по запуску стартапов</p>
+                </div>
+                <div class="team-card sound-hover gsap-fade">
+                    <div class="team-avatar">Б</div>
+                    <h3>Богдан</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Акселератор идей</p>
+                </div>
+                <div class="team-card sound-hover gsap-fade">
+                    <div class="team-avatar">Д</div>
+                    <h3>Дмитрий</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Ментор по продуктовому развитию</p>
+                </div>
+                <div class="team-card sound-hover gsap-fade">
+                    <div class="team-avatar">Р</div>
+                    <h3>Роман</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Технический руководитель проектов</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" id="contacts" style="padding-bottom: 100px;">
+            <div class="form-section gsap-fade">
                 <div>
-                    <div class="slider-wrap sound-hover">
-                        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); margin-bottom: 20px;">
-                            <span>ШТАТ СОТРУДНИКОВ</span> <span id="val-emp" style="color: var(--primary);">15</span>
-                        </div>
-                        <input type="range" id="inp-emp" min="1" max="100" value="15">
-                    </div>
-                    <div class="slider-wrap sound-hover">
-                        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); margin-bottom: 20px;">
-                            <span>СРЕДНЯЯ ЗП (ТЫС. РУБ)</span> <span id="val-sal" style="color: var(--primary);">100k</span>
-                        </div>
-                        <input type="range" id="inp-sal" min="40" max="300" step="10" value="100">
-                    </div>
-                    <p style="color: #666; font-size: 14px; margin-top: 40px;">ИИ-агенты забирают до 35% рутины: от квалификации лидов до расписания.</p>
-                </div>
-                <div style="display: flex; flex-direction: column; justify-content: center; border-left: 1px solid #333; padding-left: 40px;">
-                    <div style="font-family: var(--font-mono); color: #888; font-size: 14px; margin-bottom: 10px;">> СОХРАНЕННЫЙ БЮДЖЕТ (ГОД)</div>
-                    <div class="roi-output" id="out-money">8.19M ₽</div>
+                    <h2 style="font-size: 48px; margin-bottom: 20px;">Заполнить анкету на отбор проекта</h2>
+                    <p style="font-size: 18px; color: var(--text-dim); margin-bottom: 50px;">Поделись своей идеей. Вместе оценим объемы, найдем решения и сделаем первый шаг к реализации.</p>
                     
-                    <div style="margin-top: 40px; font-family: var(--font-mono); color: #888; font-size: 14px; margin-bottom: 10px;">> ВЫСВОБОЖДЕНО ЧАСОВ (МЕС)</div>
-                    <div class="roi-output" id="out-hours" style="font-size: 40px; color: #fff; text-shadow: none;">840</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="container" id="form" style="padding-bottom: 50px;">
-            <div style="border-top: 1px solid #333; padding-top: 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px;">
-                <div class="gsap-fade">
-                    <h2 style="font-size: clamp(3rem, 6vw, 5rem); line-height: 1;">СИСТЕМА<br>ОЖИДАЕТ<br>ВВОДА.</h2>
-                    <div style="font-family: var(--font-mono); color: #aaa; margin-top: 40px; line-height: 2;">
-                        [ CONNECT ] +7 987 633 08 19<br>
-                        [ NETWORK ] corp@oboyma.ai<br>
-                        [ NODE IP ] Мытищи, пр-кт Олимпийский, 10
+                    <h3 style="color: var(--accent); margin-bottom: 20px;">КОНТАКТЫ</h3>
+                    <div style="font-family: var(--font-mono); color: var(--text-dim); line-height: 2;">
+                        <p><strong style="color: #fff;">Адрес:</strong> МЫТИЩИ, ПР-КТ ОЛИМПИЙСКИЙ, СТР. 10, ОФИС 1704</p>
+                        <p><strong style="color: #fff;">Звоните:</strong> +79876330819</p>
+                        <p><strong style="color: #fff;">Пишите:</strong> corp@oboyma.ai</p>
                     </div>
                 </div>
-                <div class="gsap-fade">
-                    <input type="text" placeholder="ИМЯ" class="sound-hover" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; padding: 20px 0; color: #fff; font-size: 20px; font-family: var(--font-mono); outline: none; margin-bottom: 30px; transition: 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#444'">
-                    <input type="text" placeholder="TELEGRAM" class="sound-hover" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; padding: 20px 0; color: #fff; font-size: 20px; font-family: var(--font-mono); outline: none; margin-bottom: 50px; transition: 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#444'">
-                    <button class="cyber-btn sound-hover" style="width: 100%; justify-content: center; font-size: 18px;">Передать данные</button>
+                
+                <div style="background: var(--glass); padding: 40px; border-radius: 24px; border: 1px solid var(--border);" id="form">
+                    <form>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600;">Имя:</label>
+                        <input type="text" class="sound-hover" placeholder="например: Иван Иванович" required>
+                        
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600;">Телефон: *</label>
+                        <input type="tel" class="sound-hover" placeholder="+7 999 999 99 99" required>
+                        
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600;">Почта или Телеграм:</label>
+                        <input type="text" class="sound-hover" placeholder="example@primer.ru или @ssylka_tg_primer">
+                        
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600;">Приложить презентацию идеи или проекта:</label>
+                        <div class="file-drop sound-hover">Выберите файл или перетащите его сюда</div>
+                        
+                        <div class="checkbox-group sound-hover">
+                            <input type="checkbox" id="policy" required>
+                            <label for="policy">Нажимая кнопку "Отправить заявку", я даю согласие на обработку персональных данных и принимаю Положение.</label>
+                        </div>
+                        
+                        <button type="submit" class="cyber-btn sound-hover" style="width: 100%;">Отправить заявку</button>
+                    </form>
                 </div>
             </div>
         </section>
     </main>
 
+    <div class="floating-btns">
+        <a href="#" class="float-btn sound-hover" title="Вверх">↑</a>
+        <a href="https://vk.com/oboymalab" class="float-btn sound-hover" title="VK">VK</a>
+        <a href="https://t.me/oboymalab" class="float-btn sound-hover" title="Telegram">TG</a>
+        <a href="tel:+79876330819" class="float-btn sound-hover" title="Позвонить">📞</a>
+    </div>
+
+    <footer style="border-top: 1px solid rgba(255,255,255,0.1); padding: 40px 0; background: #000;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+            <div style="color: var(--text-dim); font-size: 14px;">
+                <p>© 2015-2026 ООО "Обойма Лаб"</p>
+                <p>ИНН: 5029197630 ОГРН: 1155029004184</p>
+            </div>
+            <div style="display: flex; gap: 20px; font-size: 14px;">
+                <a href="#" style="color: var(--text-dim); text-decoration: none;">Политика конфиденциальности</a>
+                <a href="#" style="color: var(--text-dim); text-decoration: none;">Свидетельство</a>
+            </div>
+        </div>
+    </footer>
+
     <script>
         // --- 1. BOOT SEQUENCE ---
         const bootScreen = document.getElementById('boot-screen');
         const bootFill = document.getElementById('boot-fill');
-        const bootText = document.getElementById('boot-text');
-        
         let progress = 0;
         const bootInterval = setInterval(() => {
-            progress += Math.random() * 15;
+            progress += Math.random() * 20;
             if(progress > 100) progress = 100;
             bootFill.style.width = progress + '%';
-            
             if(progress === 100) {
                 clearInterval(bootInterval);
-                bootText.innerText = "SYSTEM READY. ENTERING AI CORE...";
                 setTimeout(() => {
-                    gsap.to(bootScreen, { opacity: 0, duration: 1, onComplete: () => bootScreen.style.display = 'none' });
-                    initGSAP(); // Запуск анимаций только после загрузки
+                    gsap.to(bootScreen, { opacity: 0, duration: 1, onComplete: () => { bootScreen.style.display = 'none'; initGSAP(); }});
                 }, 500);
             }
         }, 100);
@@ -240,31 +502,20 @@
         // --- 2. GENERATIVE AUDIO (WEB AUDIO API) ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
-
         function playHoverSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            
-            osc.type = 'sine'; // Футуристичный мягкий писк
+            osc.type = 'sine'; 
             osc.frequency.setValueAtTime(800, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-            
             gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
+            osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
-
-        // Клик по экрану для активации звука (политика браузеров)
         document.body.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
-
-        document.querySelectorAll('.sound-hover').forEach(el => {
-            el.addEventListener('mouseenter', playHoverSound);
-        });
+        document.querySelectorAll('.sound-hover').forEach(el => el.addEventListener('mouseenter', playHoverSound));
 
         // --- 3. КУРСОР ---
         const cDot = document.getElementById('cursor-dot');
@@ -274,127 +525,104 @@
             cDot.style.left = x + 'px'; cDot.style.top = y + 'px';
             gsap.to(cRing, { left: x, top: y, duration: 0.15, ease: "power2.out" });
         });
-        document.querySelectorAll('.sound-hover').forEach(el => {
+        document.querySelectorAll('.sound-hover, .tab-btn').forEach(el => {
             el.addEventListener('mouseenter', () => cRing.classList.add('active'));
             el.addEventListener('mouseleave', () => cRing.classList.remove('active'));
         });
 
-        // --- 4. THREE.JS 3D BACKGROUND (NEURAL UNIVERSE) ---
+        // --- 4. THREE.JS 3D BACKGROUND (ЗВЕЗДНОЕ НЕБО) ---
         const scene = new THREE.Scene();
-        // Туман для растворения частиц вдали
-        scene.fog = new THREE.FogExp2(0x030305, 0.002);
-
+        scene.fog = new THREE.FogExp2(0x020611, 0.002);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Создаем частицы
         const particlesGeometry = new THREE.BufferGeometry();
         const particlesCount = 5000;
         const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            // Разброс частиц по сфере
-            posArray[i] = (Math.random() - 0.5) * 1000;
-        }
-
+        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 1000;
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-        const material = new THREE.PointsMaterial({
-            size: 2,
-            color: 0x00ffcc,
-            transparent: true,
-            opacity: 0.6,
-            blending: THREE.AdditiveBlending
-        });
-
+        const material = new THREE.PointsMaterial({ size: 2, color: 0x0088ff, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
         const particlesMesh = new THREE.Points(particlesGeometry, material);
         scene.add(particlesMesh);
         camera.position.z = 200;
 
-        // Физика мыши для 3D
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
+        let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
+            mouseX = (event.clientX - window.innerWidth / 2);
+            mouseY = (event.clientY - window.innerHeight / 2);
         });
 
         const clock = new THREE.Clock();
-
         function animate3D() {
             requestAnimationFrame(animate3D);
             const elapsedTime = clock.getElapsedTime();
-
-            // Плавное вращение галактики
-            particlesMesh.rotation.y = elapsedTime * 0.05;
-            particlesMesh.rotation.x = elapsedTime * 0.02;
-
-            // Параллакс от мыши
-            targetX = mouseX * 0.001;
-            targetY = mouseY * 0.001;
-            particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
-            particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
-
+            particlesMesh.rotation.y = elapsedTime * 0.03;
+            particlesMesh.rotation.x = elapsedTime * 0.01;
+            particlesMesh.rotation.y += 0.05 * (mouseX * 0.001 - particlesMesh.rotation.y);
+            particlesMesh.rotation.x += 0.05 * (mouseY * 0.001 - particlesMesh.rotation.x);
             renderer.render(scene, camera);
         }
         animate3D();
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // --- 5. ЛОГИКА ВКЛАДОК (КАК РАБОТАЕТ) ---
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const visLayers = document.querySelectorAll('.vis-layer');
+
+        tabBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                visLayers.forEach(v => v.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+                document.getElementById('v' + (index + 1)).classList.add('active');
+            });
         });
 
-        // --- 5. GSAP SCROLL АНИМАЦИИ ---
+        // --- 6. GSAP АНИМАЦИИ ---
         gsap.registerPlugin(ScrollTrigger);
 
         function initGSAP() {
-            // Появление элементов при скролле
-            gsap.utils.toArray('.gsap-fade').forEach(elem => {
-                gsap.from(elem, {
-                    scrollTrigger: { trigger: elem, start: "top 85%" },
-                    y: 50, opacity: 0, duration: 1, ease: "power3.out"
-                });
-            });
-
-            // Каскадное появление карточек
-            gsap.from(".gsap-card", {
-                scrollTrigger: { trigger: ".bento-grid", start: "top 80%" },
-                y: 100, opacity: 0, duration: 1, stagger: 0.2, ease: "expo.out"
-            });
-
-            // Камера в 3D сцене летит вперед при скролле сайта
-            gsap.to(camera.position, {
-                z: -200, // Погружаемся в нейросеть
-                ease: "none",
+            // ШТОРКИ НА ГЛАВНОМ ЭКРАНЕ (SCROLL SEQUENCE)
+            const slides = gsap.utils.toArray('.pin-content');
+            const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: "body",
+                    trigger: "#pin-master",
                     start: "top top",
-                    end: "bottom bottom",
-                    scrub: 1
+                    end: "+=4000",
+                    scrub: 1,
+                    pin: true
                 }
             });
-        }
 
-        // --- 6. ROI КАЛЬКУЛЯТОР ---
-        const iEmp = document.getElementById('inp-emp'), iSal = document.getElementById('inp-sal');
-        const vEmp = document.getElementById('val-emp'), vSal = document.getElementById('val-sal');
-        function calc() {
-            const emp = parseInt(iEmp.value), sal = parseInt(iSal.value) * 1000;
-            vEmp.innerText = emp; vSal.innerText = (sal/1000) + 'k';
-            document.getElementById('out-hours').innerText = Math.round(emp * 160 * 0.35);
-            // Анимация бегущих цифр
-            const targetMoney = ((sal * 1.3 * emp * 12 * 0.35) / 1000000).toFixed(2);
-            document.getElementById('out-money').innerText = targetMoney + 'M ₽';
+            slides.forEach((slide, i) => {
+                tl.to(slide, { opacity: 1, scale: 1, duration: 1 })
+                  .to(slide, { opacity: 1, duration: 2 }); // Пауза для чтения
+                if (i !== slides.length - 1) {
+                    tl.to(slide, { opacity: 0, scale: 1.1, duration: 1 });
+                }
+            });
+
+            // Камера в 3D летит вперед синхронно со шторками
+            gsap.to(camera.position, {
+                z: -100,
+                ease: "none",
+                scrollTrigger: { trigger: "#pin-master", start: "top top", end: "+=4000", scrub: 1 }
+            });
+
+            // Стандартное появление блоков
+            gsap.utils.toArray('.gsap-fade').forEach(elem => {
+                gsap.fromTo(elem, 
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } }
+                );
+            });
         }
-        iEmp.addEventListener('input', calc); iSal.addEventListener('input', calc); calc();
     </script>
 </body>
 </html>
