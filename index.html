@@ -3,243 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обойма Лаб | AI Laboratory</title>
+    <meta name="description" content="Внедряем ИИ-агентов, которые заменяют отделы продаж и маркетинга. Автоматизируем бизнес и масштабируем идеи.">
+    <meta property="og:title" content="Обойма Лаб | AI Laboratory">
+    <meta property="og:description" content="Внедряем ИИ-агентов, которые заменяют отделы продаж и маркетинга.">
     
-    <title>Обойма Лаб | Разработка ИИ-решений</title>
-    <meta name="description" content="Внедряем ИИ-агентов и нейросети под ключ для автоматизации бизнес-процессов. IT-инкубатор для разработчиков.">
-    <meta property="og:title" content="Обойма Лаб | Разработка ИИ-решений">
-    <meta property="og:description" content="Внедряем ИИ-агентов, которые заменяют отделы продаж и маркетинга. Готовые решения и IT-инкубатор.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://oboyma.ai/og-image.jpg"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
-        /* --- ПАЛИТРА И ТЕМЫ (ЛОГОБУК ОБОЙМА ЛАБ) --- */
+        /* --- ПЕРЕМЕННЫЕ TECH-FUTURISM --- */
         :root[data-theme="dark"] {
             --bg-color: #020611;
             --text-main: #ffffff;
             --text-muted: #94a3b8;
             --brand-main: #003D72;
             --brand-accent: #005EB1;
-            --brand-neon: #00d2ff;
-            --glass-bg: rgba(0, 61, 114, 0.15);
-            --glass-border: rgba(0, 94, 177, 0.3);
-            --glass-strong: rgba(2, 6, 17, 0.8);
-            --input-bg: rgba(0,0,0,0.5);
+            --neon-accent: #00ffcc; /* Кислотно-зеленый/неоновый блю */
+            --glass-bg: rgba(2, 6, 17, 0.6);
+            --glass-border: rgba(0, 255, 204, 0.2);
+            --glass-glow: rgba(0, 255, 204, 0.1);
         }
 
         :root[data-theme="light"] {
-            --bg-color: #EBEBEB;
-            --text-main: #000000;
-            --text-muted: #4a5568;
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #475569;
             --brand-main: #003D72;
             --brand-accent: #005EB1;
-            --brand-neon: #005EB1;
+            --neon-accent: #005EB1;
             --glass-bg: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(0, 61, 114, 0.2);
-            --glass-strong: rgba(255, 255, 255, 0.9);
-            --input-bg: rgba(255,255,255,0.8);
+            --glass-glow: rgba(0, 94, 177, 0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; transition: background-color 0.5s ease, color 0.5s ease; }
 
         /* --- КУРСОР --- */
-        .cursor-dot { position: fixed; width: 6px; height: 6px; background: var(--brand-neon); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; }
-        .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--brand-accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background 0.3s; }
-        body:hover .cursor-ring.active { width: 80px; height: 80px; background: rgba(0, 94, 177, 0.1); border-color: transparent; backdrop-filter: blur(2px); }
+        .cursor-dot { position: fixed; width: 6px; height: 6px; background: var(--neon-accent); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); box-shadow: 0 0 15px var(--neon-accent); }
+        .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid var(--neon-accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; }
+        body:hover .cursor-ring.active { width: 70px; height: 70px; background: var(--glass-glow); backdrop-filter: blur(2px); }
 
-        /* --- 3D CANVAS --- */
-        #webgl-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; transition: opacity 0.5s; }
+        /* --- 3D ФОН --- */
+        #webgl-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
 
-        /* --- BOOT SCREEN (ИСПРАВЛЕННЫЙ) --- */
-        #boot-screen { position: fixed; inset: 0; background: var(--bg-color); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .boot-logo-svg { width: 120px; height: 120px; stroke: var(--brand-accent); fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 40px; animation: pulseGlow 2s infinite; }
-        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 10px rgba(0,94,177,0.2)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(0,94,177,0.8)); transform: scale(1.05); } }
-        .progress-container { width: 250px; text-align: center; }
-        .progress-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--brand-accent); margin-bottom: 10px; letter-spacing: 2px; }
-        .progress-bar { width: 100%; height: 2px; background: var(--glass-border); position: relative; overflow: hidden; }
-        .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--brand-accent); box-shadow: 0 0 10px var(--brand-accent); }
-
-        /* --- ЛЕЙАУТ --- */
+        /* --- ТИПОГРАФИКА И ЛЕЙАУТ --- */
+        h1, h2, h3, .mono-text { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+        h1 { font-size: clamp(2rem, 4vw, 4.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+        h2 { font-size: clamp(1.8rem, 3vw, 3.5rem); font-weight: 700; margin-bottom: 50px; }
+        p { font-size: 16px; line-height: 1.6; color: var(--text-muted); }
+        
         .container { max-width: 1400px; margin: 0 auto; padding: 0 5vw; position: relative; z-index: 10; }
         section { padding: 120px 0; display: flex; flex-direction: column; justify-content: center; }
         
-        h1, h2, .holo-title { font-family: 'Unbounded', sans-serif; text-transform: uppercase; font-weight: 900; }
-        h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
-        h2 { font-size: clamp(1.8rem, 3.5vw, 3rem); margin-bottom: 30px; letter-spacing: -0.5px; }
-        h3 { font-size: 22px; font-weight: 700; margin-bottom: 15px; font-family: 'Inter', sans-serif; }
-        p { font-size: 16px; line-height: 1.6; color: var(--text-muted); }
-        .tag { display: inline-block; padding: 6px 14px; border: 1px solid var(--border); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 11px; border-radius: 20px; margin-bottom: 20px; background: var(--brand-accent); text-transform: uppercase; }
-
-        /* --- СЕТКИ --- */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+        .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 6px 14px; border: 1px solid var(--glass-border); border-radius: 20px; color: var(--neon-accent); background: var(--glass-glow); margin-bottom: 20px; backdrop-filter: blur(5px); }
 
         /* --- HEADER --- */
-        header { position: fixed; top: 0; width: 100%; padding: 20px 5vw; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid var(--glass-border); background: var(--glass-strong); backdrop-filter: blur(20px); transition: 0.5s; }
-        .logo { display: flex; align-items: center; gap: 15px; color: var(--text-main); text-decoration: none; }
-        .logo svg { width: 35px; height: 35px; stroke: var(--text-main); fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; transition: 0.5s; }
-        .logo:hover svg { transform: rotate(180deg); stroke: var(--brand-accent); }
-        .logo-text { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 900; line-height: 1.1; letter-spacing: 1px; }
+        header { position: fixed; top: 0; width: 100%; padding: 20px 5vw; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid var(--glass-border); background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: 0.5s; }
+        .logo { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 20px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 12px; height: 12px; background: var(--neon-accent); box-shadow: 0 0 10px var(--neon-accent); animation: pulse 2s infinite; }
+        @keyframes pulse { 50% { opacity: 0.4; } }
         
         .nav-links { display: flex; gap: 30px; align-items: center; }
-        .nav-links a { color: var(--text-main); text-decoration: none; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-        .nav-links a:hover { color: var(--brand-accent); }
+        .nav-links a { color: var(--text-main); text-decoration: none; font-size: 13px; font-weight: 500; text-transform: uppercase; transition: 0.3s; font-family: 'JetBrains Mono', monospace; }
+        .nav-links a:hover { color: var(--neon-accent); }
         
-        /* Кнопка CTA в шапке */
-        .header-cta { padding: 10px 20px; font-size: 12px; border-radius: 8px; background: var(--brand-accent); color: #fff; text-decoration: none; font-weight: 700; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .header-cta:hover { background: #fff; color: var(--brand-main); box-shadow: 0 0 15px rgba(0, 94, 177, 0.5); }
-
-        /* Переключатель темы (Солнце/Луна SVG) */
-        .theme-toggle-btn { background: transparent; border: none; outline: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
-        .theme-toggle-btn:hover { background: var(--glass-bg); }
-        .theme-toggle-btn svg { width: 24px; height: 24px; fill: var(--text-main); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-        html[data-theme="dark"] .sun-icon { display: none; }
-        html[data-theme="light"] .moon-icon { display: none; }
-
-        /* --- GLASSMORPHISM CARDS --- */
-        .glass-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; backdrop-filter: blur(15px); transition: 0.4s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        .glass-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); z-index: 0; pointer-events: none; }
-        .glass-card:hover { transform: translateY(-10px); border-color: var(--brand-accent); box-shadow: 0 20px 40px rgba(0, 94, 177, 0.15); background: var(--glass-strong); }
-        .card-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
-
-        /* --- HERO ШТОРКИ (PIN SECTION) --- */
-        .pin-master { height: 500vh; }
-        .pin-section { height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .pin-content { position: absolute; text-align: center; width: 100%; max-width: 1100px; padding: 0 20px; opacity: 0; transform: scale(0.9); }
-
-        /* --- ИНТЕРАКТИВНЫЙ AI-МЕНЕДЖЕР --- */
-        .ai-chat-wrapper { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: stretch; margin-top: 40px; }
-        .chat-menu { display: flex; flex-direction: column; gap: 15px; }
-        .chat-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 20px 25px; border-radius: 16px; text-align: left; font-size: 15px; font-weight: 500; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
-        .chat-btn:hover, .chat-btn.active { background: var(--brand-accent); border-color: var(--brand-accent); color: #fff; padding-left: 30px; box-shadow: 0 10px 20px rgba(0, 94, 177, 0.3); }
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+        .theme-toggle { background: none; border: none; width: 24px; height: 24px; position: relative; overflow: hidden; outline: none; }
+        .theme-toggle svg { width: 100%; height: 100%; fill: var(--text-main); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); position: absolute; top: 0; left: 0; }
+        html[data-theme="dark"] .sun-icon { transform: translateY(100%); opacity: 0; }
+        html[data-theme="light"] .moon-icon { transform: translateY(-100%); opacity: 0; }
         
-        .chat-window { background: var(--glass-strong); border: 1px solid var(--glass-border); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; height: 400px; backdrop-filter: blur(20px); }
-        .chat-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); }
-        .ai-avatar { width: 45px; height: 45px; background: var(--brand-main); border-radius: 50%; display: grid; place-items: center; font-family: 'Unbounded', sans-serif; font-size: 16px; color: #fff; }
-        .chat-history { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px; }
-        .msg { padding: 15px 20px; border-radius: 16px; font-size: 15px; line-height: 1.5; max-width: 85%; animation: msgIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .msg.bot { background: var(--glass-bg); border: 1px solid var(--glass-border); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .msg.user { background: var(--brand-accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-        @keyframes msgIn { from { opacity: 0; transform: translateY(15px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .typing-dots { display: inline-flex; gap: 4px; padding: 5px; }
-        .typing-dots span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: type 1.4s infinite ease-in-out; }
-        .typing-dots span:nth-child(1) { animation-delay: -0.32s; } .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes type { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); background: var(--brand-accent); } }
+        .btn-outline { padding: 10px 20px; border: 1px solid var(--neon-accent); border-radius: 6px; color: var(--neon-accent); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; transition: 0.3s; background: transparent; }
+        .btn-outline:hover { background: var(--neon-accent); color: var(--bg-color); box-shadow: 0 0 20px var(--glass-glow); }
 
-        /* --- ШОУКЕЙС ИНТЕРФЕЙСОВ (НОВЫЙ БЛОК) --- */
-        .showcase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-        .phone-mockup { width: 300px; height: 600px; background: #0b1120; border: 12px solid #1e293b; border-radius: 40px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: -20px 20px 60px rgba(0,0,0,0.5); transform: rotateY(-15deg) rotateX(5deg); transition: transform 0.5s; transform-style: preserve-3d; }
-        .phone-mockup:hover { transform: rotateY(0deg) rotateX(0deg) scale(1.05); }
-        .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 25px; background: #1e293b; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; z-index: 10; }
-        .tg-screen { width: 100%; height: 100%; background: #0f172a; display: flex; flex-direction: column; padding-top: 30px; }
-        .tg-header { padding: 15px; background: #1e293b; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #334155; }
-        .tg-avatar { width: 35px; height: 35px; background: var(--brand-accent); border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: bold; }
-        .tg-body { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
-        .tg-msg { padding: 10px 15px; border-radius: 12px; font-size: 13px; max-width: 85%; color: #fff; }
-        .tg-msg.bot { background: #334155; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .tg-msg.user { background: var(--brand-accent); align-self: flex-end; border-bottom-right-radius: 2px; }
+        /* --- HERO SECTION --- */
+        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; min-height: 90vh; padding-top: 100px; }
+        .hero-3d-box { width: 100%; aspect-ratio: 1; perspective: 1000px; display: flex; justify-content: center; align-items: center; }
+        .tesseract { width: 200px; height: 200px; transform-style: preserve-3d; animation: rotate3d 15s linear infinite; position: relative; }
+        .tesseract-face { position: absolute; width: 200px; height: 200px; border: 2px solid var(--neon-accent); background: rgba(0, 255, 204, 0.05); box-shadow: inset 0 0 30px rgba(0, 255, 204, 0.2); }
+        .tesseract-face:nth-child(1) { transform: translateZ(100px); } .tesseract-face:nth-child(2) { transform: rotateY(180deg) translateZ(100px); }
+        .tesseract-face:nth-child(3) { transform: rotateY(90deg) translateZ(100px); } .tesseract-face:nth-child(4) { transform: rotateY(-90deg) translateZ(100px); }
+        .tesseract-face:nth-child(5) { transform: rotateX(90deg) translateZ(100px); } .tesseract-face:nth-child(6) { transform: rotateX(-90deg) translateZ(100px); }
+        @keyframes rotate3d { 100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); } }
 
-        /* --- КАЛЬКУЛЯТОР ЭКОНОМИИ (НОВЫЙ БЛОК) --- */
-        .calc-wrapper { background: var(--glass-strong); border: 1px solid var(--glass-border); border-radius: 30px; padding: 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; backdrop-filter: blur(20px); }
+        /* --- METHODOLOGY (STEPPER & COMPARISON) --- */
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 60px; }
+        .comp-card { padding: 30px; border-radius: 16px; border: 1px solid var(--glass-border); background: var(--glass-bg); backdrop-filter: blur(10px); }
+        .comp-card.bad { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+        .comp-card.good { border-color: var(--neon-accent); background: var(--glass-glow); }
+        
+        .stepper-container { display: flex; gap: 40px; position: relative; }
+        .stepper-nav { display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 2; width: 300px; }
+        .stepper-line { position: absolute; left: 24px; top: 20px; bottom: 20px; width: 2px; background: var(--glass-border); z-index: 1; }
+        .step-btn { display: flex; align-items: center; gap: 20px; background: transparent; border: none; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 16px; text-align: left; transition: 0.3s; opacity: 0.5; }
+        .step-btn:hover, .step-btn.active { opacity: 1; color: var(--text-main); }
+        .step-btn .step-num { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-color); border: 2px solid var(--glass-border); display: grid; place-items: center; transition: 0.3s; z-index: 2; }
+        .step-btn.active .step-num { border-color: var(--neon-accent); background: var(--neon-accent); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-accent); }
+        
+        .step-content-area { flex: 1; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px; backdrop-filter: blur(10px); }
+        .step-content { display: none; animation: fadeUp 0.4s ease forwards; }
+        .step-content.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- PRODUCTS (GLASSMORPHISM & MOCKUPS) --- */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px; }
+        .product-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; backdrop-filter: blur(12px); display: flex; flex-direction: column; transition: 0.4s; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 50px var(--glass-glow); border-color: var(--neon-accent); }
+        
+        .mockup-wrapper { width: 100%; height: 250px; background: rgba(0,0,0,0.5); border-radius: 16px; margin-bottom: 30px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: flex-end; }
+        .css-phone { width: 200px; height: 220px; background: #0f172a; border-top-left-radius: 24px; border-top-right-radius: 24px; border: 6px solid #1e293b; border-bottom: none; display: flex; flex-direction: column; }
+        .css-phone-header { padding: 10px; background: #1e293b; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #334155; }
+        .css-phone-avatar { width: 24px; height: 24px; background: var(--neon-accent); border-radius: 50%; }
+        .css-phone-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 10px; }
+        .mock-msg { padding: 8px 12px; border-radius: 8px; color: #fff; max-width: 85%; }
+        .mock-msg.bot { background: #334155; align-self: flex-start; }
+        .mock-msg.user { background: var(--neon-accent); color: #000; align-self: flex-end; }
+
+        .case-stats { display: flex; align-items: center; gap: 15px; margin: 20px 0; padding: 15px; background: rgba(0, 255, 204, 0.05); border-radius: 12px; border-left: 2px solid var(--neon-accent); }
+        .btn-group { display: flex; gap: 15px; margin-top: auto; }
+        .btn-primary { flex: 1; padding: 14px; background: var(--neon-accent); color: var(--bg-color); border: none; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; transition: 0.3s; text-align: center; text-decoration: none; }
+        .btn-primary:hover { background: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .btn-secondary { flex: 1; padding: 14px; background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; transition: 0.3s; text-align: center; text-decoration: none; }
+        .btn-secondary:hover { border-color: var(--text-main); }
+
+        /* --- ROI CALCULATOR --- */
+        .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 60px; backdrop-filter: blur(12px); }
         .range-group { margin-bottom: 30px; }
-        .range-label { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 14px; margin-bottom: 15px; color: var(--text-main); }
-        input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--glass-border); border-radius: 2px; outline: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--brand-neon); border-radius: 50%; cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px var(--brand-neon); }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
-        .calc-result-box { border-left: 2px solid var(--glass-border); padding-left: 40px; display: flex; flex-direction: column; justify-content: center; }
-        .calc-result-value { font-family: 'JetBrains Mono', monospace; font-size: 64px; font-weight: 700; color: var(--brand-neon); line-height: 1; margin-top: 10px; }
-
-        /* --- ГОТОВЫЕ РЕШЕНИЯ (АНИМАЦИЯ КНОПОК) --- */
-        .solution-card { position: relative; }
-        .solution-icon-wrap { width: 60px; height: 60px; background: rgba(0, 94, 177, 0.1); border: 1px solid var(--brand-accent); border-radius: 12px; display: grid; place-items: center; margin-bottom: 20px; transition: 0.3s; }
-        .solution-icon-wrap svg { width: 30px; height: 30px; stroke: var(--brand-neon); fill: none; stroke-width: 2; }
-        .solution-card:hover .solution-icon-wrap { background: var(--brand-accent); }
-        .solution-card:hover .solution-icon-wrap svg { stroke: #fff; }
+        .range-label { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; margin-bottom: 15px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--neon-accent); border-radius: 50%; cursor: pointer; transition: 0.2s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); box-shadow: 0 0 15px var(--neon-accent); }
         
-        .solution-overlay-btn { position: absolute; bottom: -60px; left: 0; width: 100%; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .solution-card:hover .solution-overlay-btn { bottom: 40px; opacity: 1; }
-        .solution-card:hover .card-inner-content { transform: translateY(-30px); transition: 0.4s; }
+        .roi-result { display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--glass-border); padding-left: 40px; }
+        .roi-value { font-size: clamp(3rem, 5vw, 5rem); font-weight: 900; font-family: 'JetBrains Mono', monospace; color: var(--neon-accent); line-height: 1; margin: 10px 0; text-shadow: 0 0 20px var(--glass-glow); }
 
-        /* --- ВЕРТИКАЛЬНЫЕ ТАБЫ --- */
-        .tabs-wrapper { display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; align-items: start; }
-        .tabs-menu { display: flex; flex-direction: column; gap: 10px; position: sticky; top: 120px; }
-        .tab-menu-btn { padding: 20px 25px; background: transparent; border: none; border-left: 2px solid var(--glass-border); color: var(--text-muted); text-align: left; font-size: 18px; font-weight: 600; transition: 0.3s; font-family: 'Inter', sans-serif; }
-        .tab-menu-btn:hover { color: var(--text-main); background: var(--glass-bg); }
-        .tab-menu-btn.active { color: var(--text-main); border-left-color: var(--brand-accent); background: linear-gradient(90deg, rgba(0, 94, 177, 0.15), transparent); }
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
+        /* --- CYBERPUNK TEAM --- */
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+        .team-member { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); aspect-ratio: 3/4; }
+        .team-img { width: 100%; height: 100%; background: linear-gradient(135deg, var(--brand-main), var(--bg-color)); filter: grayscale(80%) contrast(120%); transition: 0.5s; object-fit: cover; }
+        /* Placeholder gradients since no real images */
+        .team-member:nth-child(1) .team-img { background: radial-gradient(circle at 50% 30%, #1e293b, #020611); }
+        .team-member:nth-child(2) .team-img { background: radial-gradient(circle at 50% 30%, #334155, #020611); }
+        .team-member:nth-child(3) .team-img { background: radial-gradient(circle at 50% 30%, #0f172a, #020611); }
+        .team-member:nth-child(4) .team-img { background: radial-gradient(circle at 50% 30%, #1e1e1e, #020611); }
+        
+        .team-member::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-color) 10%, transparent); opacity: 0.8; }
+        .team-member:hover .team-img { filter: grayscale(0) hue-rotate(90deg); transform: scale(1.05); }
+        .team-info { position: absolute; bottom: 20px; left: 20px; z-index: 2; }
+        .team-name { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; }
+        .team-role { font-size: 14px; color: var(--neon-accent); margin-bottom: 10px; }
+        .team-tooltip { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; z-index: 3; text-align: center; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--neon-accent); }
+        .team-member:hover .team-tooltip { opacity: 1; }
 
-        /* --- КОМАНДА (АВАТАРЫ) --- */
-        .team-avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; position: relative; padding: 4px; background: linear-gradient(135deg, var(--brand-accent), var(--brand-neon)); }
-        .team-avatar-inner { width: 100%; height: 100%; background: var(--bg-color); border-radius: 50%; display: grid; place-items: center; font-family: 'Unbounded', sans-serif; font-size: 36px; font-weight: 700; color: var(--text-main); }
-
-        /* --- ФОРМА И КОНТАКТЫ --- */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-        .input-group { position: relative; margin-bottom: 25px; }
-        input, .file-area { width: 100%; padding: 20px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--brand-accent); box-shadow: 0 0 15px rgba(0, 94, 177, 0.2); }
+        /* --- CONTACT FORM (FLOATING LABELS & GRID) --- */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .form-box { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 50px; backdrop-filter: blur(12px); }
+        
+        .input-group { position: relative; margin-bottom: 30px; }
+        .input-group input { width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 25px 20px 10px; color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 16px; outline: none; transition: 0.3s; }
+        .input-group label { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); color: var(--text-muted); transition: 0.3s; pointer-events: none; font-size: 16px; font-family: 'JetBrains Mono', monospace; }
+        
+        .input-group input:focus, .input-group input:not(:placeholder-shown) { border-color: var(--neon-accent); }
+        .input-group input:focus + label, .input-group input:not(:placeholder-shown) + label { top: 12px; font-size: 11px; color: var(--neon-accent); }
+        
         .input-error { border-color: #ef4444 !important; }
-        .file-area { border: 1px dashed var(--text-muted); text-align: center; color: var(--text-muted); cursor: pointer; }
-        .file-area:hover { border-color: var(--brand-accent); color: var(--text-main); }
-        
-        .checkbox-wrap { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; }
-        .checkbox-wrap input { width: 20px; height: 20px; accent-color: var(--brand-accent); margin: 0; }
-        .checkbox-wrap label { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .error-text { color: #ef4444; font-size: 12px; position: absolute; bottom: -20px; left: 0; display: none; font-family: 'JetBrains Mono', monospace; }
 
-        /* Кнопки */
-        .btn-primary { display: inline-flex; justify-content: center; align-items: center; padding: 18px 35px; background: var(--brand-accent); color: #fff; border: none; border-radius: 12px; font-weight: 600; font-size: 15px; transition: 0.3s; font-family: 'Inter', sans-serif; text-decoration: none; cursor: none; }
-        .btn-primary:hover { background: var(--text-main); color: var(--bg-color); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 94, 177, 0.4); }
+        /* --- FOOTER & SYSTEM STATUS --- */
+        footer { padding: 40px 5vw; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; margin-top: 50px; flex-wrap: wrap; gap: 20px; }
+        .sys-status { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); background: var(--glass-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); }
+        .sys-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: pulseSys 2s infinite; }
+        @keyframes pulseSys { 50% { opacity: 0.3; } }
 
-        /* --- LIVE STATUS WIDGET --- */
-        .live-status { position: fixed; bottom: 30px; left: 30px; background: var(--glass-strong); border: 1px solid var(--glass-border); padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); z-index: 1000; backdrop-filter: blur(10px); }
-        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: pulseStatus 2s infinite; }
-        @keyframes pulseStatus { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-
-        /* ПЛАВАЮЩИЕ КНОПКИ (Справа) */
-        .floating-bar { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
-        .float-icon { width: 45px; height: 45px; border-radius: 50%; background: var(--glass-strong); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; color: var(--text-main); text-decoration: none; transition: 0.3s; font-size: 18px; }
-        .float-icon:hover { background: var(--brand-accent); border-color: var(--brand-accent); color: #fff; transform: scale(1.1); }
-        .float-icon svg { width: 20px; height: 20px; fill: currentColor; }
-
-        .gsap-reveal { opacity: 0; transform: translateY(50px); }
+        .gsap-reveal { opacity: 0; transform: translateY(40px); }
 
         @media (max-width: 1024px) {
-            section { padding: 80px 0; }
-            .grid-2, .grid-3, .grid-4, .ai-chat-wrapper, .tabs-wrapper, .form-grid, .showcase-grid, .calc-wrapper { grid-template-columns: 1fr; gap: 40px; }
-            .nav-links { display: none; }
-            .bento-large { grid-column: span 1 !important; }
-            .live-status { bottom: auto; top: 90px; left: 5vw; }
-            h1 { font-size: 36px; }
+            .hero-grid, .comparison-grid, .roi-grid, .form-grid { grid-template-columns: 1fr; }
+            .team-grid { grid-template-columns: 1fr 1fr; }
+            .stepper-container { flex-direction: column; }
+            .stepper-nav { width: 100%; flex-direction: row; overflow-x: auto; padding-bottom: 20px; }
+            .stepper-line { display: none; }
+            .step-btn { flex-direction: column; text-align: center; gap: 10px; font-size: 12px; min-width: 100px; }
+            .nav-links, .header-actions { display: none; } /* Mobile menu needed in reality */
         }
     </style>
 </head>
 <body>
-
-    <div id="boot-screen">
-        <svg class="boot-logo-svg" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="18" />
-            <path d="M 25 55 A 28 28 0 0 0 75 55" />
-            <line x1="25" y1="55" x2="10" y2="55" />
-            <line x1="75" y1="55" x2="90" y2="55" />
-            <line x1="50" y1="28" x2="50" y2="10" />
-            <line x1="50" y1="15" x2="40" y2="15" />
-            <line x1="32" y1="32" x2="20" y2="20" />
-            <line x1="68" y1="32" x2="80" y2="20" />
-            <line x1="24" y1="44" x2="12" y2="40" />
-            <line x1="76" y1="44" x2="88" y2="40" />
-        </svg>
-        <div class="progress-container">
-            <div class="progress-text">OBOYMA_LAB ENGINE INIT...</div>
-            <div class="progress-bar"><div class="progress-fill" id="boot-fill"></div></div>
-        </div>
-    </div>
 
     <canvas id="webgl-canvas"></canvas>
 
@@ -248,380 +204,299 @@
 
     <header class="gsap-reveal">
         <a href="#" class="logo hover-target">
-            <svg viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="18" />
-                <path d="M 25 55 A 28 28 0 0 0 75 55" />
-                <line x1="25" y1="55" x2="10" y2="55" />
-                <line x1="75" y1="55" x2="90" y2="55" />
-                <line x1="50" y1="28" x2="50" y2="10" />
-                <line x1="50" y1="15" x2="40" y2="15" />
-                <line x1="32" y1="32" x2="20" y2="20" />
-                <line x1="68" y1="32" x2="80" y2="20" />
-                <line x1="24" y1="44" x2="12" y2="40" />
-                <line x1="76" y1="44" x2="88" y2="40" />
-            </svg>
-            <div class="logo-text">ОБОЙМА<br>ЛАБ</div>
+            <div class="logo-icon"></div>
+            ОБОЙМА ЛАБ
         </a>
         <nav class="nav-links">
-            <a href="#about" class="hover-target">О нас</a>
-            <a href="#business" class="hover-target">Бизнесу</a>
-            <a href="#solutions" class="hover-target">Решения</a>
+            <a href="#methodology" class="hover-target">Методология</a>
+            <a href="#products" class="hover-target">Продукты</a>
+            <a href="#roi" class="hover-target">ROI Калькулятор</a>
             <a href="#incubator" class="hover-target">Инкубатор</a>
-            <a href="#contacts" class="hover-target">Контакты</a>
         </nav>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <button class="theme-toggle-btn hover-target" onclick="toggleTheme()" title="Сменить тему">
-                <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3zm0-2c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1s-1 .45-1 1v3c0 .55.45 1 1 1zm0 14c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1s1-.45 1-1v-3c0-.55-.45-1-1-1zm8.5-6.5c0-.55-.45-1-1-1h-3c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1zM6 12c0 .55-.45 1-1 1H2c-.55 0-1-.45-1-1s.45-1 1-1h3c.55 0 1 .45 1 1zm13.07-5.57c.39-.39.39-1.02 0-1.41l-2.12-2.12c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l2.12 2.12c.39.39 1.02.39 1.41 0zM6.05 19.36c.39-.39.39-1.02 0-1.41l-2.12-2.12c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l2.12 2.12c.39.39 1.02.39 1.41 0zm11.61 0l2.12-2.12c.39-.39.39-1.02 0-1.41l-2.12-2.12c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l2.12 2.12c.39.39 1.02.39 1.41 0zM6.05 4.64l2.12 2.12c.39.39.39 1.02 0 1.41l-2.12 2.12c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41L6.05 4.64c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41z"/></svg>
+        <div class="header-actions">
+            <button class="theme-toggle hover-target" onclick="toggleTheme()" title="Сменить тему">
+                <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3zm0-2c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1s-1 .45-1 1v3c0 .55.45 1 1 1zm0 14c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1s1-.45 1-1v-3c0-.55-.45-1-1-1zm8.5-6.5c0-.55-.45-1-1-1h-3c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1zM6 12c0 .55-.45 1-1 1H2c-.55 0-1-.45-1-1s.45-1 1-1h3c.55 0 1 .45 1 1zm13.07-5.57c.39-.39.39-1.02 0-1.41l-2.12-2.12c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l2.12 2.12c.39.39 1.02.39 1.41 0zm11.61 0l2.12-2.12c.39-.39.39-1.02 0-1.41l-2.12-2.12c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l2.12 2.12c.39.39 1.02.39 1.41 0zM6.05 4.64l2.12 2.12c.39.39.39 1.02 0 1.41l-2.12 2.12c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41L6.05 4.64c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41z"/></svg>
                 <svg class="moon-icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4C12.92 3.04 12.46 3 12 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7c.17 0 .34.01.51.02-1.47 1.25-2.41 3.08-2.41 5.08 0 3.73 3.03 6.76 6.76 6.76 2 0 3.83-.94 5.08-2.41.01.17.02.34.02.51 0 3.86-3.14 7-7 7z"/></svg>
             </button>
-            <a href="#contacts" class="header-cta hover-target">Заказать аудит</a>
+            <a href="#contacts" class="btn-outline hover-target">Заказать аудит</a>
         </div>
     </header>
 
-    <div class="live-status">
-        <div class="status-dot"></div>
-        <span>System Status: Lidochka Engine — Online | Verification: 0.4s</span>
-    </div>
-
-    <div class="floating-bar">
-        <a href="#" class="float-icon hover-target" title="Наверх">↑</a>
-        <a href="https://vk.com/oboymalab" class="float-icon hover-target" title="VK">
-            <svg viewBox="0 0 24 24"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm1.65 14.39h-1.39c-1.07 0-1.32-.8-1.92-1.57-.75-.96-.86-1.18-1.28-1.18-.54 0-.64.16-.64 1.13v1.19c0 .26-.11.43-1.29.43-2.42 0-5.14-1.52-6.84-4.58-1.63-2.91-2.07-5.04-2.07-5.46 0-.25.13-.42.48-.42h1.4c.3 0 .44.17.55.51.52 1.63 1.95 4.35 2.87 4.35.34 0 .47-.15.47-1.17V7.8c-.06-.72-.44-.89-.44-1.15 0-.17.15-.35.48-.35h2.15c.26 0 .38.17.38.54v3.13c0 .54.26.68.45.68.32 0 .54-.15.93-.56.97-1.1 1.66-2.91 1.66-2.91.13-.28.32-.42.64-.42h1.4c.4 0 .49.25.39.63-.22.9-1.99 3.52-1.99 3.52-.22.34-.3.49 0 .86 1.48 1.83 2.18 2.68 2.18 3.5 0 .56-.37.75-.58.75z"/></svg>
-        </a>
-        <a href="https://t.me/oboymalab" class="float-icon hover-target" title="Telegram">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.25-5.61 3.66-.53.36-1.01.53-1.44.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.29-.48.79-.74 3.08-1.34 5.15-2.23 6.19-2.66 2.95-1.23 3.56-1.45 4.15-1.46.13 0 .42.03.59.18.14.12.18.28.19.42.01.07.01.19.01.3z"/></svg>
-        </a>
-    </div>
-
     <main>
-        <div class="pin-master" id="pin-master">
-            <div class="pin-section" id="pin-container">
-                <div class="pin-content slide-1">
-                    <span class="pin-tag">01 // О НАС</span>
-                    <h1>Внедряем ИИ-агентов, которые заменяют отделы продаж и маркетинга</h1>
-                    <p style="font-size: 22px;">Обойма Лаб — мы разрабатываем собственные программные продукты на основе искусственного интеллекта.</p>
-                </div>
-                <div class="pin-content slide-2">
-                    <span class="pin-tag">02 // БИЗНЕСУ</span>
-                    <h1>РАЗРАБОТКА ИИ-РЕШЕНИЙ ДЛЯ БИЗНЕСА</h1>
-                    <p style="font-size: 22px;">Внедряем нейросети и программное обеспечение под ключ для автоматизации бизнес-процессов</p>
-                </div>
-                <div class="pin-content slide-3">
-                    <span class="pin-tag">03 // ПРОДУКТЫ</span>
-                    <h1>ГОТОВЫЕ РЕШЕНИЯ</h1>
-                    <p style="font-size: 22px;">Обкатано, отшлифовано, готово к запуску</p>
-                </div>
-                <div class="pin-content slide-4">
-                    <span class="pin-tag">04 // РАЗРАБОТЧИКАМ</span>
-                    <h1>IT-ИНКУБАТОР ДЛЯ РАЗРАБОТЧИКОВ</h1>
-                    <p style="font-size: 22px;">Объединяем запросы бизнеса и талант разработчиков</p>
-                </div>
-                <div class="pin-content slide-5">
-                    <span class="pin-tag">05 // СВЯЗЬ</span>
-                    <h1>КОНТАКТЫ</h1>
-                    <p style="font-size: 22px;">Создаём выгодные условия сотрудничества для предпринимателей и разработчиков</p>
-                </div>
-            </div>
-        </div>
-
-        <section class="container" id="about">
-            <h2 class="gsap-reveal">Интерактивный AI-Менеджер</h2>
-            <p class="gsap-reveal" style="margin-top: -30px; margin-bottom: 20px;">Выберите вопрос, и наш алгоритм ответит вам в реальном времени.</p>
-            
-            <div class="ai-chat-wrapper gsap-reveal">
-                <div class="chat-menu">
-                    <button class="chat-btn hover-target active" onclick="askAI('who', this)">Кто вы такие?</button>
-                    <button class="chat-btn hover-target" onclick="askAI('incubator', this)">Что за инкубатор?</button>
-                    <button class="chat-btn hover-target" onclick="askAI('partners', this)">С кем вы работаете?</button>
-                </div>
-                
-                <div class="chat-window">
-                    <div class="chat-header">
-                        <div class="ai-avatar">ИИ</div>
-                        <div>
-                            <div style="font-weight: 700; font-size: 16px;">Менеджер Обойма Лаб</div>
-                            <div style="font-size: 12px; color: var(--brand-neon); font-family: 'JetBrains Mono', monospace;">Система активна</div>
-                        </div>
-                    </div>
-                    <div class="chat-history" id="ai-chat-history">
-                        <div class="msg bot">Приветствую! Я ИИ-ассистент лаборатории. Задайте мне вопрос, выбрав опцию слева.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="marquee gsap-reveal">
-                <div class="marquee-inner">
-                    <span class="hover-target">EMCO</span>
-                    <span class="hover-target">L'ORÉAL</span>
-                    <span class="hover-target">PIRELLI</span>
-                    <span class="hover-target">KFC</span>
-                    <span class="hover-target">OBOYMA</span>
-                    <span class="hover-target">EMCO</span>
-                    <span class="hover-target">L'ORÉAL</span>
-                    <span class="hover-target">PIRELLI</span>
-                    <span class="hover-target">KFC</span>
-                    <span class="hover-target">OBOYMA</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="container" id="business">
-            <h2 class="gsap-reveal">Для кого подойдет лаборатория?</h2>
-            <div class="grid-2">
-                <div class="glass-card hover-target gsap-reveal">
-                    <div class="card-content">
-                        <span class="tag">СЕГМЕНТ 01</span>
-                        <h3 class="holo-title" style="font-size: 32px; color: var(--brand-neon); margin-bottom: 20px;">ДЛЯ БИЗНЕСА</h3>
-                        <p>Готовые решения и индивидуальные разработки для тех, у кого есть желание автоматизировать операционную деятельность с помощью современных ИИ-технологий: продажи, маркетинг, упаковка, логистика, кадры и просто рутина, поглощающая ресурсы.</p>
-                    </div>
-                </div>
-                <div class="glass-card hover-target gsap-reveal">
-                    <div class="card-content">
-                        <span class="tag">СЕГМЕНТ 02</span>
-                        <h3 class="holo-title" style="font-size: 32px; color: var(--brand-neon); margin-bottom: 20px;">ДЛЯ РАЗРАБОТЧИКОВ</h3>
-                        <p>Разработчики с идеями, которые могут создавать ИТ-решения, но упираются в ресурсы. Ваша команда получит усиление от наших экспертов.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="container" id="showcase">
-            <div class="showcase-grid gsap-reveal">
+        <section class="container" id="hero">
+            <div class="hero-grid">
                 <div>
-                    <span class="tag">ИНТЕРФЕЙСЫ</span>
-                    <h2>ИИ-Агенты в действии</h2>
-                    <p style="margin-bottom: 30px;">Посмотрите, как работает нейро-секретарь «Верочка» прямо в интерфейсе Telegram. Естественный диалог, бронирование встреч и мгновенная реакция.</p>
-                    <a href="#solutions" class="btn-primary hover-target">Все продукты</a>
+                    <div class="badge gsap-reveal">SYS.INIT // О НАС</div>
+                    <h1 class="gsap-reveal">Лаборатория ИИ-решений: Автоматизируем бизнес и масштабируем идеи</h1>
+                    <p class="gsap-reveal" style="font-size: 20px; margin-bottom: 40px;">Мы разрабатываем собственные программные продукты на базе ИИ. Для бизнеса — готовые решения и автоматизация рутины. Для разработчиков — IT-инкубатор и ресурсы для запуска.</p>
+                    <div class="gsap-reveal" style="display: flex; gap: 20px;">
+                        <a href="#methodology" class="btn-primary hover-target">Как мы работаем</a>
+                        <a href="#products" class="btn-outline hover-target" style="padding: 14px 24px;">Продукты</a>
+                    </div>
                 </div>
-                
-                <div class="phone-mockup">
-                    <div class="phone-notch"></div>
-                    <div class="tg-screen">
-                        <div class="tg-header">
-                            <div class="tg-avatar">В</div>
-                            <div>
-                                <div style="font-size: 14px; font-weight: bold; color: #fff;">Верочка (AI)</div>
-                                <div style="font-size: 11px; color: #94a3b8;">в сети</div>
+                <div class="hero-3d-box gsap-reveal hover-target">
+                    <div class="tesseract">
+                        <div class="tesseract-face"></div><div class="tesseract-face"></div><div class="tesseract-face"></div>
+                        <div class="tesseract-face"></div><div class="tesseract-face"></div><div class="tesseract-face"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" id="methodology">
+            <h2 class="gsap-reveal">Методология разработки</h2>
+            
+            <div class="comparison-grid gsap-reveal">
+                <div class="comp-card bad">
+                    <h3 style="color: #ef4444; font-family: 'JetBrains Mono', monospace;">[X] Classic Waterfall</h3>
+                    <p>Месяц писать ТЗ, месяц рисовать кнопки, месяц писать сервер, а месяц соединять. Итог: долго, дорого и часто не то, что нужно бизнесу прямо сейчас.</p>
+                </div>
+                <div class="comp-card good hover-target">
+                    <h3 style="color: var(--neon-accent); font-family: 'JetBrains Mono', monospace;">[✓] Oboyma Agile</h3>
+                    <p>Режем проект по вертикальным функциям. За одну неделю делаем одну кнопку, которая уже работает «под капотом» и приносит реальную ценность.</p>
+                </div>
+            </div>
+
+            <div class="stepper-container gsap-reveal">
+                <div class="stepper-line"></div>
+                <div class="stepper-nav">
+                    <button class="step-btn hover-target active" onclick="openStep('s1', this)">
+                        <div class="step-num">01</div> <span>Аудит</span>
+                    </button>
+                    <button class="step-btn hover-target" onclick="openStep('s2', this)">
+                        <div class="step-num">02</div> <span>Цели и ТЗ</span>
+                    </button>
+                    <button class="step-btn hover-target" onclick="openStep('s3', this)">
+                        <div class="step-num">03</div> <span>Итерации</span>
+                    </button>
+                    <button class="step-btn hover-target" onclick="openStep('s4', this)">
+                        <div class="step-num">04</div> <span>Функции</span>
+                    </button>
+                    <button class="step-btn hover-target" onclick="openStep('s5', this)">
+                        <div class="step-num">05</div> <span>Бета-тест</span>
+                    </button>
+                </div>
+                <div class="step-content-area">
+                    <div class="step-content active" id="s1">
+                        <div class="badge">STEP 01</div>
+                        <h3>Аудит бизнес-процессов</h3>
+                        <p>Мы работаем по одному из двух сценариев. Первый: предприниматель сам точно знает, что его беспокоит. Второй: наша команда проводит комплексный анализ операционки с нуля — исследуем продажи, маркетинг, логистику, кадры и скрытую рутину.<br><br>Итог: исчерпывающая картина бизнеса и расчет экономического эффекта. Всего за 10 дней.</p>
+                    </div>
+                    <div class="step-content" id="s2">
+                        <div class="badge">STEP 02</div>
+                        <h3>Нестандартное ТЗ</h3>
+                        <p>После аудита мы фиксируем цель бизнеса и все пожелания заказчика. Но формируем ТЗ нестандартно: режем проект не по горизонталям (база данных, логика, интерфейс), а по вертикальным сквозным функциям. Например: «авторизация по смс», «отправка ссылки на оплату».</p>
+                    </div>
+                    <div class="step-content" id="s3">
+                        <div class="badge">STEP 03</div>
+                        <h3>Короткие циклы</h3>
+                        <p>Каждую функцию ранжируем по ценности для пользователя — от самой важной к второстепенной. Весь проект разбиваем на короткие циклы (итерации) по 1–2 недели. Так команда делает то, что принесет максимальную пользу бизнесу здесь и сейчас.</p>
+                    </div>
+                    <div class="step-content" id="s4">
+                        <div class="badge">STEP 04</div>
+                        <h3>Функция за функцией</h3>
+                        <p>На каждой итерации берем одну конкретную функцию. Мы ведем разработку целиком — от интерфейса до базы данных. После каждой итерации продукт обретает новую, полностью рабочую функцию, а не просто пополняется «кучей кода».</p>
+                    </div>
+                    <div class="step-content" id="s5">
+                        <div class="badge">STEP 05</div>
+                        <h3>Проверка боем</h3>
+                        <p>Когда система готова, наступает бета-тестирование. Решение впервые работает на реальных данных и с живыми пользователями. Мы собираем обратную связь, отслеживаем сценарии. Предприниматель получает отточенный инструмент.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" id="products">
+            <h2 class="gsap-reveal">Готовые решения для бизнеса</h2>
+            
+            <div class="products-grid">
+                <div class="product-card gsap-reveal">
+                    <div class="mockup-wrapper">
+                        <div class="css-phone">
+                            <div class="css-phone-header">
+                                <div class="css-phone-avatar"></div> <span style="color:#fff; font-size:12px;">Лидочка (AI)</span>
+                            </div>
+                            <div class="css-phone-body">
+                                <div class="mock-msg bot">Найден горячий лид: "Ищу интегратора ИИ". Отправить в CRM?</div>
+                                <div class="mock-msg user">Да, отправляй.</div>
                             </div>
                         </div>
-                        <div class="tg-body" id="showcase-chat">
-                            <div class="tg-msg bot">Здравствуйте! Я Верочка. У вас новое письмо от партнеров из EMCO.</div>
-                            <div class="tg-msg user" style="animation-delay: 1.5s;">Назначь с ними встречу на завтра.</div>
-                            <div class="tg-msg bot" style="animation-delay: 3s;">Проверяю ваш календарь... Завтра окно в 14:00. Отправляю им инвайт в Zoom?</div>
-                            <div class="tg-msg user" style="animation-delay: 4.5s;">Да, отправляй.</div>
-                            <div class="tg-msg bot" style="animation-delay: 6s;">Готово. Встреча добавлена в календарь. 🗓️✅</div>
+                    </div>
+                    <h3 style="color: var(--neon-accent); font-family: 'Unbounded', sans-serif;">Умный лидо-поисковик "Лидочка"</h3>
+                    <p style="flex: 1;">Нейроассистент находит «горячих» клиентов в Telegram. Формирует базу чатов, ищет спрос и выдает контакты.</p>
+                    
+                    <div class="case-stats">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
+                            <div style="font-weight: 600; color: #fff;">+150 горячих лидов в месяц</div>
                         </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <a href="https://t.me/oboymalab" class="btn-primary hover-target">Смотреть демо (TG)</a>
+                        <a href="#contacts" class="btn-secondary hover-target">Узнать цену</a>
+                    </div>
+                </div>
+
+                <div class="product-card gsap-reveal" style="transition-delay: 0.1s;">
+                    <div class="mockup-wrapper">
+                        <div class="css-phone">
+                            <div class="css-phone-header">
+                                <div class="css-phone-avatar"></div> <span style="color:#fff; font-size:12px;">Верочка (AI)</span>
+                            </div>
+                            <div class="css-phone-body">
+                                <div class="mock-msg user">Перенеси созвон на завтра.</div>
+                                <div class="mock-msg bot">Ок. Созвон перенесен на 14:00. Всем участникам отправлено уведомление. 🗓️</div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 style="color: var(--neon-accent); font-family: 'Unbounded', sans-serif;">Нейро-секретарь «Верочка»</h3>
+                    <p style="flex: 1;">Telegram-ассистент с ИИ. Понимает голос и текст. Управляет календарем, планирует встречи и подбирает тон общения.</p>
+                    
+                    <div class="case-stats">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-accent)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        <div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
+                            <div style="font-weight: 600; color: #fff;">Экономия: 40 часов в неделю</div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <a href="https://t.me/oboymalab" class="btn-primary hover-target">Смотреть демо (TG)</a>
+                        <a href="#contacts" class="btn-secondary hover-target">Узнать цену</a>
+                    </div>
+                </div>
+
+                <div class="product-card gsap-reveal" style="transition-delay: 0.2s;">
+                    <div class="mockup-wrapper">
+                        <div class="css-phone">
+                            <div class="css-phone-header">
+                                <div class="css-phone-avatar"></div> <span style="color:#fff; font-size:12px;">EventGate (AI)</span>
+                            </div>
+                            <div class="css-phone-body">
+                                <div class="mock-msg user">Хочу купить билет на форум.</div>
+                                <div class="mock-msg bot">Отлично! Вот ссылка на оплату. После оплаты я вышлю вам пропуск. 🎫</div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 style="color: var(--neon-accent); font-family: 'Unbounded', sans-serif;">"Открывашка" (EventGate)</h3>
+                    <p style="flex: 1;">Нейросервис для ивентов. Общается с клиентами из соцсетей, отправляет платежи, регистрирует и ведет базу.</p>
+                    
+                    <div class="case-stats">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-accent)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">КЕЙС В ЦИФРАХ</div>
+                            <div style="font-weight: 600; color: #fff;">24/7 обработка заявок</div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <a href="https://t.me/oboymalab" class="btn-primary hover-target">Смотреть демо (TG)</a>
+                        <a href="#contacts" class="btn-secondary hover-target">Узнать цену</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="container" id="how">
-            <h2 class="gsap-reveal" style="text-align: center;">Как работает лаборатория</h2>
-            <p class="gsap-reveal" style="text-align: center; max-width: 900px; margin: 0 auto 60px; font-size: 20px;">Вместо того чтобы месяц рисовать кнопки, месяц писать сервер, а месяц соединять, мы за одну неделю делаем одну кнопку, которая уже работает «под капотом»</p>
-            
-            <div class="tabs-wrapper gsap-reveal">
-                <div class="tabs-menu">
-                    <button class="tab-menu-btn hover-target active" onclick="openTab('t1', this)">1. Начать проще, чем кажется</button>
-                    <button class="tab-menu-btn hover-target" onclick="openTab('t2', this)">2. Аудит бизнес-процессов</button>
-                    <button class="tab-menu-btn hover-target" onclick="openTab('t3', this)">3. Техническое задание</button>
-                    <button class="tab-menu-btn hover-target" onclick="openTab('t4', this)">4. Функция за функцией</button>
-                    <button class="tab-menu-btn hover-target" onclick="openTab('t5', this)">5. Бета-тест: проверка боем</button>
-                </div>
-                
-                <div class="tab-content-area">
-                    <div class="tab-content active" id="t1">
-                        <div class="glass-card">
-                            <h3 style="color: var(--brand-neon);">Начать проще, чем кажется</h3>
-                            <p style="margin-bottom: 20px;">Предприниматели часто сомневаются: эффективно ли работают бизнес-процессы, куда уходят ресурсы и что можно улучшить? Тема ИИ сегодня звучит отовсюду — обещают экономию и устранение рутины.</p>
-                            <p style="margin-bottom: 20px;">«Обойма» — это не просто IT-лаборатория. Наша команда имеет глубокую экспертизу в корпоративном мире: оптимизация операционной деятельности и маркетинг для нас такая же привычная задача, как написание кода.</p>
-                            <p>Прежде чем погружаться в разработку, мы предлагаем простой шаг — вместе проанализировать операционку, найти слабые места и оценить реальную выгоду от внедрения ИИ.</p>
-                        </div>
-                    </div>
-                    <div class="tab-content" id="t2">
-                        <div class="glass-card">
-                            <h3 style="color: var(--brand-neon);">Аудит бизнес-процессов</h3>
-                            <p style="margin-bottom: 20px;">Мы работаем по одному из двух сценариев. Первый: предприниматель сам точно знает, что его беспокоит, и формулирует задачу. Второй: наша команда проводит комплексный анализ операционки с нуля — исследуем продажи, маркетинг, упаковку, логистику, кадры и скрытую рутину.</p>
-                            <p>В обоих случаях результат аудита — это исчерпывающая картина вашего бизнеса: точка «как есть», конкретный план улучшений и прогноз. Всего 10 дней потребуется, чтобы взглянуть на свое дело свежим взглядом.</p>
-                        </div>
-                    </div>
-                    <div class="tab-content" id="t3">
-                        <div class="glass-card">
-                            <h3 style="color: var(--brand-neon);">Техническое задание</h3>
-                            <p style="margin-bottom: 20px;">После аудита мы фиксируем цель бизнеса и все пожелания. Но формируем ТЗ нестандартно: режем проект не по горизонталям, а по вертикальным сквозным функциям.</p>
-                            <p>Каждую функцию ранжируем по ценности для пользователя. Весь проект разбиваем на короткие циклы (итерации) по 1–2 недели. Так команда делает то, что принесет максимальную пользу бизнесу здесь и сейчас.</p>
-                        </div>
-                    </div>
-                    <div class="tab-content" id="t4">
-                        <div class="glass-card">
-                            <h3 style="color: var(--brand-neon);">Функция за функцией</h3>
-                            <p style="margin-bottom: 20px;">На каждой итерации команда берет одну конкретную функцию, которая несет реальную ценность для пользователя. Мы ведем разработку целиком — от интерфейса до базы данных.</p>
-                            <p>Такой подход дает главное: после каждой итерации продукт обретает новую, полностью рабочую функцию. План разработки при этом непрерывно дорабатывается.</p>
-                        </div>
-                    </div>
-                    <div class="tab-content" id="t5">
-                        <div class="glass-card">
-                            <h3 style="color: var(--brand-neon);">Бета-тест: проверка боем</h3>
-                            <p style="margin-bottom: 20px;">Когда система готова к реальной эксплуатации, наступает ключевой этап — бета-тестирование. Это момент истины: решение впервые работает на реальных данных и с живыми пользователями.</p>
-                            <p>В результате продукт выходит из беты полностью готовым к полноценной работе. Предприниматель получает отточенный инструмент, который закрывает те самые боли.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="container" id="solutions">
-            <span class="tag gsap-reveal" style="display: block; width: fit-content; margin: 0 auto;">ПРОДУКТЫ</span>
-            <h2 class="gsap-reveal" style="text-align: center;">ГОТОВЫЕ РЕШЕНИЯ ДЛЯ БИЗНЕСА</h2>
-            <p class="gsap-reveal" style="text-align: center; font-size: 20px; margin-bottom: 60px;">Эффективность доказана и проверена заказчиками</p>
-            
-            <div class="grid-3">
-                <div class="glass-card solution-card hover-target gsap-reveal">
-                    <div class="card-inner-content">
-                        <div class="solution-icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
-                        </div>
-                        <h3 class="holo-title" style="font-size: 24px; margin-bottom: 15px;">Умный лидо-поисковик "Лидочка"</h3>
-                        <p style="margin-bottom: 20px; font-size: 15px;">Нейроассистент находит «горячих» клиентов в Telegram и вы получаете готовую базу тех, кто уже ищет ваши товары.</p>
-                        <ul>
-                            <li>Формирует базу тематических чатов.</li>
-                            <li>Ищет сообщения с прямым спросом.</li>
-                            <li>Выдает готовые контакты для связи.</li>
-                        </ul>
-                    </div>
-                    <div class="solution-overlay-btn">
-                        <a href="https://vk.com/oboymalab" class="btn-primary" style="width: 100%;">Хочу тест</a>
-                    </div>
-                </div>
-
-                <div class="glass-card solution-card hover-target gsap-reveal" style="transition-delay: 0.2s;">
-                    <div class="card-inner-content">
-                        <div class="solution-icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M21 11.5v-1c0-.83-.67-1.5-1.5-1.5H18v-2c0-1.1-.9-2-2-2h-2V3.5C14 2.67 13.33 2 12.5 2h-1C10.67 2 10 2.67 10 3.5V5H8c-1.1 0-2 .9-2 2v2H4.5C3.67 9 3 9.67 3 10.5v1c0 .83.67 1.5 1.5 1.5H6v2c0 1.1.9 2 2 2h2v1.5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5V19h2c1.1 0 2-.9 2-2v-2h1.5c.83 0 1.5-.67 1.5-1.5zM16 17H8V7h8v10z"/><rect x="10" y="9" width="4" height="6"/></svg>
-                        </div>
-                        <h3 class="holo-title" style="font-size: 24px; margin-bottom: 15px;">Нейро-секретарь «Верочка»</h3>
-                        <p style="margin-bottom: 20px; font-size: 15px;">Telegram-ассистент с искусственным интеллектом. Понимает голос и текст. Управляет вашим календарем и контактами.</p>
-                        <ul>
-                            <li>Помнит всю историю общения, подбирает тон.</li>
-                            <li>Сама планирует встречи и переносит их.</li>
-                            <li>Поможет не пропустить дедлайны.</li>
-                        </ul>
-                    </div>
-                    <div class="solution-overlay-btn">
-                        <a href="https://vk.com/oboymalab" class="btn-primary" style="width: 100%;">Хочу тест</a>
-                    </div>
-                </div>
-
-                <div class="glass-card solution-card hover-target gsap-reveal" style="transition-delay: 0.4s;">
-                    <div class="card-inner-content">
-                        <div class="solution-icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-                        </div>
-                        <h3 class="holo-title" style="font-size: 24px; margin-bottom: 15px;">"Открывашка" (EventGate)</h3>
-                        <p style="margin-bottom: 20px; font-size: 15px;">Нейросервис для ивент-предпринимателей, чьи клиенты приходят из соцсетей.</p>
-                        <ul>
-                            <li>"Здоровается", общается, отвечает на вопросы.</li>
-                            <li>Отправляет платежные инструменты.</li>
-                            <li>Регистрирует клиентов, ведет базу.</li>
-                            <li>Пушит менеджеров, если они нужны.</li>
-                        </ul>
-                    </div>
-                    <div class="solution-overlay-btn">
-                        <a href="https://vk.com/oboymalab" class="btn-primary" style="width: 100%;">Обсудить</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="container" id="roi-calc">
-            <h2 class="gsap-reveal">Калькулятор экономии</h2>
-            <div class="calc-wrapper gsap-reveal hover-target">
+        <section class="container" id="roi">
+            <h2 class="gsap-reveal">Калькулятор окупаемости (ROI)</h2>
+            <div class="roi-grid gsap-reveal hover-target">
                 <div>
                     <div class="range-group">
-                        <div class="range-label"><span>Количество менеджеров</span> <span id="v-emp" style="color: var(--brand-neon);">10</span></div>
+                        <div class="range-label"><span>Кол-во сотрудников</span> <span id="v-emp" style="color: var(--neon-accent);">10</span></div>
                         <input type="range" id="i-emp" min="1" max="100" value="10">
                     </div>
                     <div class="range-group">
-                        <div class="range-label"><span>Средняя ЗП (тыс. руб)</span> <span id="v-sal" style="color: var(--brand-neon);">80k</span></div>
+                        <div class="range-label"><span>Средняя зарплата (тыс. руб)</span> <span id="v-sal" style="color: var(--neon-accent);">80k</span></div>
                         <input type="range" id="i-sal" min="40" max="300" step="10" value="80">
                     </div>
                     <div class="range-group">
-                        <div class="range-label"><span>Процент рутины (%)</span> <span id="v-rout" style="color: var(--brand-neon);">35%</span></div>
+                        <div class="range-label"><span>Процент рутинных задач (%)</span> <span id="v-rout" style="color: var(--neon-accent);">35%</span></div>
                         <input type="range" id="i-rout" min="10" max="80" step="5" value="35">
                     </div>
-                    <p style="font-size: 13px; margin-top: 20px;">*Расчет показывает потенциальную экономию в год при передаче рутинных задач нейросети.</p>
+                    <p style="font-size: 13px; margin-top: 20px;">*Расчет базируется на внедрении LLM-агентов, забирающих первичную обработку и маршрутизацию данных.</p>
                 </div>
-                <div class="calc-result-box">
-                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted); text-transform: uppercase;">Экономия при внедрении Верочки</p>
-                    <div class="calc-result-value" id="o-money">4.36M ₽</div>
+                <div class="roi-result">
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted); text-transform: uppercase;">Потенциальная экономия</p>
+                    <div class="roi-value" id="o-money">4.36M ₽</div>
                     <p style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-muted); margin-top: 10px;">В ГОД</p>
                 </div>
             </div>
         </section>
 
         <section class="container" id="incubator">
-            <h2 class="gsap-reveal">IT-ИНКУБАТОР ДЛЯ РАЗРАБОТЧИКОВ</h2>
-            <p class="gsap-reveal" style="font-size: 20px; margin-bottom: 60px;">От идеи до первых клиентов — помогаем с упаковкой, маркетингом и продажами</p>
-            
+            <h2 class="gsap-reveal">IT-Инкубатор для разработчиков</h2>
             <div class="grid-3">
                 <div class="glass-card hover-target gsap-reveal">
-                    <h3>Рекрутинг идей и ресурсов</h3>
-                    <p>Мы отбираем проекты и специалистов на основе потенциала идеи, готовности команды и рыночного спроса.</p>
+                    <div class="badge">01</div>
+                    <h3 style="font-family: 'Unbounded', sans-serif;">Рекрутинг идей</h3>
+                    <p>Отбираем проекты и специалистов на основе потенциала идеи, готовности команды и рыночного спроса.</p>
                 </div>
                 <div class="glass-card hover-target gsap-reveal">
-                    <h3>Безопасный старт</h3>
+                    <div class="badge">02</div>
+                    <h3 style="font-family: 'Unbounded', sans-serif;">Безопасный старт</h3>
                     <p>Проверяем гипотезы без лишних затрат: быстрый MVP и тест спроса.</p>
                 </div>
                 <div class="glass-card hover-target gsap-reveal">
-                    <h3>Внешний «проджект»</h3>
+                    <div class="badge">03</div>
+                    <h3 style="font-family: 'Unbounded', sans-serif;">Внешний «проджект»</h3>
                     <p>Берем на себя управление сроками и задачами, чтобы команда не выгорала.</p>
                 </div>
-                
-                <div class="glass-card bento-large hover-target gsap-reveal">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
-                        <div style="max-width: 800px;">
-                            <h3 class="holo-title" style="font-size: 42px;">Стартап-конвейер</h3>
-                            <p>Мы закрываем все слабые места: от идеи и MVP до упаковки и первых продаж. Вы фокусируетесь на коде, мы — на всем, что нужно для роста.</p>
-                        </div>
+            </div>
+            <div class="glass-card hover-target gsap-reveal" style="margin-top: 30px; background: linear-gradient(135deg, var(--brand-main), var(--brand-accent)); border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
+                    <div style="max-width: 800px;">
+                        <h3 class="holo-title" style="font-size: clamp(2rem, 4vw, 3rem); color: #fff;">Стартап-конвейер</h3>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 18px;">Мы закрываем все слабые места: от идеи и MVP до упаковки и первых продаж. Вы фокусируетесь на коде, мы — на всем, что нужно для роста. Хватит пилить пет-проект в стол.</p>
                     </div>
-                </div>
-
-                <div class="glass-card bento-large hover-target gsap-reveal" style="background: var(--brand-accent); border: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
-                        <div style="max-width: 800px;">
-                            <h3 class="holo-title" style="font-size: 42px; color: #fff;">Стартуй с нами</h3>
-                            <p style="color: rgba(255,255,255,0.9);">Хватит пилить пет-проект в стол. За месяц мы превратим вашу идею в работающий MVP с первыми клиентами и четким планом роста. Ваш следующий шаг — заявка.</p>
-                        </div>
-                        <a href="#contacts" class="btn-primary hover-target" style="background: #fff; color: var(--brand-main);">Связаться с менеджером →</a>
-                    </div>
+                    <a href="#contacts" class="btn-primary hover-target" style="background: #fff; color: var(--brand-main);">Подать заявку →</a>
                 </div>
             </div>
         </section>
 
         <section class="container" id="team">
-            <h2 class="gsap-reveal" style="text-align: center;">КОМАНДА НАШИХ ПРОФЕССИОНАЛОВ</h2>
-            <p class="gsap-reveal" style="text-align: center; max-width: 900px; margin: 0 auto 60px; font-size: 18px;">Мы соединяем информационные технологии с реальным бизнесом. Оптимизация процессов, маркетинговая экспертиза и разработка ИИ — наша ежедневная работа.</p>
-            
-            <div class="grid-4">
-                <div class="glass-card hover-target gsap-reveal" style="text-align: center; padding: 40px 20px;">
-                    <div class="team-avatar"><div class="team-avatar-inner">А</div></div>
-                    <h3>Андрей</h3>
-                    <p style="font-size: 14px;">Оптимизация процессов</p>
+            <h2 class="gsap-reveal">Команда профессионалов</h2>
+            <div class="team-grid gsap-reveal">
+                <div class="team-member hover-target">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Андрей">
+                    <div class="team-info">
+                        <div class="team-name">Андрей</div>
+                        <div class="team-role">Оптимизация процессов</div>
+                    </div>
+                    <div class="team-tooltip">
+                        <span>> System Arch</span><br><span>> Agile Coach</span><br><span>> Business Logic</span>
+                    </div>
                 </div>
-                <div class="glass-card hover-target gsap-reveal" style="text-align: center; padding: 40px 20px;">
-                    <div class="team-avatar"><div class="team-avatar-inner">Б</div></div>
-                    <h3>Богдан</h3>
-                    <p style="font-size: 14px;">Маркетинг и продвижение</p>
+                <div class="team-member hover-target">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Богдан">
+                    <div class="team-info">
+                        <div class="team-name">Богдан</div>
+                        <div class="team-role">Маркетинг и продвижение</div>
+                    </div>
+                    <div class="team-tooltip">
+                        <span>> Growth Hacking</span><br><span>> Traffic</span><br><span>> Product UI</span>
+                    </div>
                 </div>
-                <div class="glass-card hover-target gsap-reveal" style="text-align: center; padding: 40px 20px;">
-                    <div class="team-avatar"><div class="team-avatar-inner">Д</div></div>
-                    <h3>Дмитрий</h3>
-                    <p style="font-size: 14px;">Стратегическое развитие</p>
+                <div class="team-member hover-target">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Дмитрий">
+                    <div class="team-info">
+                        <div class="team-name">Дмитрий</div>
+                        <div class="team-role">Стратегическое развитие</div>
+                    </div>
+                    <div class="team-tooltip">
+                        <span>> Vision</span><br><span>> Partnerships</span><br><span>> M&A</span>
+                    </div>
                 </div>
-                <div class="glass-card hover-target gsap-reveal" style="text-align: center; padding: 40px 20px;">
-                    <div class="team-avatar"><div class="team-avatar-inner">Р</div></div>
-                    <h3>Роман</h3>
-                    <p style="font-size: 14px;">Технический руководитель</p>
+                <div class="team-member hover-target">
+                    <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop" class="team-img" alt="Роман">
+                    <div class="team-info">
+                        <div class="team-name">Роман</div>
+                        <div class="team-role">Технический руководитель</div>
+                    </div>
+                    <div class="team-tooltip">
+                        <span>> Python / LLM</span><br><span>> RAG Arch</span><br><span>> DevOps</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -629,91 +504,72 @@
         <section class="container" id="contacts">
             <div class="form-grid gsap-reveal">
                 <div>
-                    <h2 class="holo-title" style="font-size: 42px; margin-bottom: 20px;">Заполнить анкету на отбор проекта</h2>
+                    <div class="badge">SYS.CONTACT</div>
+                    <h2 class="holo-title" style="font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px;">Заполнить анкету</h2>
                     <p style="font-size: 18px; margin-bottom: 50px;">Поделись своей идеей. Вместе оценим объемы, найдем решения и сделаем первый шаг к реализации.</p>
                     
-                    <h3 class="holo-title" style="color: var(--brand-neon); margin-bottom: 20px; font-size: 24px;">КОНТАКТЫ</h3>
-                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 2.2; color: var(--text-muted);">
-                        <p><strong style="color: var(--text-main);">Адрес:</strong> МЫТИЩИ, ПР-КТ ОЛИМПИЙСКИЙ, СТР. 10, ОФИС 1704</p>
-                        <p><strong style="color: var(--text-main);">Звоните:</strong> +79876330819</p>
-                        <p><strong style="color: var(--text-main);">Пишите:</strong> corp@oboyma.ai</p>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 2; color: var(--text-muted);">
+                        <p><strong style="color: var(--text-main);">LOC:</strong> МЫТИЩИ, ПР-КТ ОЛИМПИЙСКИЙ, СТР. 10, ОФИС 1704</p>
+                        <p><strong style="color: var(--text-main);">TEL:</strong> +79876330819</p>
+                        <p><strong style="color: var(--text-main);">NET:</strong> corp@oboyma.ai</p>
                     </div>
                 </div>
                 
-                <div class="glass-card">
+                <div class="form-box">
                     <form id="contact-form">
                         <div class="input-group">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Имя:</label>
-                            <input type="text" class="hover-target" placeholder="например: Иван Иванович" required>
+                            <input type="text" id="inp-name" class="hover-target" placeholder=" " required>
+                            <label for="inp-name">Имя и Фамилия</label>
                         </div>
                         
                         <div class="input-group">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Телефон: *</label>
-                            <input type="tel" id="phone-input" class="hover-target" placeholder="+7 (___) ___-__-__" required>
-                            <span id="phone-error" style="color: #ef4444; font-size: 12px; display: none; position: absolute; bottom: -20px; left: 0;">Некорректный номер</span>
+                            <input type="tel" id="phone-input" class="hover-target" placeholder=" " required>
+                            <label for="phone-input">Телефон *</label>
+                            <span class="error-text" id="phone-error">Некорректный номер</span>
                         </div>
                         
                         <div class="input-group">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Почта или Телеграм:</label>
-                            <input type="text" class="hover-target" placeholder="example@primer.ru или @ssylka">
+                            <input type="text" id="inp-contact" class="hover-target" placeholder=" ">
+                            <label for="inp-contact">Почта или Телеграм</label>
                         </div>
                         
-                        <div class="file-area hover-target" style="margin-bottom: 25px;">📎 Выберите файл презентации или перетащите его сюда</div>
-                        
-                        <div class="checkbox-wrap hover-target">
-                            <input type="checkbox" id="policy" required>
-                            <label for="policy">Нажимая кнопку "Отправить заявку", я даю согласие на обработку персональных данных</label>
+                        <div class="input-group">
+                            <input type="text" id="inp-file" class="hover-target" placeholder=" " readonly style="cursor: pointer;">
+                            <label for="inp-file">📎 Приложить презентацию (Клик)</label>
                         </div>
                         
-                        <button type="submit" class="btn-primary hover-target" style="width: 100%;">Отправить заявку</button>
+                        <button type="submit" class="btn-primary hover-target" style="width: 100%; padding: 20px;">Отправить пакет данных</button>
                     </form>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer style="border-top: 1px solid var(--glass-border); padding: 40px 0; background: var(--glass-strong); margin-top: 50px;">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <svg viewBox="0 0 100 100" style="width:35px; height:35px; stroke:var(--text-muted); fill:none; stroke-width:4; stroke-linecap:round;">
-                    <circle cx="50" cy="50" r="18" />
-                    <path d="M 25 55 A 28 28 0 0 0 75 55" />
-                    <line x1="25" y1="55" x2="10" y2="55" />
-                    <line x1="75" y1="55" x2="90" y2="55" />
-                    <line x1="50" y1="28" x2="50" y2="10" />
-                    <line x1="50" y1="15" x2="40" y2="15" />
-                    <line x1="32" y1="32" x2="20" y2="20" />
-                    <line x1="68" y1="32" x2="80" y2="20" />
-                    <line x1="24" y1="44" x2="12" y2="40" />
-                    <line x1="76" y1="44" x2="88" y2="40" />
-                </svg>
-                <div style="color: var(--text-muted); font-size: 13px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
-                    <p>© 2015-2026 ООО "Обойма Лаб"</p>
-                    <p>ИНН: 5029197630 ОГРН: 1155029004184</p>
-                </div>
-            </div>
-            <div style="display: flex; gap: 30px; font-size: 13px;">
-                <a href="#" style="color: var(--text-muted); text-decoration: none;" class="hover-target">Политика</a>
-                <a href="#" style="color: var(--text-muted); text-decoration: none;" class="hover-target">Свидетельство</a>
-            </div>
+    <footer style="border-top: 1px solid var(--glass-border); padding: 30px 5vw; background: var(--glass-bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; z-index: 100; position: relative; backdrop-filter: blur(10px);">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">
+            © 2015-2026 ООО "Обойма Лаб" | ИНН: 5029197630
+        </div>
+        <div class="sys-status">
+            <div class="sys-dot"></div>
+            AI Core Status: Online. Systems Active.
         </div>
     </footer>
 
     <script>
-        // --- 1. СВЕТЛАЯ / ТЕМНАЯ ТЕМА (Плавное переключение) ---
+        // --- 1. СВЕТЛАЯ / ТЕМНАЯ ТЕМА ---
         function toggleTheme() {
             const html = document.documentElement;
             const currentTheme = html.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', newTheme);
             
-            // Смена цвета тумана и частиц в 3D
+            // Смена цвета в 3D
             if(newTheme === 'light') {
-                scene.fog.color.setHex(0xEBEBEB);
-                particlesMaterial.color.setHex(0x003D72); // Темно-синий
+                scene.fog.color.setHex(0xf8fafc);
+                particlesMaterial.color.setHex(0x005EB1);
             } else {
                 scene.fog.color.setHex(0x020611);
-                particlesMaterial.color.setHex(0x005EB1); // Светло-синий
+                particlesMaterial.color.setHex(0x00ffcc);
             }
         }
 
@@ -724,12 +580,12 @@
             cDot.style.left = e.clientX + 'px'; cDot.style.top = e.clientY + 'px';
             gsap.to(cRing, { left: e.clientX, top: e.clientY, duration: 0.15, ease: "power2.out" });
         });
-        document.querySelectorAll('.hover-target, a, button, input').forEach(el => {
+        document.querySelectorAll('.hover-target, input, button, a').forEach(el => {
             el.addEventListener('mouseenter', () => cRing.classList.add('active'));
             el.addEventListener('mouseleave', () => cRing.classList.remove('active'));
         });
 
-        // --- 3. THREE.JS ФОН (ЗВЕЗДНОЕ НЕБО / НЕЙРОСЕТЬ) ---
+        // --- 3. THREE.JS ФОН (Vanta.js NET Alternative) ---
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x020611, 0.002);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -738,12 +594,12 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 4000;
+        const particlesCount = 1500; // Оптимизация для линий
         const posArray = new Float32Array(particlesCount * 3);
         for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 800;
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         
-        const particlesMaterial = new THREE.PointsMaterial({ size: 1.5, color: 0x005EB1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
+        const particlesMaterial = new THREE.PointsMaterial({ size: 2, color: 0x00ffcc, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         camera.position.z = 200;
@@ -758,8 +614,8 @@
         function animate3D() {
             requestAnimationFrame(animate3D);
             const elapsedTime = clock.getElapsedTime();
-            particlesMesh.rotation.y = elapsedTime * 0.02;
-            particlesMesh.rotation.x = elapsedTime * 0.01;
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
             particlesMesh.rotation.y += 0.05 * (mouseX * 0.001 - particlesMesh.rotation.y);
             particlesMesh.rotation.x += 0.05 * (mouseY * 0.001 - particlesMesh.rotation.x);
             renderer.render(scene, camera);
@@ -772,75 +628,38 @@
         const bootFill = document.getElementById('boot-fill');
         let progress = 0;
         const bootInterval = setInterval(() => {
-            progress += Math.random() * 25;
+            progress += Math.random() * 30;
             if(progress > 100) progress = 100;
             bootFill.style.width = progress + '%';
             if(progress === 100) {
                 clearInterval(bootInterval);
                 setTimeout(() => {
                     gsap.to(bootScreen, { opacity: 0, duration: 0.8, onComplete: () => { bootScreen.style.display = 'none'; initGSAP(); }});
-                }, 400);
+                }, 300);
             }
         }, 100);
 
-        // --- 5. ИНТЕРАКТИВНЫЙ AI-МЕНЕДЖЕР ---
-        const aiData = {
-            'who': 'Обойма лаб — российский разработчик программного обеспечения на основе искусственного интеллекта. Мы разрабатываем собственные программные продукты на базе ИИ.',
-            'incubator': 'Мы активно привлекаем к сотрудничеству разработчиков и предпринимателей через бизнес-инкубатор. Он помогает получить необходимые ресурсы и экспертизу для запуска проектов.',
-            'partners': 'Мы работаем с крупными брендами: EMCO, L\'ORÉAL, PIRELLI, KFC. Внедряем решения для автоматизации операционной деятельности: продажи, маркетинг, логистика.'
-        };
-
-        function askAI(key, btn) {
-            document.querySelectorAll('.chat-btn').forEach(b => b.classList.remove('active'));
+        // --- 5. STEPPER (КАК РАБОТАЕМ) ---
+        function openStep(stepId, btn) {
+            document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.step-content').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
-
-            const chatHistory = document.getElementById('ai-chat-history');
-            
-            const uMsg = document.createElement('div');
-            uMsg.className = 'msg user'; 
-            uMsg.innerText = btn.innerText;
-            chatHistory.appendChild(uMsg);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-
-            setTimeout(() => {
-                const typ = document.createElement('div');
-                typ.className = 'msg bot';
-                typ.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-                chatHistory.appendChild(typ);
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-
-                setTimeout(() => {
-                    typ.remove();
-                    const bMsg = document.createElement('div');
-                    bMsg.className = 'msg bot'; bMsg.innerText = aiData[key];
-                    chatHistory.appendChild(bMsg);
-                    chatHistory.scrollTop = chatHistory.scrollHeight;
-                }, 1000);
-            }, 300);
+            document.getElementById(stepId).classList.add('active');
         }
 
-        // --- 6. ЛОГИКА ВКЛАДОК ---
-        function openTab(tabId, btn) {
-            document.querySelectorAll('.tab-menu-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        // --- 7. КАЛЬКУЛЯТОР ЭКОНОМИИ ---
+        // --- 6. КАЛЬКУЛЯТОР ЭКОНОМИИ (ROI) ---
         const iEmp = document.getElementById('i-emp'), iSal = document.getElementById('i-sal'), iRout = document.getElementById('i-rout');
         const vEmp = document.getElementById('v-emp'), vSal = document.getElementById('v-sal'), vRout = document.getElementById('v-rout');
         function calcROI() {
             const emp = parseInt(iEmp.value), sal = parseInt(iSal.value) * 1000, rout = parseInt(iRout.value);
             vEmp.innerText = emp; vSal.innerText = (sal/1000) + 'k'; vRout.innerText = rout + '%';
             
-            // Формула: ЗП * налоги(1.3) * сотрудники * 12 мес * процент рутины
             const targetMoney = ((sal * 1.3 * emp * 12 * (rout/100)) / 1000000).toFixed(2);
             document.getElementById('o-money').innerText = targetMoney + 'M ₽';
         }
         iEmp.addEventListener('input', calcROI); iSal.addEventListener('input', calcROI); iRout.addEventListener('input', calcROI); calcROI();
 
-        // --- 8. МАСКА ТЕЛЕФОНА И ВАЛИДАЦИЯ ---
+        // --- 7. МАСКА ТЕЛЕФОНА И ВАЛИДАЦИЯ ---
         const phoneInput = document.getElementById('phone-input');
         const phoneError = document.getElementById('phone-error');
 
@@ -860,25 +679,16 @@
             if(phoneInput.value.length !== 18) { e.preventDefault(); phoneInput.classList.add('input-error'); phoneError.style.display = 'block'; }
         });
 
-        // --- 9. GSAP АНИМАЦИИ ---
+        // --- 8. GSAP АНИМАЦИИ ---
         gsap.registerPlugin(ScrollTrigger);
 
         function initGSAP() {
-            // Шторки
-            const slides = gsap.utils.toArray('.pin-content');
-            const tl = gsap.timeline({ scrollTrigger: { trigger: "#pin-master", start: "top top", end: "+=4000", scrub: 1, pin: true }});
-
-            slides.forEach((slide, i) => {
-                tl.to(slide, { opacity: 1, scale: 1, duration: 1 }).to(slide, { opacity: 1, duration: 1.5 }); 
-                if (i !== slides.length - 1) tl.to(slide, { opacity: 0, scale: 1.1, duration: 1 });
-            });
-
-            // Камера в 3D летит вперед (Zoom)
-            gsap.to(camera.position, { z: -100, ease: "none", scrollTrigger: { trigger: "#pin-master", start: "top top", end: "+=4000", scrub: 1 }});
-
             // Появление элементов
             gsap.utils.toArray('.gsap-reveal').forEach(elem => {
-                gsap.fromTo(elem, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" }});
+                gsap.fromTo(elem, 
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } }
+                );
             });
         }
     </script>
